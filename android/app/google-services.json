@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "435586281027",
+    "firebase_url": "https://projetx-298b4-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "projetx-298b4",
+    "storage_bucket": "projetx-298b4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:435586281027:android:c40d87a72fd6d4e876eef6",
+        "android_client_info": {
+          "package_name": "com.projetx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "435586281027-usuopua7dn9afbmksled845frt6t4sq2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK4J9BG8efyyKBDx-nqz4eulGjPMMlClM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "435586281027-usuopua7dn9afbmksled845frt6t4sq2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "435586281027-85hu42387aeje9s6m1q8maonvr2u9is9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ProjetX"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
