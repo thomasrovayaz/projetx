@@ -23,22 +23,32 @@ import CreateEventEndScreen from './pages/create/CreateEventEnd';
 
 Navigation.setDefaultOptions({
   statusBar: {
-    backgroundColor: '#4d089a',
+    backgroundColor: '#473B78',
   },
   topBar: {
     title: {
+      fontFamily: 'Inter',
       color: 'white',
     },
     backButton: {
       color: 'white',
     },
     background: {
-      color: '#4d089a',
+      color: '#473B78',
     },
   },
   bottomTab: {
     fontSize: 14,
+    fontFamily: 'Inter',
     selectedFontSize: 14,
+    iconColor: 'white',
+    selectedIconColor: '#E6941B',
+    textColor: 'white',
+    selectedTextColor: '#E6941B',
+  },
+  bottomTabs: {
+    backgroundColor: '#473B78',
+    titleDisplayMode: 'alwaysHide',
   },
 });
 

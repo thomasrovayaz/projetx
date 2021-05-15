@@ -1,26 +1,27 @@
 import React, {useEffect, useReducer} from 'react';
 import {
-  Button,
   SafeAreaView,
   ScrollView,
   StatusBar,
-  Text,
-  useColorScheme,
   View,
+  ViewStyle,
 } from 'react-native';
 import database from '@react-native-firebase/database';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import * as RNLocalize from 'react-native-localize';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {setI18nConfig, translate} from '../locales';
+import Button from '../components/Button';
+import Title from '../components/Title';
+import Icon from 'react-native-vector-icons/Feather';
+import useTabbarIcon from '../utils/useTabbarIcon';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
 }: {
   componentId: string;
 }) => {
-  const isDarkMode = useColorScheme() === 'dark';
   const [, forceUpdate] = useReducer(x => x + 1, 0);
+  useTabbarIcon(componentId, 'home');
 
   const handleLocalizationChange = () => {
     setI18nConfig();
@@ -35,8 +36,28 @@ const HomeScreen: NavigationFunctionComponent = ({
     };
   }, []);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  useEffect(() => {
+    const setupTabBarIcon = async () => {
+      Navigation.mergeOptions(componentId, {
+        bottomTab: {
+          icon: await Icon.getImageSource('home', 30, '#ffffff'),
+        },
+      });
+    };
+
+    setupTabBarIcon();
+  }, [componentId]);
+
+  const containerStyle: ViewStyle = {
+    flex: 1,
+  };
+  const contentStyle: ViewStyle = {
+    padding: 20,
+    alignItems: 'stretch',
+  };
+  const itemStyle: ViewStyle = {
+    marginTop: 20,
+    marginBottom: 20,
   };
 
   database()
@@ -48,34 +69,32 @@ const HomeScreen: NavigationFunctionComponent = ({
     .catch(console.log);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+    <SafeAreaView style={containerStyle}>
+      <StatusBar />
       <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Text>{translate('hello')}</Text>
+        contentInsetAdjustmentBehavior="always"
+        style={containerStyle}>
+        <View style={contentStyle}>
+          <Title>{translate('Mes événements')}</Title>
           <Button
-            title="Create event"
-            color="#710ce3"
+            title="Open event"
+            variant="outlined"
+            style={itemStyle}
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
-                  name: 'CreateEventType',
+                  name: 'Event',
                 },
               })
             }
           />
           <Button
-            title="Open event"
-            color="#710ce3"
+            title="Créer un événement"
+            style={itemStyle}
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
-                  name: 'Event',
+                  name: 'CreateEventType',
                 },
               })
             }
@@ -89,9 +108,6 @@ const HomeScreen: NavigationFunctionComponent = ({
 HomeScreen.options = {
   topBar: {
     visible: false,
-  },
-  bottomTab: {
-    text: 'Home',
   },
 };
 

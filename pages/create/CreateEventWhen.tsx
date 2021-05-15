@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Button,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -9,6 +8,8 @@ import {
 } from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
+import Button from '../../components/Button';
+import {translate} from '../../locales';
 
 const CreateEventWhenScreen: NavigationFunctionComponent = ({componentId}) => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -28,7 +29,7 @@ const CreateEventWhenScreen: NavigationFunctionComponent = ({componentId}) => {
           }}>
           <Button
             title="Add option"
-            color="#710ce3"
+            variant="outlined"
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
@@ -39,7 +40,7 @@ const CreateEventWhenScreen: NavigationFunctionComponent = ({componentId}) => {
           />
           <Button
             title="Poll settings"
-            color="#710ce3"
+            variant="outlined"
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
@@ -50,7 +51,6 @@ const CreateEventWhenScreen: NavigationFunctionComponent = ({componentId}) => {
           />
           <Button
             title="Next"
-            color="#710ce3"
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
@@ -69,7 +69,7 @@ CreateEventWhenScreen.options = {
   topBar: {
     visible: true,
     title: {
-      text: 'When',
+      text: translate('Quand ?'),
     },
   },
   bottomTabs: {

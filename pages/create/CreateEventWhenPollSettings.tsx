@@ -8,10 +8,9 @@ import {
 } from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {NavigationFunctionComponent} from 'react-native-navigation';
+import {translate} from '../../locales';
 
-const CreateEventWhenPollSettingsScreen: NavigationFunctionComponent = ({
-  componentId,
-}) => {
+const CreateEventWhenPollSettingsScreen: NavigationFunctionComponent = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -37,7 +36,7 @@ CreateEventWhenPollSettingsScreen.options = {
   topBar: {
     visible: true,
     title: {
-      text: 'Poll settings',
+      text: translate('Préférences du sondage'),
     },
   },
   bottomTabs: {

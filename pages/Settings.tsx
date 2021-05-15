@@ -3,29 +3,33 @@ import {
   SafeAreaView,
   ScrollView,
   StatusBar,
-  useColorScheme,
   View,
+  ViewStyle,
 } from 'react-native';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {NavigationFunctionComponent} from 'react-native-navigation';
+import Title from '../components/Title';
+import {translate} from '../locales';
+import useTabbarIcon from '../utils/useTabbarIcon';
 
-const SettingsScreen: NavigationFunctionComponent = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+const SettingsScreen: NavigationFunctionComponent = ({componentId}) => {
+  useTabbarIcon(componentId, 'settings');
+  const containerStyle: ViewStyle = {
+    flex: 1,
   };
+  const contentStyle: ViewStyle = {
+    padding: 20,
+    alignItems: 'stretch',
+  };
+
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+    <SafeAreaView style={containerStyle}>
+      <StatusBar />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}
-        />
+        style={containerStyle}>
+        <View style={contentStyle}>
+          <Title>{translate('Mes préférences')}</Title>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -34,9 +38,6 @@ const SettingsScreen: NavigationFunctionComponent = () => {
 SettingsScreen.options = {
   topBar: {
     visible: false,
-  },
-  bottomTab: {
-    text: 'Settings',
   },
 };
 

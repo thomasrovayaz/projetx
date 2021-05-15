@@ -8,10 +8,9 @@ import {
 } from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {NavigationFunctionComponent} from 'react-native-navigation';
+import {translate} from '../../locales';
 
-const CreateEventWhenAddOptionScreen: NavigationFunctionComponent = ({
-  componentId,
-}) => {
+const CreateEventWhenAddOptionScreen: NavigationFunctionComponent = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -37,7 +36,7 @@ CreateEventWhenAddOptionScreen.options = {
   topBar: {
     visible: true,
     title: {
-      text: 'Add option',
+      text: translate('Ajouter une option'),
     },
   },
   bottomTabs: {

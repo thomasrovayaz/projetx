@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Button,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -9,6 +8,7 @@ import {
 } from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
+import Button from '../../components/Button';
 
 const CreateEventEndScreen: NavigationFunctionComponent = ({componentId}) => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -28,7 +28,6 @@ const CreateEventEndScreen: NavigationFunctionComponent = ({componentId}) => {
           }}>
           <Button
             title="Next"
-            color="#710ce3"
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
