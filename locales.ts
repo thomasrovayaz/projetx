@@ -8,10 +8,7 @@ const translationGetters: any = {
   fr: () => require('./android/app/src/main/assets/translations/fr.json'),
 };
 
-export const translate = memoize(
-  (key, config?) => i18n.t(key, config),
-  (key, config) => (config ? key + JSON.stringify(config) : key),
-);
+export const translate = memoize(key => i18n.t(key, {defaultValue: key}));
 
 export const setI18nConfig = () => {
   // fallback if no available language fits

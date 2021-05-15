@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Button,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -9,6 +8,8 @@ import {
 } from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
+import {translate} from '../../locales';
+import Button from '../../components/Button';
 
 const CreateEventTypeScreen: NavigationFunctionComponent = ({componentId}) => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -28,7 +29,6 @@ const CreateEventTypeScreen: NavigationFunctionComponent = ({componentId}) => {
           }}>
           <Button
             title="Next"
-            color="#710ce3"
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
@@ -47,7 +47,7 @@ CreateEventTypeScreen.options = {
   topBar: {
     visible: true,
     title: {
-      text: 'Type',
+      text: translate('Quoi ?'),
     },
   },
   bottomTabs: {
