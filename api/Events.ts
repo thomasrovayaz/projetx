@@ -1,4 +1,5 @@
 import database, {FirebaseDatabaseTypes} from '@react-native-firebase/database';
+import moment from 'moment';
 
 export class Event {
   constructor(
@@ -6,7 +7,8 @@ export class Event {
     readonly title: string,
     readonly description: string,
     readonly type: 'sport' | 'diner' | 'party' | 'weekend' | 'week' | 'travel',
-    readonly date: Date,
+    readonly date: moment.Moment,
+    readonly time: moment.Moment,
   ) {}
 }
 const eventConverter = {
@@ -17,7 +19,8 @@ const eventConverter = {
       data.title,
       data.description,
       data.type,
-      data.date,
+      moment(data.date),
+      moment(data.time),
     );
   },
 };
