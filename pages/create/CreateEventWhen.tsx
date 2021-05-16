@@ -50,7 +50,7 @@ const CreateEventWhenScreen: NavigationFunctionComponent = ({componentId}) => {
             }
           />
           <Button
-            title="Next"
+            title={translate('Suivant >')}
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
