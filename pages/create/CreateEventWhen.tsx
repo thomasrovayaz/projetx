@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -10,12 +10,15 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
+import DateInput, {DateValue} from '../../components/DateInput';
 
 const CreateEventWhenScreen: NavigationFunctionComponent = ({componentId}) => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [value, setValue] = useState<DateValue>();
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    flex: 1,
   };
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -27,6 +30,11 @@ const CreateEventWhenScreen: NavigationFunctionComponent = ({componentId}) => {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
+          <DateInput
+            value={value}
+            onChange={setValue}
+            placeholder={translate('Ajouter une date')}
+          />
           <Button
             title="Add option"
             variant="outlined"
