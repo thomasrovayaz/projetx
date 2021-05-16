@@ -4,7 +4,6 @@ import {
   TouchableOpacityProps,
   ViewStyle,
   Text,
-  View,
   TouchableOpacity,
 } from 'react-native';
 import moment from 'moment';
@@ -33,6 +32,7 @@ interface Style {
   mainText: ViewStyle;
   placeholder: ViewStyle;
   valueText: ViewStyle;
+  selectedStyle: ViewStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -60,6 +60,9 @@ const styles = StyleSheet.create<Style>({
   },
   valueText: {
     opacity: 1,
+  },
+  selectedStyle: {
+    backgroundColor: '#E6941B',
   },
 });
 
@@ -149,6 +152,7 @@ const DateInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
         displayedDate={dialogState.displayedDate}
         endDate={dialogState.endDate}
         startDate={dialogState.startDate}
+        selectedStyle={styles.selectedStyle}
         onChange={(newDialogState: DateDialogState) => {
           if (!range) {
             if (newDialogState.date) {
@@ -166,9 +170,9 @@ const DateInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
           }
           setDialogState({...dialogState, ...newDialogState});
         }}
-        range={range}>
-        <View />
-      </DateRangePicker>
+        onClose={() => setOpenDialog(false)}
+        range={range}
+      />
     </>
   );
 };
