@@ -1,12 +1,5 @@
 import React, {useEffect, useReducer} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  View,
-  ViewStyle,
-} from 'react-native';
-import database from '@react-native-firebase/database';
+import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import * as RNLocalize from 'react-native-localize';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {setI18nConfig, translate} from '../locales';
@@ -14,6 +7,8 @@ import Button from '../components/Button';
 import Title from '../components/Title';
 import Icon from 'react-native-vector-icons/Feather';
 import useTabbarIcon from '../utils/useTabbarIcon';
+import EventsList from '../components/EventsList';
+import {Event} from '../api/Events';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -48,62 +43,47 @@ const HomeScreen: NavigationFunctionComponent = ({
     setupTabBarIcon();
   }, [componentId]);
 
-  const containerStyle: ViewStyle = {
-    flex: 1,
-  };
-  const contentStyle: ViewStyle = {
-    padding: 20,
-    alignItems: 'stretch',
-  };
-  const itemStyle: ViewStyle = {
-    marginTop: 20,
-    marginBottom: 20,
-  };
-
-  database()
-    .ref('events')
-    .once('value')
-    .then(snapshot => {
-      console.log('User data: ', snapshot.val());
-    })
-    .catch(console.log);
-
   return (
-    <SafeAreaView style={containerStyle}>
+    <SafeAreaView style={styles.container}>
       <StatusBar />
-      <ScrollView
-        contentInsetAdjustmentBehavior="always"
-        style={containerStyle}>
-        <View style={contentStyle}>
-          <Title>{translate('Mes événements')}</Title>
-          <Button
-            title="Open event"
-            variant="outlined"
-            style={itemStyle}
-            onPress={() =>
-              Navigation.push(componentId, {
-                component: {
-                  name: 'Event',
-                },
-              })
-            }
-          />
-          <Button
-            title="Créer un événement"
-            style={itemStyle}
-            onPress={() =>
-              Navigation.push(componentId, {
-                component: {
-                  name: 'CreateEventType',
-                },
-              })
-            }
-          />
-        </View>
-      </ScrollView>
+      <Title style={styles.title}>{translate('Mes événements')}</Title>
+      <EventsList
+        onOpenEvent={(event: Event) => {
+          Navigation.push(componentId, {
+            component: {
+              name: 'Event',
+            },
+          });
+        }}
+      />
+      <View style={styles.buttonCreate}>
+        <Button
+          title="Créer un événement"
+          onPress={() =>
+            Navigation.push(componentId, {
+              component: {
+                name: 'CreateEventType',
+              },
+            })
+          }
+        />
+      </View>
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  title: {
+    margin: 20,
+  },
+  buttonCreate: {
+    padding: 20,
+    height: 90,
+  },
+});
 
 HomeScreen.options = {
   topBar: {

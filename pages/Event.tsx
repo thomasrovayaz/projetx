@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Button,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -9,8 +8,9 @@ import {
 } from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
+import Button from '../components/Button';
 
-const EventScreen: NavigationFunctionComponent = ({componentId}) => {
+const EventScreen: NavigationFunctionComponent = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -41,19 +41,10 @@ const EventScreen: NavigationFunctionComponent = ({componentId}) => {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Button
-            title="Register"
-            color="#710ce3"
-            onPress={() => showModal('Register')}
-          />
-          <Button
-            title="Show poll"
-            color="#710ce3"
-            onPress={() => showModal('Poll')}
-          />
+          <Button title="Register" onPress={() => showModal('Register')} />
+          <Button title="Show poll" onPress={() => showModal('Poll')} />
           <Button
             title="Show participants"
-            color="#710ce3"
             onPress={() => showModal('Participants')}
           />
         </View>

@@ -9,6 +9,7 @@ import {
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
+import {translate} from '../../locales';
 
 const CreateEventEndScreen: NavigationFunctionComponent = ({componentId}) => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -27,14 +28,8 @@ const CreateEventEndScreen: NavigationFunctionComponent = ({componentId}) => {
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
           <Button
-            title="Next"
-            onPress={() =>
-              Navigation.push(componentId, {
-                component: {
-                  name: 'Home',
-                },
-              })
-            }
+            title={translate('Suivant >')}
+            onPress={() => Navigation.popToRoot(componentId)}
           />
         </View>
       </ScrollView>

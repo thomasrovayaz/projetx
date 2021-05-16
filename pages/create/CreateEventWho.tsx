@@ -28,7 +28,7 @@ const CreateEventWhoScreen: NavigationFunctionComponent = ({componentId}) => {
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
           <Button
-            title="Next"
+            title={translate('Suivant >')}
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
