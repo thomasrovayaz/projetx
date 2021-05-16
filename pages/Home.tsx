@@ -52,6 +52,9 @@ const HomeScreen: NavigationFunctionComponent = ({
           Navigation.push(componentId, {
             component: {
               name: 'Event',
+              passProps: {
+                event,
+              },
             },
           });
         }}

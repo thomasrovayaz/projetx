@@ -37,7 +37,7 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   main: {
-    flex: 1,
+    width: '100%',
     flexDirection: 'row',
     height: 50,
     borderRadius: 15,
@@ -145,6 +145,7 @@ const DateInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
       </TouchableOpacity>
       <DateRangePicker
         open={openDialog}
+        minDate={moment()}
         displayedDate={dialogState.displayedDate}
         endDate={dialogState.endDate}
         startDate={dialogState.startDate}

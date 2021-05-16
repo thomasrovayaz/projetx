@@ -1,77 +1,89 @@
 import React, {useState} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  useColorScheme,
-  View,
-} from 'react-native';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
 import DateInput, {DateValue} from '../../components/DateInput';
+import {Event} from '../../api/Events';
+import moment from 'moment';
+import TimeInput from '../../components/TimeInput';
 
-const CreateEventWhenScreen: NavigationFunctionComponent = ({componentId}) => {
-  const isDarkMode = useColorScheme() === 'dark';
-  const [value, setValue] = useState<DateValue>();
+interface CreateEventWhenScreenProps {
+  event?: Event;
+}
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-    flex: 1,
-  };
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <DateInput
-            value={value}
-            onChange={setValue}
-            placeholder={translate('Ajouter une date')}
-          />
-          <Button
-            title="Add option"
-            variant="outlined"
-            onPress={() =>
-              Navigation.push(componentId, {
-                component: {
-                  name: 'CreateEventWhenAddOption',
-                },
-              })
-            }
-          />
-          <Button
-            title="Poll settings"
-            variant="outlined"
-            onPress={() =>
-              Navigation.push(componentId, {
-                component: {
-                  name: 'CreateEventWhenPollSettings',
-                },
-              })
-            }
-          />
+const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =
+  ({componentId, event}) => {
+    const [dateValue, setDateValue] = useState<DateValue>();
+    const [timeValue, setTimeValue] = useState<moment.Moment>();
+    const isSingleDate = event && ['party', 'diner'].includes(event.type);
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar />
+        <View style={styles.content}>
+          <View style={styles.item}>
+            <DateInput
+              range={!isSingleDate}
+              value={dateValue}
+              onChange={setDateValue}
+              placeholder={translate('Ajouter une date')}
+            />
+          </View>
+          {isSingleDate && (
+            <View style={styles.item}>
+              <TimeInput
+                value={timeValue}
+                onChange={setTimeValue}
+                placeholder={translate('Ajouter une heure')}
+              />
+            </View>
+          )}
+        </View>
+        <View style={styles.buttonNext}>
           <Button
             title={translate('Suivant >')}
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
                   name: 'CreateEventWhere',
+                  passProps: {
+                    event: {
+                      ...event,
+                      date: dateValue,
+                      time: timeValue,
+                    },
+                  },
                 },
               })
             }
           />
         </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+      </SafeAreaView>
+    );
+  };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    padding: 20,
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  item: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  buttonNext: {
+    padding: 20,
+    height: 90,
+  },
+});
 
 CreateEventWhenScreen.options = {
   topBar: {
