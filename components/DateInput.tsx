@@ -163,7 +163,7 @@ const DateInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
             }
           } else if (newDialogState.endDate) {
             onChange({
-              startDate: dialogState.startDate,
+              startDate: newDialogState.startDate || dialogState.startDate,
               endDate: newDialogState.endDate,
             });
             setOpenDialog(false);
