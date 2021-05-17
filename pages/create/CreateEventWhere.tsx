@@ -30,7 +30,7 @@ const CreateEventWhereScreen: NavigationFunctionComponent<CreateEventWhenScreenP
             onPress={() =>
               Navigation.push(componentId, {
                 component: {
-                  name: 'CreateEventWhere',
+                  name: 'CreateEventWho',
                   passProps: {
                     event: {
                       ...event,
