@@ -7,6 +7,7 @@ import DateInput, {DateValue} from '../../components/DateInput';
 import {Event} from '../../api/Events';
 import moment from 'moment';
 import TimeInput from '../../components/TimeInput';
+import Tabs, {Tab} from '../../components/Tabs';
 
 interface CreateEventWhenScreenProps {
   event?: Event;
@@ -14,13 +15,17 @@ interface CreateEventWhenScreenProps {
 
 const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =
   ({componentId, event}) => {
+    const tabs: Tab[] = [
+      {id: 'date', title: translate('Date connue')},
+      {id: 'poll', title: translate('Sondage')},
+    ];
+    const [tab, setTab] = useState<string>(tabs[0].id);
     const [dateValue, setDateValue] = useState<DateValue>();
     const [timeValue, setTimeValue] = useState<moment.Moment>();
     const isSingleDate = event && ['party', 'diner'].includes(event.type);
 
-    return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar />
+    const renderDateSelector = () => {
+      return (
         <View style={styles.content}>
           <View style={styles.item}>
             <DateInput
@@ -40,6 +45,20 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
             </View>
           )}
         </View>
+      );
+    };
+    const renderPoll = () => {
+      return <View style={styles.content} />;
+    };
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar />
+        <View style={styles.tabs}>
+          <Tabs tabs={tabs} selectedTab={tab} onChangeTab={setTab} />
+        </View>
+        {tab === 'date' && renderDateSelector()}
+        {tab === 'poll' && renderPoll()}
         <View style={styles.buttonNext}>
           <Button
             title={translate('Suivant >')}
@@ -67,6 +86,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  tabs: {
+    padding: 20,
+    flexDirection: 'row',
+  },
   content: {
     padding: 20,
     flex: 1,
@@ -77,7 +100,7 @@ const styles = StyleSheet.create({
   item: {
     flexDirection: 'row',
     justifyContent: 'center',
-    padding: 20,
+    paddingVertical: 20,
   },
   buttonNext: {
     padding: 20,
