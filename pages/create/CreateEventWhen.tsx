@@ -4,13 +4,13 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
 import DateInput, {DateValue} from '../../components/DateInput';
-import {Event} from '../../api/Events';
+import {ProjetXEvent} from '../../api/Events';
 import moment from 'moment';
 import TimeInput from '../../components/TimeInput';
 import Tabs, {Tab} from '../../components/Tabs';
 
 interface CreateEventWhenScreenProps {
-  event?: Event;
+  event?: ProjetXEvent;
 }
 
 const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =

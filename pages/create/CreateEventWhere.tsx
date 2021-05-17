@@ -1,52 +1,68 @@
-import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  useColorScheme,
-  View,
-} from 'react-native';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import React, {useState} from 'react';
+import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
+import LocationPicker, {LocationValue} from '../../components/LocationPicker';
+import Title from '../../components/Title';
+import {ProjetXEvent} from '../../api/Events';
 
 interface CreateEventWhenScreenProps {
-  event?: Event;
+  event?: ProjetXEvent;
 }
 
 const CreateEventWhereScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =
-  ({componentId}) => {
-    const isDarkMode = useColorScheme() === 'dark';
+  ({componentId, event}) => {
+    const [value, setValue] = useState<LocationValue>();
 
-    const backgroundStyle = {
-      backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-    };
     return (
-      <SafeAreaView style={backgroundStyle}>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={backgroundStyle}>
-          <View
-            style={{
-              backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            }}>
-            <Button
-              title={translate('Suivant >')}
-              onPress={() =>
-                Navigation.push(componentId, {
-                  component: {
-                    name: 'CreateEventWho',
+      <SafeAreaView style={styles.container}>
+        <StatusBar />
+        <View style={styles.content}>
+          <LocationPicker value={value} onChange={setValue} />
+        </View>
+        <View style={styles.buttonNext}>
+          {value && (
+            <Title style={styles.address}>{value.formatted_address}</Title>
+          )}
+          <Button
+            title={translate('Suivant >')}
+            onPress={() =>
+              Navigation.push(componentId, {
+                component: {
+                  name: 'CreateEventWhere',
+                  passProps: {
+                    event: {
+                      ...event,
+                      location: value,
+                    },
                   },
-                })
-              }
-            />
-          </View>
-        </ScrollView>
+                },
+              })
+            }
+          />
+        </View>
       </SafeAreaView>
     );
   };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonNext: {
+    padding: 20,
+  },
+  address: {
+    marginBottom: 20,
+  },
+});
 
 CreateEventWhereScreen.options = {
   topBar: {

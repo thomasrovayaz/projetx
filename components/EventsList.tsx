@@ -1,14 +1,14 @@
 import {FlatList, StyleSheet, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {Event, getEvents} from '../api/Events';
+import {ProjetXEvent, getEvents} from '../api/Events';
 import EventItem from './EventItem';
 
 interface EventsListProps {
-  onOpenEvent(event: Event): void;
+  onOpenEvent(event: ProjetXEvent): void;
 }
 
 const EventsList: React.FC<EventsListProps> = ({onOpenEvent}) => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<ProjetXEvent[]>([]);
   useEffect(() => {
     const fetchEvents = async () => {
       setEvents(await getEvents());
@@ -16,7 +16,7 @@ const EventsList: React.FC<EventsListProps> = ({onOpenEvent}) => {
     fetchEvents();
   }, []);
 
-  const renderItem = ({item}: {item: Event}) => (
+  const renderItem = ({item}: {item: ProjetXEvent}) => (
     <View style={styles.item}>
       <EventItem event={item} onPress={() => onOpenEvent(item)} />
     </View>

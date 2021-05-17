@@ -23,7 +23,7 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   main: {
-    flex: 1,
+    width: '100%',
     height: 50,
     borderRadius: 15,
     justifyContent: 'center',

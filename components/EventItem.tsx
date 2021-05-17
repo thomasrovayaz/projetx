@@ -1,10 +1,10 @@
-import {Event} from '../api/Events';
+import {ProjetXEvent} from '../api/Events';
 import Button from './Button';
 import React from 'react';
 import {GestureResponderEvent} from 'react-native';
 
 interface EventItemProps {
-  event: Event;
+  event: ProjetXEvent;
   onPress(event: GestureResponderEvent): void;
 }
 

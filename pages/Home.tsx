@@ -8,7 +8,7 @@ import Title from '../components/Title';
 import Icon from 'react-native-vector-icons/Feather';
 import useTabbarIcon from '../utils/useTabbarIcon';
 import EventsList from '../components/EventsList';
-import {Event} from '../api/Events';
+import {ProjetXEvent} from '../api/Events';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -48,7 +48,7 @@ const HomeScreen: NavigationFunctionComponent = ({
       <StatusBar />
       <Title style={styles.title}>{translate('Mes événements')}</Title>
       <EventsList
-        onOpenEvent={(event: Event) => {
+        onOpenEvent={(event: ProjetXEvent) => {
           Navigation.push(componentId, {
             component: {
               name: 'Event',
