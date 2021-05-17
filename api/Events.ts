@@ -11,6 +11,12 @@ export class ProjetXEvent {
     readonly date: moment.Moment,
     readonly time: moment.Moment,
     readonly location: LocationValue,
+    readonly participants: {
+      going: string[];
+      maybe: string[];
+      notanswered: string[];
+      notgoing: string[];
+    },
   ) {}
 }
 const eventConverter = {
@@ -24,6 +30,7 @@ const eventConverter = {
       moment(data.date),
       moment(data.time),
       data.location,
+      data.participants,
     );
   },
 };
