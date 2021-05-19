@@ -5,10 +5,10 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {setI18nConfig, translate} from '../locales';
 import Button from '../components/Button';
 import Title from '../components/Title';
-import Icon from 'react-native-vector-icons/Feather';
 import useTabbarIcon from '../utils/useTabbarIcon';
 import EventsList from '../components/EventsList';
 import {ProjetXEvent} from '../api/Events';
+import auth from '@react-native-firebase/auth';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -24,24 +24,16 @@ const HomeScreen: NavigationFunctionComponent = ({
   };
 
   useEffect(() => {
+    if (!auth().currentUser) {
+      auth().signInAnonymously();
+    }
+    console.log(auth().currentUser);
     setI18nConfig();
     RNLocalize.addEventListener('change', handleLocalizationChange);
     return () => {
       RNLocalize.removeEventListener('change', handleLocalizationChange);
     };
   }, []);
-
-  useEffect(() => {
-    const setupTabBarIcon = async () => {
-      Navigation.mergeOptions(componentId, {
-        bottomTab: {
-          icon: await Icon.getImageSource('home', 30, '#ffffff'),
-        },
-      });
-    };
-
-    setupTabBarIcon();
-  }, [componentId]);
 
   return (
     <SafeAreaView style={styles.container}>

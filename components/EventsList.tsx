@@ -1,6 +1,6 @@
 import {FlatList, StyleSheet, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {ProjetXEvent, getEvents} from '../api/Events';
+import {ProjetXEvent, getMyEvents} from '../api/Events';
 import EventItem from './EventItem';
 
 interface EventsListProps {
@@ -11,7 +11,7 @@ const EventsList: React.FC<EventsListProps> = ({onOpenEvent}) => {
   const [events, setEvents] = useState<ProjetXEvent[]>([]);
   useEffect(() => {
     const fetchEvents = async () => {
-      setEvents(await getEvents());
+      setEvents(await getMyEvents());
     };
     fetchEvents();
   }, []);

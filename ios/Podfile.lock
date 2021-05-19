@@ -10,11 +10,19 @@ PODS:
     - React-Core (= 0.64.0)
     - React-jsi (= 0.64.0)
     - ReactCommon/turbomodule/core (= 0.64.0)
+  - Firebase/Auth (7.11.0):
+    - Firebase/CoreOnly
+    - FirebaseAuth (~> 7.11.0)
   - Firebase/CoreOnly (7.11.0):
     - FirebaseCore (= 7.11.0)
   - Firebase/Database (7.11.0):
     - Firebase/CoreOnly
     - FirebaseDatabase (~> 7.11.0)
+  - FirebaseAuth (7.11.0):
+    - FirebaseCore (~> 7.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.0)
+    - GoogleUtilities/Environment (~> 7.0)
+    - GTMSessionFetcher/Core (~> 1.4)
   - FirebaseCore (7.11.0):
     - FirebaseCoreDiagnostics (~> 7.4)
     - GoogleUtilities/Environment (~> 7.0)
@@ -110,10 +118,22 @@ PODS:
   - GoogleMaps/Base (3.5.0)
   - GoogleMaps/Maps (3.5.0):
     - GoogleMaps/Base
+  - GoogleUtilities/AppDelegateSwizzler (7.4.1):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Network
   - GoogleUtilities/Environment (7.4.1):
     - PromisesObjC (~> 1.2)
   - GoogleUtilities/Logger (7.4.1):
     - GoogleUtilities/Environment
+  - GoogleUtilities/Network (7.4.1):
+    - GoogleUtilities/Logger
+    - "GoogleUtilities/NSData+zlib"
+    - GoogleUtilities/Reachability
+  - "GoogleUtilities/NSData+zlib (7.4.1)"
+  - GoogleUtilities/Reachability (7.4.1):
+    - GoogleUtilities/Logger
+  - GTMSessionFetcher/Core (1.5.0)
   - leveldb-library (1.22.1)
   - libevent (2.1.12)
   - nanopb (2.30908.0):
@@ -408,6 +428,10 @@ PODS:
   - RNFBApp (11.5.0):
     - Firebase/CoreOnly (= 7.11.0)
     - React-Core
+  - RNFBAuth (11.5.0):
+    - Firebase/Auth (= 7.11.0)
+    - React-Core
+    - RNFBApp
   - RNFBDatabase (11.5.0):
     - Firebase/Database (= 7.11.0)
     - React-Core
@@ -512,6 +536,7 @@ DEPENDENCIES:
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
+  - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNFBDatabase (from `../node_modules/@react-native-firebase/database`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNLocalize (from `../node_modules/react-native-localize`)
@@ -526,6 +551,7 @@ SPEC REPOS:
     - boost-for-react-native
     - CocoaAsyncSocket
     - Firebase
+    - FirebaseAuth
     - FirebaseCore
     - FirebaseCoreDiagnostics
     - FirebaseDatabase
@@ -540,6 +566,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleMaps
     - GoogleUtilities
+    - GTMSessionFetcher
     - leveldb-library
     - libevent
     - nanopb
@@ -618,6 +645,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/datetimepicker"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
+  RNFBAuth:
+    :path: "../node_modules/@react-native-firebase/auth"
   RNFBDatabase:
     :path: "../node_modules/@react-native-firebase/database"
   RNGestureHandler:
@@ -642,6 +671,7 @@ SPEC CHECKSUMS:
   FBLazyVector: 49cbe4b43e445b06bf29199b6ad2057649e4c8f5
   FBReactNativeSpec: 4ffc19f291d8a5e6bf5e8ea4b63848fe9bd32c21
   Firebase: c121feb35e4126c0b355e3313fa9b487d47319fd
+  FirebaseAuth: 5fe4585c2ed847319f0ea68bd1d82c77e49ff9a0
   FirebaseCore: 907447d8917a4d3eb0cce2829c5a0ad21d90b432
   FirebaseCoreDiagnostics: 68ad972f99206cef818230f3f3179d52ccfb7f8c
   FirebaseDatabase: 6c39fbf1c8514a2f32e610f9bf9ef30c535dc15a
@@ -657,6 +687,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: cd9db2180fcecd8da1b561aea31e3e56cf834aa7
   GoogleMaps: 32ca02de09de357a10ac773f2c70f1986751392d
   GoogleUtilities: f8a43108b38a68eebe8b3540e1f4f2d28843ce20
+  GTMSessionFetcher: b3503b20a988c4e20cc189aa798fd18220133f52
   leveldb-library: 50c7b45cbd7bf543c81a468fe557a16ae3db8729
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
@@ -693,6 +724,7 @@ SPEC CHECKSUMS:
   RNCMaskedView: 0e1bc4bfa8365eba5fbbb71e07fbdc0555249489
   RNDateTimePicker: 8dcfab802edece406f4f4780130974a0e04213b4
   RNFBApp: 9c90f9d576861947ba75fe0830567c570bcbcf6d
+  RNFBAuth: 99fdbce04ff3d39e57a7a3956d632ee69145685b
   RNFBDatabase: 64aaecd9e48c6378864ef7d0fe65cc5f312987ed
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNLocalize: 99e59cad311ca1b6872b1764514009416ccba03d
