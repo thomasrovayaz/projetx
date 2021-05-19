@@ -10,12 +10,12 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
 import {ProjetXEvent} from '../../api/Events';
-import {getMyFriends, ProjetXUser} from '../../api/Friends';
+import {getMyFriends, ProjetXUser} from '../../api/Users';
 import Checkbox from '../../components/Checkbox';
 import TextInput from '../../components/TextInput';
 
 interface CreateEventWhoScreenProps {
-  event?: ProjetXEvent;
+  event: ProjetXEvent;
 }
 
 const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProps> =
@@ -26,7 +26,8 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
 
     useEffect(() => {
       const fetchFriends = async () => {
-        setFriends(await getMyFriends());
+        const _friends = await getMyFriends();
+        setFriends(_friends);
       };
       fetchFriends();
     }, []);
@@ -41,47 +42,56 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
             placeholder={translate('Rechercher...')}
           />
         </View>
-        <FlatList
-          contentContainerStyle={styles.content}
-          data={friends.filter(
-            ({name}) => !searchText || name.includes(searchText),
-          )}
-          renderItem={({item}: {item: ProjetXUser}) => {
-            return (
-              <Checkbox
-                label={item.name}
-                selected={selectedFriends.some(({id}) => id === item.id)}
-                onSelect={selected => {
-                  if (selected) {
-                    setSelectedFriends([...selectedFriends, item]);
-                  } else {
-                    setSelectedFriends(
-                      selectedFriends.filter(({id}) => id !== item.id),
-                    );
-                  }
-                }}
-              />
-            );
-          }}
-        />
+        <View style={styles.content}>
+          <FlatList
+            contentContainerStyle={styles.usersList}
+            data={friends.filter(
+              ({name}) =>
+                !searchText ||
+                name.toUpperCase().includes(searchText.toUpperCase()),
+            )}
+            renderItem={({item}: {item: ProjetXUser}) => {
+              return (
+                <Checkbox
+                  key={item.id}
+                  label={item.name}
+                  selected={selectedFriends.some(({id}) => id === item.id)}
+                  onSelect={selected => {
+                    if (selected) {
+                      setSelectedFriends([...selectedFriends, item]);
+                    } else {
+                      setSelectedFriends(
+                        selectedFriends.filter(({id}) => id !== item.id),
+                      );
+                    }
+                  }}
+                />
+              );
+            }}
+          />
+        </View>
         <View style={styles.buttonNext}>
           <Button
             title={translate('Suivant >')}
-            onPress={() =>
+            onPress={() => {
+              const participations = event.participations || {};
+              for (const selectedFriend of selectedFriends) {
+                if (!participations[selectedFriend.id]) {
+                  participations[selectedFriend.id] = 'notanswered';
+                }
+              }
               Navigation.push(componentId, {
                 component: {
                   name: 'CreateEventWhat',
                   passProps: {
                     event: {
                       ...event,
-                      participants: {
-                        notanswered: selectedFriends,
-                      },
+                      participations,
                     },
                   },
                 },
-              })
-            }
+              });
+            }}
           />
         </View>
       </SafeAreaView>
@@ -93,14 +103,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchInput: {
-    padding: 20,
+    paddingTop: 20,
+    paddingBottom: 0,
+    paddingHorizontal: 20,
     justifyContent: 'center',
   },
   content: {
     flex: 1,
-    padding: 20,
+    paddingTop: 0,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     justifyContent: 'center',
   },
+  usersList: {paddingTop: 20},
   buttonNext: {
     padding: 20,
   },

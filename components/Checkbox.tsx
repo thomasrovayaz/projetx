@@ -31,7 +31,7 @@ const styles = StyleSheet.create<Style>({
     paddingVertical: 10,
   },
   label: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'left',
     fontFamily: 'Inter',
