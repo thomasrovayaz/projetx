@@ -20,6 +20,14 @@ export const getMe = () => {
   return auth().currentUser;
 };
 
+export async function updateMyName(name: string) {
+  const me = getMe();
+  if (!me || me.displayName === name || !name || name === '') {
+    return;
+  }
+  await database().ref(`users/${me.uid}/displayName`).set(name);
+}
+
 export async function getUsers() {
   const usersDb = await database().ref('users').orderByKey().once('value');
   const users: ProjetXUser[] = [];
