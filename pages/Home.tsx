@@ -12,8 +12,10 @@ import auth from '@react-native-firebase/auth';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
+  event,
 }: {
   componentId: string;
+  event?: ProjetXEvent;
 }) => {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   useTabbarIcon(componentId, 'home');
@@ -34,6 +36,16 @@ const HomeScreen: NavigationFunctionComponent = ({
       RNLocalize.removeEventListener('change', handleLocalizationChange);
     };
   }, []);
+  useEffect(() => {
+    Navigation.push(componentId, {
+      component: {
+        name: 'Event',
+        passProps: {
+          event,
+        },
+      },
+    });
+  }, [event]);
 
   return (
     <SafeAreaView style={styles.container}>

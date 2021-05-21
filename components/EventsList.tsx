@@ -1,5 +1,5 @@
-import {FlatList, StyleSheet, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {FlatList, RefreshControl, StyleSheet, View} from 'react-native';
+import React, {useEffect, useState, useCallback} from 'react';
 import {ProjetXEvent, getMyEvents} from '../api/Events';
 import EventItem from './EventItem';
 
@@ -9,12 +9,20 @@ interface EventsListProps {
 
 const EventsList: React.FC<EventsListProps> = ({onOpenEvent}) => {
   const [events, setEvents] = useState<ProjetXEvent[]>([]);
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setEvents(await getMyEvents());
-    };
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const fetchEvents = async () => {
+    setEvents(await getMyEvents());
+    setRefreshing(false);
+  };
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    fetchEvents();
+  });
 
   const renderItem = ({item}: {item: ProjetXEvent}) => (
     <View style={styles.item}>
@@ -28,6 +36,9 @@ const EventsList: React.FC<EventsListProps> = ({onOpenEvent}) => {
       data={events}
       renderItem={renderItem}
       keyExtractor={item => item.id}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     />
   );
 };

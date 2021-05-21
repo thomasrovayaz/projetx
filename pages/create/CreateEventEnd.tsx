@@ -1,41 +1,86 @@
-import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  useColorScheme,
-  View,
-} from 'react-native';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import React, {useEffect, useState} from 'react';
+import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
+import {ProjetXEvent, saveEvent} from '../../api/Events';
+import Title from '../../components/Title';
+import Share from 'react-native-share';
 
-const CreateEventEndScreen: NavigationFunctionComponent = ({componentId}) => {
-  const isDarkMode = useColorScheme() === 'dark';
+interface CreateEventEndScreenProps {
+  event: ProjetXEvent;
+}
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
+const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProps> =
+  ({componentId, event}) => {
+    const [savedEvent, setSavedEvent] = useState<ProjetXEvent>();
+
+    const save = async (eventToSave: ProjetXEvent) => {
+      setSavedEvent(await saveEvent(eventToSave));
+    };
+
+    const share = () => {
+      if (!savedEvent) {
+        return;
+      }
+      Share.open({
+        title: savedEvent.title,
+        failOnCancel: false,
+        message: event.description,
+      });
+    };
+
+    useEffect(() => {
+      save(event);
+    }, [event]);
+    console.log(savedEvent);
+
+    if (!savedEvent) {
+      return null;
+    }
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar />
+        <View style={styles.content} />
+        <View style={styles.buttonNext}>
           <Button
-            title={translate('Suivant >')}
-            onPress={() => Navigation.popToRoot(componentId)}
+            variant="outlined"
+            title={translate("Voir l'événement")}
+            onPress={() => {
+              Navigation.setStackRoot(componentId, {
+                component: {
+                  name: 'Home',
+                  passProps: {
+                    event: savedEvent,
+                  },
+                },
+              });
+            }}
+          />
+          <Button
+            title={translate("Partager le lien d'invitation")}
+            onPress={share}
           />
         </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+      </SafeAreaView>
+    );
+  };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonNext: {
+    padding: 20,
+  },
+});
 
 CreateEventEndScreen.options = {
   topBar: {

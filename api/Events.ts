@@ -3,13 +3,25 @@ import moment from 'moment';
 import {LocationValue} from '../components/LocationPicker';
 import {DateValue} from '../components/DateInput';
 import {getMe} from './Users';
+import slugify from 'slugify';
+import {nanoid} from 'nanoid';
 
 export class ProjetXEvent {
+  public id: string;
+  public author: string;
+  public title: string;
+  public description: string;
+  public type: 'sport' | 'diner' | 'party' | 'weekend' | 'week' | 'travel';
+  public date: DateValue;
+  public time: moment.Moment;
+  public location: LocationValue;
   public participations: {
     [uid: string]: 'going' | 'maybe' | 'notanswered' | 'notgoing';
   };
+
   constructor(
-    readonly id: string,
+    id: string,
+    author: string,
     title: string,
     description: string,
     type: 'sport' | 'diner' | 'party' | 'weekend' | 'week' | 'travel',
@@ -20,6 +32,14 @@ export class ProjetXEvent {
       [uid: string]: 'going' | 'maybe' | 'notanswered' | 'notgoing';
     },
   ) {
+    this.id = id;
+    this.author = author;
+    this.title = title;
+    this.description = description;
+    this.type = type;
+    this.date = date;
+    this.time = time;
+    this.location = location;
     this.participations = participations;
   }
 }
@@ -28,6 +48,7 @@ const eventConverter = {
     const data = snapshot.val();
     return new ProjetXEvent(
       snapshot.key || '',
+      data.author,
       data.title,
       data.description,
       data.type,
@@ -54,4 +75,22 @@ export async function getMyEvents() {
     return undefined;
   });
   return events;
+}
+export async function saveEvent(
+  event: ProjetXEvent,
+): Promise<ProjetXEvent | undefined> {
+  const me = getMe()?.uid;
+  if (!event || !me) {
+    return undefined;
+  }
+  if (!event.id) {
+    event.id = `${slugify(event.title || '', {
+      lower: true,
+    })}-${nanoid(11)}`;
+    event.author = me;
+  }
+  await database().ref(`events/${event.id}`).set(event);
+  return eventConverter.fromFirestore(
+    await database().ref(`events/${event.id}`).once('value'),
+  );
 }
