@@ -8,7 +8,7 @@ import Title from '../../components/Title';
 import {ProjetXEvent} from '../../api/Events';
 
 interface CreateEventWhenScreenProps {
-  event?: ProjetXEvent;
+  event: ProjetXEvent;
 }
 
 const CreateEventWhereScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =

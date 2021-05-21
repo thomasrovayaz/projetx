@@ -9,13 +9,16 @@ import {
 
 interface ProjetXTextInputProps {
   label?: string;
+  error?: string;
 }
 
 interface Style {
   label: ViewStyle;
   input: ViewStyle;
   inputMultine: ViewStyle;
+  inputError: ViewStyle;
   inputText: ViewStyle;
+  errorLabel: ViewStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -47,27 +50,49 @@ const styles = StyleSheet.create<Style>({
     fontWeight: '600',
     color: '#473B78',
   },
+  inputError: {
+    borderWidth: 2,
+    borderColor: '#c63535',
+  },
+  errorLabel: {
+    marginTop: 5,
+    fontFamily: 'Inter',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#c63535',
+  },
 });
 
 const Input: React.FC<TextInputProps & ProjetXTextInputProps> = ({
   label,
   value,
+  error,
   style,
   ...props
 }) => {
   return (
     <>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && (
+        <Text
+          style={{
+            ...styles.label,
+            ...(error ? styles.errorLabel : {}),
+          }}>
+          {label}
+        </Text>
+      )}
       <TextInput
         style={{
           ...styles.input,
           ...(props.multiline ? styles.inputMultine : {}),
+          ...(error ? styles.inputError : {}),
           // @ts-ignore
           ...(style || {}),
         }}
         {...props}>
         {value && <Text style={styles.inputText}>{value}</Text>}
       </TextInput>
+      {error && <Text style={styles.errorLabel}>{error}</Text>}
     </>
   );
 };

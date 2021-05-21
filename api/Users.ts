@@ -26,6 +26,7 @@ export async function updateMyName(name: string) {
     return;
   }
   await database().ref(`users/${me.uid}/displayName`).set(name);
+  await me.updateProfile({displayName: name});
 }
 
 export async function getUsers() {
@@ -53,11 +54,12 @@ export async function getMyFriends(): Promise<ProjetXUser[]> {
   };
 
   for (const myEvent of myEvents) {
-    Object.keys(myEvent.participations)
-      .filter(userId =>
-        ['going', 'maybe'].includes(myEvent.participations[userId]),
-      )
-      .map(treatParticipants);
+    myEvent.participations &&
+      Object.keys(myEvent.participations)
+        .filter(userId =>
+          ['going', 'maybe'].includes(myEvent.participations[userId]),
+        )
+        .map(treatParticipants);
   }
   const users = await getUsers();
   return users

@@ -9,8 +9,16 @@ import {
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../components/Button';
+import Title from '../components/Title';
+import {ProjetXEvent} from '../api/Events';
 
-const EventScreen: NavigationFunctionComponent = () => {
+interface EventScreenProps {
+  event: ProjetXEvent;
+}
+
+const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
+  event,
+}) => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -41,6 +49,7 @@ const EventScreen: NavigationFunctionComponent = () => {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
+          <Title>{event.title}</Title>
           <Button title="Register" onPress={() => showModal('Register')} />
           <Button title="Show poll" onPress={() => showModal('Poll')} />
           <Button

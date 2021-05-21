@@ -18,7 +18,6 @@ const SettingsScreen: NavigationFunctionComponent = ({componentId}) => {
   const [name, setName] = useState<string>(getMe()?.displayName || '');
   useDebouncedEffect(
     () => {
-      console.log(name);
       updateMyName(name);
     },
     1000,

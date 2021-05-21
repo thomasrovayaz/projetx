@@ -7,13 +7,33 @@ import {ProjetXEvent} from '../../api/Events';
 import TextInput from '../../components/TextInput';
 
 interface CreateEventWhatScreenProps {
-  event?: ProjetXEvent;
+  event: ProjetXEvent;
 }
 
 const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenProps> =
   ({componentId, event}) => {
     const [title, setTitle] = useState<string>();
+    const [submitted, setSubmitted] = useState<boolean>();
     const [description, setDescription] = useState<string>();
+
+    const submit = () => {
+      if (!title || title === '') {
+        setSubmitted(true);
+        return;
+      }
+      Navigation.push(componentId, {
+        component: {
+          name: 'CreateEventEnd',
+          passProps: {
+            event: {
+              ...event,
+              title,
+              description,
+            },
+          },
+        },
+      });
+    };
 
     return (
       <SafeAreaView style={styles.container}>
@@ -23,6 +43,11 @@ const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenPr
             <TextInput
               label={translate('Titre')}
               value={title}
+              error={
+                submitted && (!title || title === '')
+                  ? translate('Un titre est requis')
+                  : undefined
+              }
               onChangeText={setTitle}
               placeholder={translate('Un super titre')}
             />
@@ -39,23 +64,7 @@ const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenPr
           </View>
         </View>
         <View style={styles.buttonNext}>
-          <Button
-            title={translate('Suivant >')}
-            onPress={() =>
-              Navigation.push(componentId, {
-                component: {
-                  name: 'CreateEventEnd',
-                  passProps: {
-                    event: {
-                      ...event,
-                      title,
-                      description,
-                    },
-                  },
-                },
-              })
-            }
-          />
+          <Button title={translate('Suivant >')} onPress={submit} />
         </View>
       </SafeAreaView>
     );
