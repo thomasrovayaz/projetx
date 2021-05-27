@@ -13,11 +13,11 @@ interface CreateEventWhenScreenProps {
 
 const CreateEventWhereScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =
   ({componentId, event}) => {
-    const [value, setValue] = useState<LocationValue>();
+    const [value, setValue] = useState<LocationValue>(event.location);
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar />
+        <StatusBar barStyle={'light-content'} />
         <View style={styles.content}>
           <LocationPicker value={value} onChange={setValue} />
         </View>

@@ -33,7 +33,6 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
     useEffect(() => {
       save(event);
     }, [event]);
-    console.log(savedEvent);
 
     if (!savedEvent) {
       return null;

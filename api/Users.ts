@@ -12,7 +12,7 @@ export class ProjetXUser {
 const userConverter = {
   fromFirestore(snapshot: FirebaseDatabaseTypes.DataSnapshot): ProjetXUser {
     const data = snapshot.val();
-    return new ProjetXUser(snapshot.key || '', data.name, 0);
+    return new ProjetXUser(snapshot.key || '', data.displayName, 0);
   },
 };
 

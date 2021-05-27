@@ -9,60 +9,54 @@ import {
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {translate} from '../../locales';
 import Button from '../../components/Button';
+import {EventType, eventTypes} from '../../utils/EventType';
+import {ProjetXEvent} from '../../api/Events';
 
-interface EventType {
-  id: 'sport' | 'diner' | 'party' | 'weekend' | 'week' | 'travel';
-  title: string;
+interface CreateEventTypeScreenProps {
+  event: ProjetXEvent;
 }
 
-const options: EventType[] = [
-  {id: 'diner', title: translate('Diner entre amis')},
-  {id: 'party', title: translate('Soirée entre potes')},
-  {id: 'sport', title: translate('Sortie sport')},
-  {id: 'weekend', title: translate('Weekend décompression')},
-  {id: 'week', title: translate('Semaine de défoulement')},
-  {id: 'travel', title: translate('Voyage loiiin')},
-];
-
-const CreateEventTypeScreen: NavigationFunctionComponent = ({componentId}) => {
-  const next = (option: EventType) => {
-    Navigation.push(componentId, {
-      component: {
-        name: 'CreateEventWhen',
-        passProps: {
-          event: {
-            type: option.id,
+const CreateEventTypeScreen: NavigationFunctionComponent<CreateEventTypeScreenProps> =
+  ({componentId, event}) => {
+    const next = (option: EventType) => {
+      Navigation.push(componentId, {
+        component: {
+          name: 'CreateEventWhen',
+          passProps: {
+            event: {
+              ...event,
+              type: option.id,
+            },
           },
         },
-      },
-    });
-  };
+      });
+    };
 
-  const renderOption = ({item}: {item: EventType}) => {
+    const renderOption = ({item}: {item: EventType}) => {
+      return (
+        <View style={styles.item}>
+          <Button
+            variant={event.type === item.id ? 'default' : 'outlined'}
+            title={item.title}
+            onPress={() => next(item)}
+            style={styles.option}
+          />
+        </View>
+      );
+    };
+
     return (
-      <View style={styles.item}>
-        <Button
-          variant="outlined"
-          title={item.title}
-          onPress={() => next(item)}
-          style={styles.option}
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle={'light-content'} />
+        <FlatList
+          contentContainerStyle={styles.content}
+          data={eventTypes}
+          renderItem={renderOption}
+          keyExtractor={item => item.id}
         />
-      </View>
+      </SafeAreaView>
     );
   };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar />
-      <FlatList
-        contentContainerStyle={styles.content}
-        data={options}
-        renderItem={renderOption}
-        keyExtractor={item => item.id}
-      />
-    </SafeAreaView>
-  );
-};
 
 CreateEventTypeScreen.options = {
   topBar: {
@@ -82,6 +76,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    paddingVertical: 20,
     justifyContent: 'center',
   },
   item: {
