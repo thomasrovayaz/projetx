@@ -1,29 +1,34 @@
 import React from 'react';
 import {
   SafeAreaView,
-  ScrollView,
   StatusBar,
-  useColorScheme,
+  StyleSheet,
   View,
+  Text,
+  ScrollView,
 } from 'react-native';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../components/Button';
 import Title from '../components/Title';
 import {ProjetXEvent} from '../api/Events';
+import {eventTypeTitle} from '../utils/EventType';
+import EventCTAs from '../components/EventCTAs';
+import {translate} from '../locales';
+import EventParticipants from '../components/EventParticipants';
+import Label from '../components/Label';
 
 interface EventScreenProps {
   event: ProjetXEvent;
+  componentId: string;
 }
 
 const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
+  componentId,
   event,
 }) => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  if (!event) {
+    return null;
+  }
 
   const showModal = (id: string) => {
     return Navigation.showModal({
@@ -40,38 +45,90 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Title>{event.title}</Title>
-          <Button title="Register" onPress={() => showModal('Register')} />
-          <Button title="Show poll" onPress={() => showModal('Poll')} />
-          <Button
-            title="Show participants"
-            onPress={() => showModal('Participants')}
-          />
-        </View>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle={'light-content'} />
+      <View style={styles.header}>
+        <Text style={styles.subtitle}>{eventTypeTitle(event.type)}</Text>
+        <Title style={styles.title}>{event.title}</Title>
+      </View>
+      <ScrollView contentContainerStyle={styles.content}>
+        {event.description && (
+          <>
+            <Label>{translate('Description')}</Label>
+            <Text style={styles.value}>{event.description}</Text>
+          </>
+        )}
+        <EventParticipants event={event} withLabel />
+        <Button title="Register" onPress={() => showModal('Register')} />
+        <Button title="Show poll" onPress={() => showModal('Poll')} />
       </ScrollView>
+      <View style={styles.ctas}>
+        <EventCTAs event={event} componentId={componentId} />
+      </View>
     </SafeAreaView>
   );
 };
 
-EventScreen.options = {
-  topBar: {
-    visible: true,
-    title: {
-      text: 'Event',
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    backgroundColor: '#473B78',
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    justifyContent: 'flex-start',
+    borderBottomRightRadius: 20,
+  },
+  subtitle: {
+    color: 'white',
+    fontFamily: 'Inter',
+    fontSize: 14,
+  },
+  title: {
+    color: 'white',
+    textAlign: 'left',
+  },
+  content: {
+    flex: 1,
+    padding: 20,
+  },
+  label: {
+    fontFamily: 'Inter',
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 5,
+  },
+  value: {
+    fontFamily: 'Inter',
+    fontSize: 14,
+    marginBottom: 20,
+  },
+  ctas: {
+    backgroundColor: 'white',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    height: 130,
+  },
+});
+
+EventScreen.options = props => {
+  return {
+    topBar: {
+      title: {
+        color: 'transparent',
+        text: props.event.title,
+      },
+      borderColor: 'transparent',
+      borderHeight: 0,
+      elevation: 0,
     },
-  },
-  bottomTabs: {
-    visible: false,
-  },
+    bottomTabs: {
+      visible: false,
+    },
+  };
 };
 
 export default EventScreen;

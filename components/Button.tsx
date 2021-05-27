@@ -61,17 +61,16 @@ const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
     <TouchableOpacity
       {...props}
       activeOpacity={0.8}
-      style={{
-        ...styles.main,
-        ...(isOutlined ? styles.outlined : styles.default),
-        // @ts-ignore
-        ...props.style,
-      }}>
+      style={StyleSheet.flatten([
+        styles.main,
+        isOutlined ? styles.outlined : styles.default,
+        props.style,
+      ])}>
       <Text
-        style={{
-          ...styles.mainText,
-          ...(isOutlined ? styles.outlinedText : styles.defaultText),
-        }}>
+        style={[
+          styles.mainText,
+          isOutlined ? styles.outlinedText : styles.defaultText,
+        ]}>
         {title}
       </Text>
     </TouchableOpacity>

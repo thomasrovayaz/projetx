@@ -10,7 +10,7 @@ import TimeInput from '../../components/TimeInput';
 import Tabs, {Tab} from '../../components/Tabs';
 
 interface CreateEventWhenScreenProps {
-  event?: ProjetXEvent;
+  event: ProjetXEvent;
 }
 
 const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =
@@ -20,8 +20,12 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
       {id: 'poll', title: translate('Sondage')},
     ];
     const [tab, setTab] = useState<string>(tabs[0].id);
-    const [dateValue, setDateValue] = useState<DateValue>();
-    const [timeValue, setTimeValue] = useState<moment.Moment>();
+    const [dateValue, setDateValue] = useState<DateValue | undefined>(
+      event.date,
+    );
+    const [timeValue, setTimeValue] = useState<moment.Moment | undefined>(
+      event.time,
+    );
     const isSingleDate = event && ['party', 'diner'].includes(event.type);
 
     const renderDateSelector = () => {
@@ -53,7 +57,7 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar />
+        <StatusBar barStyle={'light-content'} />
         <View style={styles.tabs}>
           <Tabs tabs={tabs} selectedTab={tab} onChangeTab={setTab} />
         </View>

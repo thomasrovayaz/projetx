@@ -12,9 +12,9 @@ interface CreateEventWhatScreenProps {
 
 const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenProps> =
   ({componentId, event}) => {
-    const [title, setTitle] = useState<string>();
-    const [submitted, setSubmitted] = useState<boolean>();
-    const [description, setDescription] = useState<string>();
+    const [title, setTitle] = useState<string>(event.title);
+    const [submitted, setSubmitted] = useState<boolean>(false);
+    const [description, setDescription] = useState<string>(event.description);
 
     const submit = () => {
       if (!title || title === '') {
@@ -37,7 +37,7 @@ const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenPr
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar />
+        <StatusBar barStyle={'light-content'} />
         <View style={styles.content}>
           <View style={styles.input}>
             <TextInput

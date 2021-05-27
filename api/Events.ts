@@ -68,6 +68,7 @@ export async function getMyEvents() {
   const eventsDb = await database()
     .ref('events')
     .orderByChild('participations/' + me)
+    .startAt('')
     .once('value');
   const events: ProjetXEvent[] = [];
   eventsDb.forEach(eventDb => {
@@ -93,4 +94,15 @@ export async function saveEvent(
   return eventConverter.fromFirestore(
     await database().ref(`events/${event.id}`).once('value'),
   );
+}
+
+export async function updateParticipation(
+  eventId: string,
+  type: 'going' | 'maybe' | 'notgoing' | 'notanswered',
+) {
+  const me = getMe();
+  if (!me || !eventId) {
+    return;
+  }
+  await database().ref(`events/${eventId}/participations/${me.uid}`).set(type);
 }

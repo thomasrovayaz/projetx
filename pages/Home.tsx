@@ -9,6 +9,7 @@ import useTabbarIcon from '../utils/useTabbarIcon';
 import EventsList from '../components/EventsList';
 import {ProjetXEvent} from '../api/Events';
 import auth from '@react-native-firebase/auth';
+import {setupOneSignal} from '../utils/OneSignal';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -31,20 +32,23 @@ const HomeScreen: NavigationFunctionComponent = ({
     }
     console.log(auth().currentUser);
     setI18nConfig();
+    setupOneSignal();
     RNLocalize.addEventListener('change', handleLocalizationChange);
     return () => {
       RNLocalize.removeEventListener('change', handleLocalizationChange);
     };
   }, []);
   useEffect(() => {
-    Navigation.push(componentId, {
-      component: {
-        name: 'Event',
-        passProps: {
-          event,
+    if (event) {
+      Navigation.push(componentId, {
+        component: {
+          name: 'Event',
+          passProps: {
+            event,
+          },
         },
-      },
-    });
+      });
+    }
   }, [event]);
 
   return (
@@ -52,12 +56,13 @@ const HomeScreen: NavigationFunctionComponent = ({
       <StatusBar />
       <Title style={styles.title}>{translate('Mes événements')}</Title>
       <EventsList
-        onOpenEvent={(event: ProjetXEvent) => {
+        componentId={componentId}
+        onOpenEvent={(eventClicked: ProjetXEvent) => {
           Navigation.push(componentId, {
             component: {
               name: 'Event',
               passProps: {
-                event,
+                event: eventClicked,
               },
             },
           });
@@ -70,6 +75,9 @@ const HomeScreen: NavigationFunctionComponent = ({
             Navigation.push(componentId, {
               component: {
                 name: 'CreateEventType',
+                passProps: {
+                  event: {},
+                },
               },
             })
           }
@@ -95,6 +103,9 @@ const styles = StyleSheet.create({
 HomeScreen.options = {
   topBar: {
     visible: false,
+    title: {
+      text: 'Home',
+    },
   },
 };
 

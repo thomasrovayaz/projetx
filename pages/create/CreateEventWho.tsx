@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   FlatList,
+  RefreshControl,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -10,7 +11,7 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
 import {ProjetXEvent} from '../../api/Events';
-import {getMyFriends, ProjetXUser} from '../../api/Users';
+import {getMe, getMyFriends, ProjetXUser} from '../../api/Users';
 import Checkbox from '../../components/Checkbox';
 import TextInput from '../../components/TextInput';
 
@@ -21,20 +22,29 @@ interface CreateEventWhoScreenProps {
 const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProps> =
   ({componentId, event}) => {
     const [searchText, onChangeSearchText] = useState<string>();
-    const [selectedFriends, setSelectedFriends] = useState<ProjetXUser[]>([]);
+    const [selectedFriends, setSelectedFriends] = useState<string[]>(
+      event.participations ? Object.keys(event.participations) : [],
+    );
     const [friends, setFriends] = useState<ProjetXUser[]>([]);
+    const [refreshing, setRefreshing] = React.useState(false);
+
+    const fetchFriends = async () => {
+      setRefreshing(true);
+      setFriends(await getMyFriends());
+      setRefreshing(false);
+    };
+
+    const onRefresh = useCallback(() => {
+      fetchFriends();
+    }, []);
 
     useEffect(() => {
-      const fetchFriends = async () => {
-        const _friends = await getMyFriends();
-        setFriends(_friends);
-      };
       fetchFriends();
     }, []);
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar />
+        <StatusBar barStyle={'light-content'} />
         <View style={styles.searchInput}>
           <TextInput
             value={searchText}
@@ -48,20 +58,23 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
             data={friends.filter(
               ({name}) =>
                 !searchText ||
-                name.toUpperCase().includes(searchText.toUpperCase()),
+                (name && name.toUpperCase().includes(searchText.toUpperCase())),
             )}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
             renderItem={({item}: {item: ProjetXUser}) => {
               return (
                 <Checkbox
                   key={item.id}
                   label={item.name}
-                  selected={selectedFriends.some(({id}) => id === item.id)}
+                  selected={selectedFriends.some(id => id === item.id)}
                   onSelect={selected => {
                     if (selected) {
-                      setSelectedFriends([...selectedFriends, item]);
+                      setSelectedFriends([...selectedFriends, item.id]);
                     } else {
                       setSelectedFriends(
-                        selectedFriends.filter(({id}) => id !== item.id),
+                        selectedFriends.filter(id => id !== item.id),
                       );
                     }
                   }}
@@ -76,9 +89,13 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
             onPress={() => {
               const participations = event.participations || {};
               for (const selectedFriend of selectedFriends) {
-                if (!participations[selectedFriend.id]) {
-                  participations[selectedFriend.id] = 'notanswered';
+                if (!participations[selectedFriend]) {
+                  participations[selectedFriend] = 'notanswered';
                 }
+              }
+              const me = getMe();
+              if (me) {
+                participations[me.uid] = 'going';
               }
               Navigation.push(componentId, {
                 component: {
