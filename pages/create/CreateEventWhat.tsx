@@ -3,25 +3,39 @@ import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
-import {ProjetXEvent} from '../../api/Events';
+import {ProjetXEvent, saveEvent} from '../../api/Events';
 import TextInput from '../../components/TextInput';
 
 interface CreateEventWhatScreenProps {
   event: ProjetXEvent;
+  onSave?(newEvent: ProjetXEvent): void;
 }
 
 const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenProps> =
-  ({componentId, event}) => {
+  ({componentId, event, onSave}) => {
     const [title, setTitle] = useState<string>(event.title);
     const [submitted, setSubmitted] = useState<boolean>(false);
-    const [description, setDescription] = useState<string>(event.description);
+    const [description, setDescription] = useState<string | undefined>(
+      event.description,
+    );
 
-    const submit = () => {
+    const submit = async () => {
       if (!title || title === '') {
         setSubmitted(true);
         return;
       }
-      Navigation.push(componentId, {
+      const newEvent = {
+        ...event,
+        title,
+        description,
+      };
+      if (event.id) {
+        await saveEvent(newEvent);
+      }
+      if (onSave) {
+        return onSave(newEvent);
+      }
+      await Navigation.push(componentId, {
         component: {
           name: 'CreateEventEnd',
           passProps: {
@@ -37,7 +51,7 @@ const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenPr
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle={'light-content'} />
+        <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
         <View style={styles.content}>
           <View style={styles.input}>
             <TextInput
@@ -64,7 +78,10 @@ const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenPr
           </View>
         </View>
         <View style={styles.buttonNext}>
-          <Button title={translate('Suivant >')} onPress={submit} />
+          <Button
+            title={translate(onSave ? 'Enregistrer' : 'Suivant >')}
+            onPress={submit}
+          />
         </View>
       </SafeAreaView>
     );
@@ -91,7 +108,7 @@ CreateEventWhatScreen.options = {
   topBar: {
     visible: true,
     title: {
-      text: translate('Description'),
+      text: translate('Détails'),
     },
   },
   bottomTabs: {

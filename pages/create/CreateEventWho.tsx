@@ -10,7 +10,7 @@ import {
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
-import {ProjetXEvent} from '../../api/Events';
+import {ProjetXEvent, saveEvent} from '../../api/Events';
 import {getMe, getMyFriends, ProjetXUser} from '../../api/Users';
 import Checkbox from '../../components/Checkbox';
 import TextInput from '../../components/TextInput';
@@ -42,9 +42,37 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
       fetchFriends();
     }, []);
 
+    const next = async () => {
+      let participations = event.participations || {};
+      for (const selectedFriend of selectedFriends) {
+        if (!participations[selectedFriend]) {
+          participations[selectedFriend] = 'notanswered';
+        }
+      }
+      const me = getMe();
+      if (me && !participations[me.uid]) {
+        participations[me.uid] = 'going';
+      }
+      const newEvent = {
+        ...event,
+        participations,
+      };
+      if (event.id) {
+        await saveEvent(newEvent);
+      }
+      await Navigation.push(componentId, {
+        component: {
+          name: 'CreateEventWhat',
+          passProps: {
+            event: newEvent,
+          },
+        },
+      });
+    };
+
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle={'light-content'} />
+        <StatusBar barStyle={'dark-content'} backgroundColor="white" />
         <View style={styles.searchInput}>
           <TextInput
             value={searchText}
@@ -84,32 +112,7 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
           />
         </View>
         <View style={styles.buttonNext}>
-          <Button
-            title={translate('Suivant >')}
-            onPress={() => {
-              const participations = event.participations || {};
-              for (const selectedFriend of selectedFriends) {
-                if (!participations[selectedFriend]) {
-                  participations[selectedFriend] = 'notanswered';
-                }
-              }
-              const me = getMe();
-              if (me) {
-                participations[me.uid] = 'going';
-              }
-              Navigation.push(componentId, {
-                component: {
-                  name: 'CreateEventWhat',
-                  passProps: {
-                    event: {
-                      ...event,
-                      participations,
-                    },
-                  },
-                },
-              });
-            }}
-          />
+          <Button title={translate('Suivant >')} onPress={next} />
         </View>
       </SafeAreaView>
     );

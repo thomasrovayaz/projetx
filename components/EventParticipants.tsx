@@ -6,12 +6,16 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import {ProjetXEvent} from '../api/Events';
 import {getMyFriends, ProjetXUser} from '../api/Users';
 import {Navigation} from 'react-native-navigation';
 import {translate} from '../locales';
 import Label from './Label';
+import Avatar from './Avatar';
+
+const {width} = Dimensions.get('window');
 
 interface ProjetXEventParticipantsProps {
   event: ProjetXEvent;
@@ -24,8 +28,6 @@ interface Style {
   container: ViewStyle;
   label: ViewStyle;
   content: ViewStyle;
-  avatarContainer: ViewStyle;
-  avatar: ViewStyle;
   moreAvatarContainer: ViewStyle;
   moreAvatar: ViewStyle;
 }
@@ -36,7 +38,6 @@ const styles = StyleSheet.create<Style>({
     width: '100%',
     alignItems: 'flex-start',
     justifyContent: 'center',
-    height: 50,
   },
   label: {
     fontFamily: 'Inter',
@@ -48,34 +49,28 @@ const styles = StyleSheet.create<Style>({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
+    marginLeft: 5,
   },
-  avatarContainer: {
+  moreAvatarContainer: {
     width: 40,
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 15,
-    backgroundColor: '#473B78',
-    marginLeft: -5,
-    borderColor: 'white',
+    backgroundColor: 'white',
+    borderColor: '#473B78',
     borderWidth: 1,
+    marginLeft: -5,
   },
-  avatar: {
-    color: 'white',
+  moreAvatar: {
+    color: '#473B78',
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
     fontFamily: 'Inter',
   },
-  moreAvatarContainer: {
-    backgroundColor: 'white',
-    borderColor: '#473B78',
-  },
-  moreAvatar: {
-    color: '#473B78',
-  },
 });
-const MAX_SIZE = 2;
+const MAX_SIZE = (width - 40) / (40 - 5) - 1;
 
 const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
   event,
@@ -96,20 +91,6 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
     fetchFriends();
   }, []);
 
-  const showModal = () => {
-    return Navigation.showModal({
-      stack: {
-        children: [
-          {
-            component: {
-              name: 'Participants',
-            },
-          },
-        ],
-      },
-    });
-  };
-
   const participants = friends
     ? friends.filter(friend =>
         ['going', 'maybe', 'notanswered'].includes(
@@ -117,6 +98,24 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
         ),
       )
     : [];
+
+  const showModal = () => {
+    return Navigation.showModal({
+      stack: {
+        children: [
+          {
+            component: {
+              name: 'Participants',
+              passProps: {
+                event,
+                friends,
+              },
+            },
+          },
+        ],
+      },
+    });
+  };
 
   const moreAvatarLength = participants.length - MAX_SIZE;
 
@@ -128,18 +127,14 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
       return (
         <>
           {participants &&
-            participants.slice(0, MAX_SIZE).map(friend => {
-              return (
-                <View style={styles.avatarContainer}>
-                  <Text style={styles.avatar}>{friend.name.slice(0, 2)}</Text>
-                </View>
-              );
-            })}
-          {moreAvatarLength > 0 && (
-            <View style={[styles.avatarContainer, styles.moreAvatarContainer]}>
-              <Text style={[styles.avatar, styles.moreAvatar]}>
-                {moreAvatarLength}+
-              </Text>
+            participants
+              .slice(0, moreAvatarLength === 1 ? MAX_SIZE + 1 : MAX_SIZE)
+              .map(friend => {
+                return <Avatar key={friend.id} friend={friend} />;
+              })}
+          {moreAvatarLength > 1 && (
+            <View style={[styles.moreAvatarContainer]}>
+              <Text style={[styles.moreAvatar]}>{moreAvatarLength}+</Text>
             </View>
           )}
         </>

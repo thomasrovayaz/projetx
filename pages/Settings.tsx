@@ -27,7 +27,7 @@ const SettingsScreen: NavigationFunctionComponent = ({componentId}) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar />
+      <StatusBar barStyle={'dark-content'} backgroundColor="white" />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={styles.container}>
@@ -50,6 +50,7 @@ const SettingsScreen: NavigationFunctionComponent = ({componentId}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
   content: {
     padding: 20,

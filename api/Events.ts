@@ -5,16 +5,17 @@ import {DateValue} from '../components/DateInput';
 import {getMe} from './Users';
 import slugify from 'slugify';
 import {nanoid} from 'nanoid';
+import dynamicLinks, {firebase} from '@react-native-firebase/dynamic-links';
 
 export class ProjetXEvent {
   public id: string;
   public author: string;
   public title: string;
-  public description: string;
+  public description: string | undefined;
   public type: 'sport' | 'diner' | 'party' | 'weekend' | 'week' | 'travel';
-  public date: DateValue;
-  public time: moment.Moment;
-  public location: LocationValue;
+  public date: DateValue | undefined;
+  public time: moment.Moment | undefined;
+  public location: LocationValue | undefined;
   public participations: {
     [uid: string]: 'going' | 'maybe' | 'notanswered' | 'notgoing';
   };
@@ -23,11 +24,11 @@ export class ProjetXEvent {
     id: string,
     author: string,
     title: string,
-    description: string,
+    description: string | undefined,
     type: 'sport' | 'diner' | 'party' | 'weekend' | 'week' | 'travel',
-    date: DateValue,
-    time: moment.Moment,
-    location: LocationValue,
+    date: DateValue | undefined,
+    time: moment.Moment | undefined,
+    location: LocationValue | undefined,
     participations: {
       [uid: string]: 'going' | 'maybe' | 'notanswered' | 'notgoing';
     },
@@ -43,6 +44,46 @@ export class ProjetXEvent {
     this.participations = participations;
   }
 }
+const timeConverter = {
+  fromFirestore(time?: string): moment.Moment | undefined {
+    if (!time) {
+      return undefined;
+    }
+    return moment(time);
+  },
+  toFirestore(time?: moment.Moment) {
+    if (!time) {
+      return undefined;
+    }
+    return time.format();
+  },
+};
+const dateConverter = {
+  fromFirestore(date?: {
+    date: string;
+    startDate: string;
+    endDate: string;
+  }): DateValue | undefined {
+    if (!date) {
+      return undefined;
+    }
+    return {
+      date: date.date ? moment(date.date) : undefined,
+      startDate: date.startDate ? moment(date.startDate) : undefined,
+      endDate: date.endDate ? moment(date.endDate) : undefined,
+    };
+  },
+  toFirestore(date?: DateValue) {
+    if (!date) {
+      return undefined;
+    }
+    return {
+      date: date.date ? date.date.format() : undefined,
+      startDate: date.startDate ? date.startDate.format() : undefined,
+      endDate: date.endDate ? date.endDate.format() : undefined,
+    };
+  },
+};
 const eventConverter = {
   fromFirestore(snapshot: FirebaseDatabaseTypes.DataSnapshot): ProjetXEvent {
     const data = snapshot.val();
@@ -52,14 +93,18 @@ const eventConverter = {
       data.title,
       data.description,
       data.type,
-      data.date,
-      data.time,
+      dateConverter.fromFirestore(data.date),
+      timeConverter.fromFirestore(data.time),
       data.location,
       data.participations,
     );
   },
 };
 
+export async function getEvent(id: string): Promise<ProjetXEvent> {
+  const eventDb = await database().ref(`events/${id}`).once('value');
+  return eventConverter.fromFirestore(eventDb);
+}
 export async function getMyEvents() {
   const me = getMe()?.uid;
   if (!me) {
@@ -90,7 +135,13 @@ export async function saveEvent(
     })}-${nanoid(11)}`;
     event.author = me;
   }
-  await database().ref(`events/${event.id}`).set(event);
+  await database()
+    .ref(`events/${event.id}`)
+    .set({
+      ...event,
+      date: dateConverter.toFirestore(event.date),
+      time: timeConverter.toFirestore(event.time),
+    });
   return eventConverter.fromFirestore(
     await database().ref(`events/${event.id}`).once('value'),
   );
@@ -105,4 +156,22 @@ export async function updateParticipation(
     return;
   }
   await database().ref(`events/${eventId}/participations/${me.uid}`).set(type);
+}
+
+export async function buildLink(event: ProjetXEvent) {
+  return await dynamicLinks().buildShortLink(
+    {
+      link: `https://projetx.page.link/event/${event.id}`,
+      domainUriPrefix: 'https://projetx.page.link',
+      ios: {
+        bundleId: 'com.ProjetX',
+        appStoreId: '1569675082',
+      },
+      android: {
+        packageName: 'com.projetx',
+      },
+      social: {title: event.title, descriptionText: event.description},
+    },
+    firebase.dynamicLinks.ShortLinkType.SHORT,
+  );
 }
