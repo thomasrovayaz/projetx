@@ -10,7 +10,7 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {translate} from '../../locales';
 import Button from '../../components/Button';
 import {EventType, eventTypes} from '../../utils/EventType';
-import {ProjetXEvent} from '../../api/Events';
+import {ProjetXEvent, saveEvent} from '../../api/Events';
 
 interface CreateEventTypeScreenProps {
   event: ProjetXEvent;
@@ -18,15 +18,19 @@ interface CreateEventTypeScreenProps {
 
 const CreateEventTypeScreen: NavigationFunctionComponent<CreateEventTypeScreenProps> =
   ({componentId, event}) => {
-    const next = (option: EventType) => {
-      Navigation.push(componentId, {
+    const next = async (option: EventType) => {
+      const newEvent = {
+        ...event,
+        type: option.id,
+      };
+      if (event.id) {
+        await saveEvent(newEvent);
+      }
+      await Navigation.push(componentId, {
         component: {
           name: 'CreateEventWhen',
           passProps: {
-            event: {
-              ...event,
-              type: option.id,
-            },
+            event: newEvent,
           },
         },
       });
@@ -47,7 +51,7 @@ const CreateEventTypeScreen: NavigationFunctionComponent<CreateEventTypeScreenPr
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle={'light-content'} />
+        <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
         <FlatList
           contentContainerStyle={styles.content}
           data={eventTypes}

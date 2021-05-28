@@ -6,6 +6,7 @@ import {ProjetXEvent, updateParticipation} from '../api/Events';
 import {getMe} from '../api/Users';
 import Title from './Title';
 import {Navigation} from 'react-native-navigation';
+import ShareEvent from '../utils/ShareEvent';
 
 interface ProjetXEventCTAsProps {
   event: ProjetXEvent;
@@ -117,6 +118,7 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
         },
       },
     });
+  const share = async () => ShareEvent(event);
 
   const renderCtas = () => {
     switch (step) {
@@ -151,7 +153,7 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
             <Button
               style={[styles.cta, styles.ctaLeft]}
               title={translate("Partager l'événement")}
-              onPress={() => {}}
+              onPress={share}
             />
             <Button
               style={[styles.cta, styles.ctaRight]}
@@ -167,7 +169,7 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
             <Button
               style={[styles.cta, styles.ctaLeft]}
               title={translate("Partager l'événement")}
-              onPress={() => {}}
+              onPress={share}
             />
             <Button
               style={[styles.cta, styles.ctaRight]}
@@ -210,7 +212,7 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
             <Button
               style={[styles.cta, styles.ctaLeft]}
               title={translate("Partager l'événement")}
-              onPress={() => {}}
+              onPress={share}
             />
             <Button
               style={[styles.cta, styles.ctaRight]}

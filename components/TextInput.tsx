@@ -10,6 +10,8 @@ import {
 interface ProjetXTextInputProps {
   label?: string;
   error?: string;
+  labelStyle?: ViewStyle;
+  textInputStyle?: ViewStyle;
 }
 
 interface Style {
@@ -68,29 +70,30 @@ const Input: React.FC<TextInputProps & ProjetXTextInputProps> = ({
   value,
   error,
   style,
+  labelStyle,
+  textInputStyle,
   ...props
 }) => {
   return (
     <>
       {label && (
         <Text
-          style={{
-            ...styles.label,
-            ...(error ? styles.errorLabel : {}),
-          }}>
+          style={[styles.label, error ? styles.errorLabel : {}, labelStyle]}>
           {label}
         </Text>
       )}
       <TextInput
-        style={{
-          ...styles.input,
-          ...(props.multiline ? styles.inputMultine : {}),
-          ...(error ? styles.inputError : {}),
-          // @ts-ignore
-          ...(style || {}),
-        }}
+        placeholderTextColor="#473B787F"
+        style={[
+          styles.input,
+          props.multiline ? styles.inputMultine : {},
+          error ? styles.inputError : {},
+          style,
+        ]}
         {...props}>
-        {value && <Text style={styles.inputText}>{value}</Text>}
+        {value && (
+          <Text style={[styles.inputText, textInputStyle]}>{value}</Text>
+        )}
       </TextInput>
       {error && <Text style={styles.errorLabel}>{error}</Text>}
     </>

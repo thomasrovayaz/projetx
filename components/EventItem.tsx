@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
 } from 'react-native';
 import Title from './Title';
 import {eventTypeTitle} from '../utils/EventType';
@@ -36,6 +35,7 @@ const EventItem: React.FC<EventItemProps> = ({componentId, event, onPress}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    borderRadius: 15,
   },
   title: {
     fontSize: 18,

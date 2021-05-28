@@ -4,17 +4,18 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
 import DateInput, {DateValue} from '../../components/DateInput';
-import {ProjetXEvent} from '../../api/Events';
+import {ProjetXEvent, saveEvent} from '../../api/Events';
 import moment from 'moment';
 import TimeInput from '../../components/TimeInput';
 import Tabs, {Tab} from '../../components/Tabs';
 
 interface CreateEventWhenScreenProps {
   event: ProjetXEvent;
+  onSave?(newEvent: ProjetXEvent): void;
 }
 
 const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =
-  ({componentId, event}) => {
+  ({componentId, event, onSave}) => {
     const tabs: Tab[] = [
       {id: 'date', title: translate('Date connue')},
       {id: 'poll', title: translate('Sondage')},
@@ -55,9 +56,32 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
       return <View style={styles.content} />;
     };
 
+    const next = async () => {
+      const newEvent = {
+        ...event,
+        date: dateValue,
+        time: timeValue,
+      };
+      console.log(newEvent, dateValue);
+      if (event.id) {
+        await saveEvent(newEvent);
+      }
+      if (onSave) {
+        return onSave(newEvent);
+      }
+      await Navigation.push(componentId, {
+        component: {
+          name: 'CreateEventWhere',
+          passProps: {
+            event: newEvent,
+          },
+        },
+      });
+    };
+
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle={'light-content'} />
+        <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
         <View style={styles.tabs}>
           <Tabs tabs={tabs} selectedTab={tab} onChangeTab={setTab} />
         </View>
@@ -65,21 +89,8 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
         {tab === 'poll' && renderPoll()}
         <View style={styles.buttonNext}>
           <Button
-            title={translate('Suivant >')}
-            onPress={() =>
-              Navigation.push(componentId, {
-                component: {
-                  name: 'CreateEventWhere',
-                  passProps: {
-                    event: {
-                      ...event,
-                      date: dateValue,
-                      time: timeValue,
-                    },
-                  },
-                },
-              })
-            }
+            title={translate(onSave ? 'Enregistrer' : 'Suivant >')}
+            onPress={next}
           />
         </View>
       </SafeAreaView>

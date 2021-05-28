@@ -4,8 +4,7 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../components/Button';
 import {translate} from '../../locales';
 import {ProjetXEvent, saveEvent} from '../../api/Events';
-import Title from '../../components/Title';
-import Share from 'react-native-share';
+import ShareEvent from '../../utils/ShareEvent';
 
 interface CreateEventEndScreenProps {
   event: ProjetXEvent;
@@ -19,16 +18,7 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
       setSavedEvent(await saveEvent(eventToSave));
     };
 
-    const share = () => {
-      if (!savedEvent) {
-        return;
-      }
-      Share.open({
-        title: savedEvent.title,
-        failOnCancel: false,
-        message: event.description,
-      });
-    };
+    const share = async () => ShareEvent(event);
 
     useEffect(() => {
       save(event);
@@ -40,7 +30,7 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar />
+        <StatusBar barStyle="dark-content" backgroundColor="white" />
         <View style={styles.content} />
         <View style={styles.buttonNext}>
           <Button

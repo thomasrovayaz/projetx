@@ -1,15 +1,16 @@
 import React, {useEffect, useReducer} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import * as RNLocalize from 'react-native-localize';
+import dynamicLinks, {
+  FirebaseDynamicLinksTypes,
+} from '@react-native-firebase/dynamic-links';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {setI18nConfig, translate} from '../locales';
 import Button from '../components/Button';
 import Title from '../components/Title';
 import useTabbarIcon from '../utils/useTabbarIcon';
 import EventsList from '../components/EventsList';
-import {ProjetXEvent} from '../api/Events';
-import auth from '@react-native-firebase/auth';
-import {setupOneSignal} from '../utils/OneSignal';
+import {getEvent, ProjetXEvent, updateParticipation} from '../api/Events';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -21,39 +22,65 @@ const HomeScreen: NavigationFunctionComponent = ({
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   useTabbarIcon(componentId, 'home');
 
+  const goToEvent = (eventToGo: ProjetXEvent, pollId?: string) => {
+    Navigation.push(componentId, {
+      component: {
+        name: 'Event',
+        passProps: {
+          event: eventToGo,
+          pollId,
+        },
+      },
+    });
+  };
+
   const handleLocalizationChange = () => {
     setI18nConfig();
     forceUpdate();
   };
 
-  useEffect(() => {
-    if (!auth().currentUser) {
-      auth().signInAnonymously();
+  const handleDynamicLink = async (
+    link: FirebaseDynamicLinksTypes.DynamicLink | null,
+  ) => {
+    if (link && link.url) {
+      const matches = /(http[s]?:\/\/)?([^/\s]+\/)(.[^?]*)(\?.*)?/.exec(
+        link.url,
+      );
+      if (matches) {
+        const path = matches[3];
+        const routes = path.split('/');
+        if (routes[0] === 'event') {
+          const eventLoaded = await getEvent(routes[1]);
+          await updateParticipation(eventLoaded.id, 'notanswered');
+          if (routes[2] === 'poll') {
+            goToEvent(eventLoaded, routes[3]);
+          } else {
+            goToEvent(eventLoaded);
+          }
+        }
+      }
     }
-    console.log(auth().currentUser);
-    setI18nConfig();
-    setupOneSignal();
+  };
+
+  useEffect(() => {
     RNLocalize.addEventListener('change', handleLocalizationChange);
+    dynamicLinks().getInitialLink().then(handleDynamicLink);
+    const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
     return () => {
       RNLocalize.removeEventListener('change', handleLocalizationChange);
+      unsubscribe();
     };
   }, []);
+
   useEffect(() => {
     if (event) {
-      Navigation.push(componentId, {
-        component: {
-          name: 'Event',
-          passProps: {
-            event,
-          },
-        },
-      });
+      goToEvent(event);
     }
   }, [event]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar />
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
       <Title style={styles.title}>{translate('Mes événements')}</Title>
       <EventsList
         componentId={componentId}
@@ -90,6 +117,7 @@ const HomeScreen: NavigationFunctionComponent = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
   title: {
     margin: 20,

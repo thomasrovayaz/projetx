@@ -3,12 +3,12 @@
  */
 
 import 'react-native-gesture-handler';
+import 'react-native-get-random-values';
 import {Navigation} from 'react-native-navigation';
 import HomeScreen from './pages/Home';
 import SettingsScreen from './pages/Settings';
 
 import EventScreen from './pages/Event';
-import RegisterModal from './pages/Register';
 import PollModal from './pages/Poll';
 import ParticipantsModal from './pages/Participants';
 
@@ -20,6 +20,10 @@ import CreateEventWhereScreen from './pages/create/CreateEventWhere';
 import CreateEventWhoScreen from './pages/create/CreateEventWho';
 import CreateEventWhatScreen from './pages/create/CreateEventWhat';
 import CreateEventEndScreen from './pages/create/CreateEventEnd';
+import LoginScreen from './pages/Login';
+import {getMe} from './api/Users';
+import {setI18nConfig} from './locales';
+import {setupOneSignal} from './utils/OneSignal';
 
 Navigation.setDefaultOptions({
   statusBar: {
@@ -51,12 +55,12 @@ Navigation.setDefaultOptions({
     titleDisplayMode: 'alwaysHide',
   },
 });
+Navigation.registerComponent('Login', () => LoginScreen);
 
 Navigation.registerComponent('Home', () => HomeScreen);
 Navigation.registerComponent('Settings', () => SettingsScreen);
 
 Navigation.registerComponent('Event', () => EventScreen);
-Navigation.registerComponent('Register', () => RegisterModal);
 Navigation.registerComponent('Poll', () => PollModal);
 Navigation.registerComponent('Participants', () => ParticipantsModal);
 
@@ -75,35 +79,51 @@ Navigation.registerComponent('CreateEventWho', () => CreateEventWhoScreen);
 Navigation.registerComponent('CreateEventWhat', () => CreateEventWhatScreen);
 Navigation.registerComponent('CreateEventEnd', () => CreateEventEndScreen);
 
-Navigation.events().registerAppLaunchedListener(() => {
-  Navigation.setRoot({
-    root: {
-      bottomTabs: {
-        children: [
-          {
-            stack: {
-              children: [
-                {
-                  component: {
-                    name: 'Home',
-                  },
-                },
-              ],
-            },
-          },
-          {
-            stack: {
-              children: [
-                {
-                  component: {
-                    name: 'Settings',
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
+export const loginRoot = {
+  root: {
+    component: {
+      name: 'Login',
     },
-  });
+  },
+};
+
+export const mainRoot = {
+  root: {
+    bottomTabs: {
+      children: [
+        {
+          stack: {
+            children: [
+              {
+                component: {
+                  name: 'Home',
+                },
+              },
+            ],
+          },
+        },
+        {
+          stack: {
+            children: [
+              {
+                component: {
+                  name: 'Settings',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+};
+
+const isRegistered = () => {
+  return getMe()?.displayName;
+};
+
+Navigation.events().registerAppLaunchedListener(() => {
+  setI18nConfig();
+  setupOneSignal();
+  Navigation.setRoot(isRegistered() ? mainRoot : loginRoot);
 });
