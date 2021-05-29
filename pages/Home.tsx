@@ -11,6 +11,7 @@ import Title from '../components/Title';
 import useTabbarIcon from '../utils/useTabbarIcon';
 import EventsList from '../components/EventsList';
 import {getEvent, ProjetXEvent, updateParticipation} from '../api/Events';
+import auth from '@react-native-firebase/auth';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,

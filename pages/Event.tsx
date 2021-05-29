@@ -85,7 +85,6 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   content: {
-    flex: 1,
     padding: 20,
   },
   label: {
