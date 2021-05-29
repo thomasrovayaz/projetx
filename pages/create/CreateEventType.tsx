@@ -79,9 +79,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flex: 1,
     paddingVertical: 20,
-    justifyContent: 'center',
   },
   item: {
     flexDirection: 'row',

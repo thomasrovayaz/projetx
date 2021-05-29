@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -10,19 +10,9 @@ import {NavigationFunctionComponent} from 'react-native-navigation';
 import Title from '../components/Title';
 import {translate} from '../locales';
 import useTabbarIcon from '../utils/useTabbarIcon';
-import TextInput from '../components/TextInput';
-import useDebouncedEffect from '../utils/useDebouncedEffect';
-import {getMe, updateMyName} from '../api/Users';
+import PseudoInput from '../components/PseudoInput';
 
 const SettingsScreen: NavigationFunctionComponent = ({componentId}) => {
-  const [name, setName] = useState<string>(getMe()?.displayName || '');
-  useDebouncedEffect(
-    () => {
-      updateMyName(name);
-    },
-    1000,
-    [name],
-  );
   useTabbarIcon(componentId, 'settings');
 
   return (
@@ -34,12 +24,7 @@ const SettingsScreen: NavigationFunctionComponent = ({componentId}) => {
         <View style={styles.content}>
           <Title>{translate('Mes préférences')}</Title>
           <View style={styles.input}>
-            <TextInput
-              label={translate('Pseudo')}
-              value={name}
-              onChangeText={setName}
-              placeholder={translate('BG du 74')}
-            />
+            <PseudoInput label={translate('Pseudo')} />
           </View>
         </View>
       </ScrollView>

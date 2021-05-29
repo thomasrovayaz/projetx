@@ -80,31 +80,33 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
-        <View style={styles.searchInput}>
-          <TextInput
-            value={searchText}
-            onChangeText={onChangeSearchText}
-            placeholder={translate('Rechercher...')}
+        <View style={styles.content}>
+          <View style={styles.searchInput}>
+            <TextInput
+              value={searchText}
+              onChangeText={onChangeSearchText}
+              placeholder={translate('Rechercher...')}
+            />
+          </View>
+          <SectionList
+            sections={participants}
+            keyExtractor={(item, index) => item.id + index}
+            renderItem={({item}) => <Item friend={item} />}
+            renderSectionHeader={({section: {title, icon, data}}) =>
+              data.length > 0 ? (
+                <View style={styles.header}>
+                  <Icon style={styles.headerIcon} name={icon} size={24} />
+                  <Text style={styles.headerText}>{title}</Text>
+                </View>
+              ) : null
+            }
+          />
+          <Button
+            variant="outlined"
+            title={translate('Fermer')}
+            onPress={() => Navigation.dismissModal(componentId)}
           />
         </View>
-        <SectionList
-          sections={participants}
-          keyExtractor={(item, index) => item.id + index}
-          renderItem={({item}) => <Item friend={item} />}
-          renderSectionHeader={({section: {title, icon, data}}) =>
-            data.length > 0 ? (
-              <View style={styles.header}>
-                <Icon style={styles.headerIcon} name={icon} size={24} />
-                <Text style={styles.headerText}>{title}</Text>
-              </View>
-            ) : null
-          }
-        />
-        <Button
-          variant="outlined"
-          title={translate('Fermer')}
-          onPress={() => Navigation.dismissModal(componentId)}
-        />
       </SafeAreaView>
     );
   };
@@ -112,11 +114,13 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: 'white',
   },
+  content: {
+    flex: 1,
+    padding: 20,
+  },
   searchInput: {
-    paddingTop: 20,
     paddingBottom: 0,
     justifyContent: 'center',
   },
@@ -131,6 +135,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 15,
     paddingBottom: 5,
+    backgroundColor: 'white',
   },
   headerIcon: {
     marginRight: 5,

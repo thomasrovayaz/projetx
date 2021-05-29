@@ -94,6 +94,7 @@ const Input: React.FC<TextInputProps & ProjetXTextInputProps> = ({
         {value && (
           <Text style={[styles.inputText, textInputStyle]}>{value}</Text>
         )}
+        {props.children}
       </TextInput>
       {error && <Text style={styles.errorLabel}>{error}</Text>}
     </>

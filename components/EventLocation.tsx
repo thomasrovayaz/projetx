@@ -13,6 +13,7 @@ import {getMe} from '../api/Users';
 import Button from './Button';
 import {Navigation} from 'react-native-navigation';
 import MapView, {Marker} from 'react-native-maps';
+import {showLocation} from 'react-native-map-link';
 import Icon from 'react-native-vector-icons/Feather';
 
 interface ProjetXEventLocationProps {
@@ -74,16 +75,14 @@ const EventLocation: React.FC<ProjetXEventLocationProps> = ({
     if (!event.location) {
       return;
     }
-    const scheme = Platform.select({ios: 'maps:0,0?q=', android: 'geo:0,0?q='});
-    const latLng = `${event.location.lat},${event.location.lng}`;
-    const label = event.title;
-    const url = Platform.select({
-      ios: `${scheme}${label}@${latLng}`,
-      android: `${scheme}${latLng}(${label})`,
+    showLocation({
+      latitude: event.location.lat,
+      longitude: event.location.lng,
+      title: event.title,
+      dialogTitle: translate("Ouvrir l'emplacement"),
+      dialogMessage: 'Quel app souherais tu utiliser?',
+      cancelText: translate('Annuler'),
     });
-    if (url) {
-      Linking.openURL(url);
-    }
   };
   return (
     <>
@@ -101,6 +100,7 @@ const EventLocation: React.FC<ProjetXEventLocationProps> = ({
         }}>
         <Marker
           onPress={openMap}
+          centerOffset={{x: 0, y: -25}}
           coordinate={{
             latitude: event.location.lat,
             longitude: event.location.lng,

@@ -1,46 +1,25 @@
-import React, {useEffect, useState} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  View,
-} from 'react-native';
+import React, {useEffect} from 'react';
+import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {translate} from '../locales';
-import Button from '../components/Button';
 import Title from '../components/Title';
 import auth from '@react-native-firebase/auth';
-import TextInput from '../components/TextInput';
-import {updateMyName} from '../api/Users';
 import {mainRoot} from '../index';
 import Logo from '../assets/logo.svg';
+import PseudoInput from '../components/PseudoInput';
 
 const LoginScreen: NavigationFunctionComponent = () => {
-  const [name, setName] = useState<string>('');
-  const [submitted, setSubmitted] = useState<boolean>(false);
-
   useEffect(() => {
     if (!auth().currentUser) {
       auth().signInAnonymously();
     }
   }, []);
 
-  const register = async () => {
-    if (!name || name === '') {
-      setSubmitted(true);
-      return;
-    }
-    await updateMyName(name);
-    await Navigation.setRoot(mainRoot);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'dark-content'} backgroundColor="white" />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}>
+      <KeyboardAwareScrollView contentContainerStyle={styles.content}>
         <View style={styles.logoContainer}>
           <Logo width={120} height={120} fill="#E6941B" />
         </View>
@@ -48,21 +27,10 @@ const LoginScreen: NavigationFunctionComponent = () => {
         <Title style={styles.title}>
           {translate("Comment dois-je t'appeler?")}
         </Title>
-        <TextInput
-          error={
-            submitted && (!name || name === '')
-              ? translate("J'ai besoin de ton nom pour continuer")
-              : undefined
-          }
-          style={styles.input}
-          value={name}
-          onChangeText={setName}
-          placeholder={translate('BG du 74')}
-        />
-      </ScrollView>
-      <View style={styles.buttonCreate}>
-        <Button title="S'enregister" onPress={register} />
-      </View>
+        <View style={styles.input}>
+          <PseudoInput onRegister={() => Navigation.setRoot(mainRoot)} />
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
