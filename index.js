@@ -1,10 +1,8 @@
-/**
- * @format
- */
-
 import 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 import {Navigation} from 'react-native-navigation';
+import SplashScreen from 'react-native-splash-screen';
+
 import HomeScreen from './pages/Home';
 import SettingsScreen from './pages/Settings';
 
@@ -126,4 +124,5 @@ Navigation.events().registerAppLaunchedListener(() => {
   setI18nConfig();
   setupOneSignal();
   Navigation.setRoot(isRegistered() ? mainRoot : loginRoot);
+  SplashScreen.hide();
 });

@@ -6,6 +6,7 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import "ReactNativeConfig.h"
 #import <ReactNativeNavigation/ReactNativeNavigation.h>
+#import "RNSplashScreen.h"
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -41,7 +42,7 @@ static void InitializeFlipper(UIApplication *application) {
 
   [ReactNativeNavigation bootstrapWithDelegate:self launchOptions:launchOptions];
 
-
+  [RNSplashScreen show];
   return YES;
 }
 
