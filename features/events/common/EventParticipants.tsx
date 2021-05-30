@@ -1,20 +1,20 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
   ViewStyle,
   View,
   TouchableOpacity,
-  ActivityIndicator,
   Dimensions,
+  TextStyle,
 } from 'react-native';
-import {ProjetXEvent} from '../eventsTypes';
-import {getMyFriends} from '../../user/usersApi';
+import {EventParticipation, ProjetXEvent} from '../eventsTypes';
 import {Navigation} from 'react-native-navigation';
 import {translate} from '../../../app/locales';
 import Label from '../../../common/Label';
 import Avatar from '../../../common/Avatar';
-import {ProjetXUser} from '../../user/usersTypes';
+import {useSelector} from 'react-redux';
+import {selectMyFriends} from '../../user/usersSlice';
 
 const {width} = Dimensions.get('window');
 
@@ -31,6 +31,7 @@ interface Style {
   content: ViewStyle;
   moreAvatarContainer: ViewStyle;
   moreAvatar: ViewStyle;
+  emptyText: TextStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -70,6 +71,9 @@ const styles = StyleSheet.create<Style>({
     textAlign: 'center',
     fontFamily: 'Inter',
   },
+  emptyText: {
+    marginLeft: -5,
+  },
 });
 const MAX_SIZE = (width - 40) / (40 - 5) - 1;
 
@@ -79,24 +83,14 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
   hideOnEmpty,
   style,
 }) => {
-  const [friends, setFriends] = useState<ProjetXUser[]>([]);
-  const [refreshing, setRefreshing] = React.useState(false);
-
-  const fetchFriends = async () => {
-    setRefreshing(true);
-    setFriends(await getMyFriends());
-    setRefreshing(false);
-  };
-
-  useEffect(() => {
-    fetchFriends();
-  }, []);
-
+  const friends = useSelector(selectMyFriends);
   const participants = friends
     ? friends.filter(friend =>
-        ['going', 'maybe', 'notanswered'].includes(
-          event.participations[friend.id],
-        ),
+        [
+          EventParticipation.going,
+          EventParticipation.maybe,
+          EventParticipation.notanswered,
+        ].includes(event.participations[friend.id]),
       )
     : [];
 
@@ -121,9 +115,6 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
   const moreAvatarLength = participants.length - MAX_SIZE;
 
   const renderAvatars = () => {
-    if (refreshing) {
-      return <ActivityIndicator size="large" color="#473B78" />;
-    }
     if (participants.length > 0) {
       return (
         <>
@@ -142,7 +133,9 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
       );
     }
     return (
-      <Text>{translate('Pas encore de participant, soit le premier !')}</Text>
+      <Text style={styles.emptyText}>
+        {translate('Pas encore de participant, soit le premier !')}
+      </Text>
     );
   };
   if (hideOnEmpty && participants.length === 0) {

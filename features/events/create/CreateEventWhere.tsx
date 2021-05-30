@@ -7,35 +7,35 @@ import LocationPicker, {LocationValue} from './components/LocationPicker';
 import Title from '../../../common/Title';
 import {ProjetXEvent} from '../eventsTypes';
 import {saveEvent} from '../eventsApi';
+import {useSelector} from 'react-redux';
+import {selectCurrentEvent} from '../eventsSlice';
 
 interface CreateEventWhenScreenProps {
-  event: ProjetXEvent;
   onSave?(newEvent: ProjetXEvent): void;
 }
 
 const CreateEventWhereScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =
-  ({componentId, event, onSave}) => {
+  ({componentId, onSave}) => {
+    const event = useSelector(selectCurrentEvent);
     const [value, setValue] = useState<LocationValue | undefined>(
-      event.location,
+      event?.location,
     );
 
+    if (!event) {
+      return null;
+    }
+
     const next = async () => {
-      const newEvent = {
-        ...event,
-        location: value,
-      };
+      event.location = value;
       if (event.id) {
-        await saveEvent(newEvent);
+        await saveEvent(event);
       }
       if (onSave) {
-        return onSave(newEvent);
+        return onSave(event);
       }
       await Navigation.push(componentId, {
         component: {
           name: 'CreateEventWho',
-          passProps: {
-            event: newEvent,
-          },
         },
       });
     };

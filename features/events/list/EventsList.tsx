@@ -1,12 +1,15 @@
 import {FlatList, RefreshControl, StyleSheet, View} from 'react-native';
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useCallback} from 'react';
 import {ProjetXEvent} from '../eventsTypes';
 import {getMyEvents} from '../eventsApi';
 import EventItem from './EventItem';
 import Title from '../../../common/Title';
 import {translate} from '../../../app/locales';
 import {getMe} from '../../user/usersApi';
+import {useSelector} from 'react-redux';
+import {closeEvent, selectMyEvents} from '../eventsSlice';
 import {Navigation} from 'react-native-navigation';
+import {useAppDispatch} from '../../../app/redux';
 
 interface EventsListProps {
   componentId: string;
@@ -27,12 +30,13 @@ const EmptyEventsList: React.FC = () => {
 };
 
 const EventsList: React.FC<EventsListProps> = ({componentId, onOpenEvent}) => {
-  const [events, setEvents] = useState<ProjetXEvent[]>([]);
+  const dispatch = useAppDispatch();
+  const events: ProjetXEvent[] = useSelector(selectMyEvents);
   const [refreshing, setRefreshing] = React.useState(false);
 
   const fetchEvents = async () => {
     setRefreshing(true);
-    setEvents(await getMyEvents());
+    await getMyEvents();
     setRefreshing(false);
   };
   const onRefresh = useCallback(() => {
@@ -43,7 +47,7 @@ const EventsList: React.FC<EventsListProps> = ({componentId, onOpenEvent}) => {
     const screenEventListener =
       Navigation.events().registerComponentDidAppearListener(event => {
         if (event.componentId === componentId) {
-          fetchEvents();
+          dispatch(closeEvent());
         }
       });
     fetchEvents();

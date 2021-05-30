@@ -8,33 +8,48 @@ export interface DateValue {
   date?: moment.Moment;
 }
 
+export enum EventType {
+  sport,
+  diner,
+  party,
+  weekend,
+  week,
+  travel,
+}
+export enum EventParticipation {
+  going,
+  maybe,
+  notanswered,
+  notgoing,
+}
+
 export class ProjetXEvent {
   public id: string;
-  public author: string;
-  public title: string;
+  public author: string | undefined;
+  public title: string | undefined;
   public description: string | undefined;
-  public type: 'sport' | 'diner' | 'party' | 'weekend' | 'week' | 'travel';
+  public type: EventType | undefined;
   public date: DateValue | undefined;
   public time: moment.Moment | undefined;
   public location: LocationValue | undefined;
   public participations: {
-    [uid: string]: 'going' | 'maybe' | 'notanswered' | 'notgoing';
-  };
-  public shareLink: string;
+    [uid: string]: EventParticipation;
+  } = {};
+  public shareLink: string = '';
 
   constructor(
     id: string,
-    author: string,
-    title: string,
-    description: string | undefined,
-    type: 'sport' | 'diner' | 'party' | 'weekend' | 'week' | 'travel',
-    date: DateValue | undefined,
-    time: moment.Moment | undefined,
-    location: LocationValue | undefined,
-    participations: {
-      [uid: string]: 'going' | 'maybe' | 'notanswered' | 'notgoing';
+    author?: string,
+    title?: string,
+    description?: string | undefined,
+    type?: EventType,
+    date?: DateValue | undefined,
+    time?: moment.Moment | undefined,
+    location?: LocationValue | undefined,
+    participations?: {
+      [uid: string]: EventParticipation;
     },
-    shareLink: string,
+    shareLink?: string,
   ) {
     this.id = id;
     this.author = author;
@@ -44,8 +59,11 @@ export class ProjetXEvent {
     this.date = date;
     this.time = time;
     this.location = location;
-    this.participations = participations;
-    this.shareLink = shareLink;
+    this.participations = participations || {};
+    this.shareLink = shareLink || '';
+  }
+  isPhantom() {
+    return !this.id || this.id === '';
   }
 }
 const timeConverter = {

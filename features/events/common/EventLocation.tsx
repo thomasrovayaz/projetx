@@ -13,7 +13,6 @@ import Icon from 'react-native-vector-icons/Feather';
 interface ProjetXEventLocationProps {
   componentId: string;
   event: ProjetXEvent;
-  onUpdate(newEvent: ProjetXEvent): void;
 }
 
 interface Style {
@@ -35,7 +34,6 @@ const styles = StyleSheet.create<Style>({
 const EventLocation: React.FC<ProjetXEventLocationProps> = ({
   componentId,
   event,
-  onUpdate,
 }) => {
   if (!event.location) {
     const me = getMe()?.uid;
@@ -51,9 +49,8 @@ const EventLocation: React.FC<ProjetXEventLocationProps> = ({
                 name: 'CreateEventWhere',
                 passProps: {
                   event,
-                  onSave: (newEvent: ProjetXEvent) => {
+                  onSave: () => {
                     Navigation.pop(componentId);
-                    onUpdate(newEvent);
                   },
                 },
               },

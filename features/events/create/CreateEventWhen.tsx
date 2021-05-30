@@ -4,34 +4,42 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
 import DateInput from '../../../common/DateInput';
-import {ProjetXEvent} from '../eventsTypes';
+import {DateValue, EventType, ProjetXEvent} from '../eventsTypes';
 import {saveEvent} from '../eventsApi';
 import moment from 'moment';
 import TimeInput from '../../../common/TimeInput';
 import Tabs, {Tab} from '../../../common/Tabs';
-import {DateValue} from '../eventsTypes';
+import {useSelector} from 'react-redux';
+import {selectCurrentEvent} from '../eventsSlice';
 
 interface CreateEventWhenScreenProps {
-  event: ProjetXEvent;
   onSave?(newEvent: ProjetXEvent): void;
 }
 
 const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =
-  ({componentId, event, onSave}) => {
+  ({componentId, onSave}) => {
+    const event = useSelector(selectCurrentEvent);
     const tabs: Tab[] = [
       {id: 'date', title: translate('Date connue')},
       {id: 'poll', title: translate('Sondage')},
     ];
     const [tab, setTab] = useState<string>(tabs[0].id);
     const [dateValue, setDateValue] = useState<DateValue | undefined>(
-      event.date,
+      event?.date,
     );
     const [timeValue, setTimeValue] = useState<moment.Moment | undefined>(
-      event.time,
+      event?.time,
     );
-    const isSingleDate = event && ['party', 'diner'].includes(event.type);
+
+    if (!event) {
+      return null;
+    }
 
     const renderDateSelector = () => {
+      const isSingleDate =
+        event &&
+        event.type &&
+        [EventType.party, EventType.diner].includes(event.type);
       return (
         <View style={styles.content}>
           <View style={styles.item}>
@@ -42,7 +50,7 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
               placeholder={translate('Ajouter une date')}
             />
           </View>
-          {isSingleDate && (
+          {isSingleDate ? (
             <View style={styles.item}>
               <TimeInput
                 value={timeValue}
@@ -50,7 +58,7 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
                 placeholder={translate('Ajouter une heure')}
               />
             </View>
-          )}
+          ) : null}
         </View>
       );
     };
@@ -59,24 +67,17 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
     };
 
     const next = async () => {
-      const newEvent = {
-        ...event,
-        date: dateValue,
-        time: timeValue,
-      };
-      console.log(newEvent, dateValue);
+      event.date = dateValue;
+      event.time = timeValue;
       if (event.id) {
-        await saveEvent(newEvent);
+        await saveEvent(event);
       }
       if (onSave) {
-        return onSave(newEvent);
+        return onSave(event);
       }
       await Navigation.push(componentId, {
         component: {
           name: 'CreateEventWhere',
-          passProps: {
-            event: newEvent,
-          },
         },
       });
     };
@@ -87,8 +88,8 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
         <View style={styles.tabs}>
           <Tabs tabs={tabs} selectedTab={tab} onChangeTab={setTab} />
         </View>
-        {tab === 'date' && renderDateSelector()}
-        {tab === 'poll' && renderPoll()}
+        {tab === 'date' ? renderDateSelector() : null}
+        {tab === 'poll' ? renderPoll() : null}
         <View style={styles.buttonNext}>
           <Button
             title={translate(onSave ? 'Enregistrer' : 'Suivant >')}

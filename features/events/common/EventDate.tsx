@@ -10,7 +10,6 @@ import {Navigation} from 'react-native-navigation';
 interface ProjetXEventDateProps {
   componentId: string;
   event: ProjetXEvent;
-  onUpdate(newEvent: ProjetXEvent): void;
 }
 
 interface Style {
@@ -31,11 +30,7 @@ const styles = StyleSheet.create<Style>({
 
 const format = 'ddd DD MMM YYYY';
 
-const EventDate: React.FC<ProjetXEventDateProps> = ({
-  componentId,
-  event,
-  onUpdate,
-}) => {
+const EventDate: React.FC<ProjetXEventDateProps> = ({componentId, event}) => {
   if (!event.date) {
     const me = getMe()?.uid;
     if (me === event.author) {
@@ -50,9 +45,8 @@ const EventDate: React.FC<ProjetXEventDateProps> = ({
                 name: 'CreateEventWhen',
                 passProps: {
                   event,
-                  onSave: (newEvent: ProjetXEvent) => {
+                  onSave: () => {
                     Navigation.pop(componentId);
-                    onUpdate(newEvent);
                   },
                 },
               },

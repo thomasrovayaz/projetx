@@ -1,22 +1,73 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../../app/store';
+import {EventParticipation, ProjetXEvent} from './eventsTypes';
 
 interface EventsState {
-  value: number;
+  current?: ProjetXEvent;
+  list: {
+    [uid: string]: ProjetXEvent;
+  };
 }
 
-const initialState: EventsState = {
-  value: 0,
-};
+const initialState: EventsState = {list: {}};
 
 export const eventsSlice = createSlice({
   name: 'events',
   initialState,
-  reducers: {},
+  reducers: {
+    openEvent(state, action: PayloadAction<ProjetXEvent>) {
+      state.current = action.payload;
+    },
+    closeEvent(state) {
+      state.current = undefined;
+    },
+    createEvent(state) {
+      state.current = new ProjetXEvent('');
+    },
+    fetchEvents(state, action: PayloadAction<ProjetXEvent[]>) {
+      state.list = {};
+      for (const event of action.payload) {
+        state.list[event.id] = event;
+      }
+    },
+    updateEvent(state, action: PayloadAction<ProjetXEvent>) {
+      const event = action.payload;
+      if (state.current && state.current.id === event.id) {
+        state.current = event;
+      }
+      state.list[event.id] = event;
+    },
+    participationUpdated(
+      state,
+      action: PayloadAction<{
+        eventId: string;
+        userId: string;
+        type: EventParticipation;
+      }>,
+    ) {
+      const {eventId, userId, type} = action.payload;
+      if (state.current && state.current.id === eventId) {
+        state.current.participations[userId] = type;
+      }
+      const event = state.list[eventId];
+      if (event) {
+        event.participations[userId] = type;
+      }
+    },
+  },
 });
 
-export const {} = eventsSlice.actions;
+export const {
+  openEvent,
+  closeEvent,
+  createEvent,
+  fetchEvents,
+  updateEvent,
+  participationUpdated,
+} = eventsSlice.actions;
 
-export const selectCount = (state: RootState) => state.events.value;
+export const selectMyEvents = (state: RootState): ProjetXEvent[] =>
+  Object.values(state.events.list);
+export const selectCurrentEvent = (state: RootState) => state.events.current;
 
 export default eventsSlice.reducer;

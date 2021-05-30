@@ -1,23 +1,23 @@
 import {translate} from '../../app/locales';
 import {Platform} from 'react-native';
 import Share from 'react-native-share';
-import {ProjetXEvent} from './eventsTypes';
+import {EventType, ProjetXEvent} from './eventsTypes';
 import dynamicLinks, {firebase} from '@react-native-firebase/dynamic-links';
 
-export interface EventType {
-  id: 'sport' | 'diner' | 'party' | 'weekend' | 'week' | 'travel';
+export interface EventTypes {
+  id: EventType;
   title: string;
 }
 
-export const eventTypes: EventType[] = [
-  {id: 'diner', title: translate('Diner entre amis')},
-  {id: 'party', title: translate('Soirée entre potes')},
-  {id: 'sport', title: translate('Sortie sport')},
-  {id: 'weekend', title: translate('Weekend posey')},
-  {id: 'week', title: translate('Semaine de défoulement')},
-  {id: 'travel', title: translate('Voyage loiiin')},
+export const eventTypes: EventTypes[] = [
+  {id: EventType.diner, title: translate('Diner entre amis')},
+  {id: EventType.party, title: translate('Soirée entre potes')},
+  {id: EventType.sport, title: translate('Sortie sport')},
+  {id: EventType.weekend, title: translate('Weekend posey')},
+  {id: EventType.week, title: translate('Semaine de défoulement')},
+  {id: EventType.travel, title: translate('Voyage loiiin')},
 ];
-export const eventTypeTitle = (id: string) => {
+export const eventTypeTitle = (id: EventType | undefined) => {
   return eventTypes.find(eventType => eventType.id === id)?.title;
 };
 
