@@ -10,7 +10,6 @@ import {Navigation} from 'react-native-navigation';
 interface ProjetXEventDescriptionProps {
   componentId: string;
   event: ProjetXEvent;
-  onUpdate(newEvent: ProjetXEvent): void;
 }
 
 interface Style {
@@ -32,7 +31,6 @@ const styles = StyleSheet.create<Style>({
 const EventDescription: React.FC<ProjetXEventDescriptionProps> = ({
   componentId,
   event,
-  onUpdate,
 }) => {
   if (!event.description) {
     const me = getMe()?.uid;
@@ -47,10 +45,8 @@ const EventDescription: React.FC<ProjetXEventDescriptionProps> = ({
               component: {
                 name: 'CreateEventWhat',
                 passProps: {
-                  event,
-                  onSave: (newEvent: ProjetXEvent) => {
+                  onSave: () => {
                     Navigation.pop(componentId);
-                    onUpdate(newEvent);
                   },
                 },
               },

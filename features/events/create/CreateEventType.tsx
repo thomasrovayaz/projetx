@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   FlatList,
   SafeAreaView,
@@ -9,39 +9,38 @@ import {
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {translate} from '../../../app/locales';
 import Button from '../../../common/Button';
-import {ProjetXEvent} from '../eventsTypes';
 import {saveEvent} from '../eventsApi';
-import {EventType, eventTypes} from '../eventsUtils';
+import {EventTypes, eventTypes} from '../eventsUtils';
+import {useSelector} from 'react-redux';
+import {selectCurrentEvent} from '../eventsSlice';
 
-interface CreateEventTypeScreenProps {
-  event: ProjetXEvent;
-}
+interface CreateEventTypeScreenProps {}
 
 const CreateEventTypeScreen: NavigationFunctionComponent<CreateEventTypeScreenProps> =
-  ({componentId, event}) => {
-    const next = async (option: EventType) => {
-      const newEvent = {
-        ...event,
-        type: option.id,
-      };
+  ({componentId}) => {
+    const event = useSelector(selectCurrentEvent);
+    const [selection, setSelection] = useState(event?.type);
+    if (!event) {
+      return null;
+    }
+    const next = async (option: EventTypes) => {
+      setSelection(option.id);
+      event.type = option.id;
       if (event.id) {
-        await saveEvent(newEvent);
+        await saveEvent(event);
       }
       await Navigation.push(componentId, {
         component: {
           name: 'CreateEventWhen',
-          passProps: {
-            event: newEvent,
-          },
         },
       });
     };
 
-    const renderOption = ({item}: {item: EventType}) => {
+    const renderOption = ({item}: {item: EventTypes}) => {
       return (
         <View style={styles.item}>
           <Button
-            variant={event.type === item.id ? 'default' : 'outlined'}
+            variant={selection === item.id ? 'default' : 'outlined'}
             title={item.title}
             onPress={() => next(item)}
             style={styles.option}
@@ -57,7 +56,7 @@ const CreateEventTypeScreen: NavigationFunctionComponent<CreateEventTypeScreenPr
           contentContainerStyle={styles.content}
           data={eventTypes}
           renderItem={renderOption}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.id + ''}
         />
       </SafeAreaView>
     );

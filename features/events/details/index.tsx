@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect} from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -7,27 +7,36 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import {NavigationFunctionComponent} from 'react-native-navigation';
+import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Title from '../../../common/Title';
-import {ProjetXEvent} from '../eventsTypes';
 import EventCTAs from '../common/EventCTAs';
 import EventParticipants from '../common/EventParticipants';
 import EventDescription from '../common/EventDescription';
 import EventLocation from '../common/EventLocation';
 import EventDate from '../common/EventDate';
 import {eventTypeTitle} from '../eventsUtils';
+import {useSelector} from 'react-redux';
+import {selectCurrentEvent} from '../eventsSlice';
 
 interface EventScreenProps {
-  event: ProjetXEvent;
   componentId: string;
 }
 
 const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
   componentId,
-  event,
 }) => {
-  const [localEvent, setLocalEvent] = useState<ProjetXEvent>(event);
-  if (!localEvent) {
+  const event = useSelector(selectCurrentEvent);
+  useEffect(() => {
+    Navigation.mergeOptions(componentId, {
+      topBar: {
+        title: {
+          color: 'transparent',
+          text: event?.title,
+        },
+      },
+    });
+  }, [event]);
+  if (!event) {
     return null;
   }
 
@@ -35,29 +44,17 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
       <View style={styles.header}>
-        <Text style={styles.subtitle}>{eventTypeTitle(localEvent.type)}</Text>
-        <Title style={styles.title}>{localEvent.title}</Title>
+        <Text style={styles.subtitle}>{eventTypeTitle(event.type)}</Text>
+        <Title style={styles.title}>{event.title}</Title>
       </View>
       <ScrollView contentContainerStyle={styles.content}>
-        <EventDate
-          event={localEvent}
-          componentId={componentId}
-          onUpdate={setLocalEvent}
-        />
-        <EventDescription
-          event={localEvent}
-          componentId={componentId}
-          onUpdate={setLocalEvent}
-        />
-        <EventLocation
-          event={localEvent}
-          componentId={componentId}
-          onUpdate={setLocalEvent}
-        />
-        <EventParticipants event={localEvent} withLabel />
+        <EventDate event={event} componentId={componentId} />
+        <EventDescription event={event} componentId={componentId} />
+        <EventLocation event={event} componentId={componentId} />
+        <EventParticipants event={event} withLabel />
       </ScrollView>
       <View style={styles.ctas}>
-        <EventCTAs event={localEvent} componentId={componentId} />
+        <EventCTAs event={event} componentId={componentId} />
       </View>
     </SafeAreaView>
   );
@@ -103,21 +100,19 @@ const styles = StyleSheet.create({
   },
 });
 
-EventScreen.options = props => {
-  return {
-    topBar: {
-      title: {
-        color: 'transparent',
-        text: props.event.title,
-      },
-      borderColor: 'transparent',
-      borderHeight: 0,
-      elevation: 0,
+EventScreen.options = {
+  topBar: {
+    title: {
+      color: 'transparent',
+      text: '',
     },
-    bottomTabs: {
-      visible: false,
-    },
-  };
+    borderColor: 'transparent',
+    borderHeight: 0,
+    elevation: 0,
+  },
+  bottomTabs: {
+    visible: false,
+  },
 };
 
 export default EventScreen;

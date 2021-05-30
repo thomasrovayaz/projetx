@@ -1,7 +1,6 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   FlatList,
-  RefreshControl,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -10,64 +9,49 @@ import {
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
-import {ProjetXEvent} from '../eventsTypes';
+import {EventParticipation} from '../eventsTypes';
 import {saveEvent} from '../eventsApi';
-import {getMe, getMyFriends} from '../../user/usersApi';
+import {getMe} from '../../user/usersApi';
 import Checkbox from '../../../common/Checkbox';
 import TextInput from '../../../common/TextInput';
 import {ProjetXUser} from '../../user/usersTypes';
+import {useSelector} from 'react-redux';
+import {selectMyFriends} from '../../user/usersSlice';
+import {selectCurrentEvent} from '../eventsSlice';
 
-interface CreateEventWhoScreenProps {
-  event: ProjetXEvent;
-}
+interface CreateEventWhoScreenProps {}
 
 const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProps> =
-  ({componentId, event}) => {
+  ({componentId}) => {
+    const event = useSelector(selectCurrentEvent);
     const [searchText, onChangeSearchText] = useState<string>();
     const [selectedFriends, setSelectedFriends] = useState<string[]>(
-      event.participations ? Object.keys(event.participations) : [],
+      event?.participations ? Object.keys(event.participations) : [],
     );
-    const [friends, setFriends] = useState<ProjetXUser[]>([]);
-    const [refreshing, setRefreshing] = React.useState(false);
+    const friends = useSelector(selectMyFriends);
 
-    const fetchFriends = async () => {
-      setRefreshing(true);
-      setFriends(await getMyFriends());
-      setRefreshing(false);
-    };
-
-    const onRefresh = useCallback(() => {
-      fetchFriends();
-    }, []);
-
-    useEffect(() => {
-      fetchFriends();
-    }, []);
+    if (!event) {
+      return null;
+    }
 
     const next = async () => {
       let participations = event.participations || {};
       for (const selectedFriend of selectedFriends) {
         if (!participations[selectedFriend]) {
-          participations[selectedFriend] = 'notanswered';
+          participations[selectedFriend] = EventParticipation.notanswered;
         }
       }
       const me = getMe();
       if (me && !participations[me.uid]) {
-        participations[me.uid] = 'going';
+        participations[me.uid] = EventParticipation.going;
       }
-      const newEvent = {
-        ...event,
-        participations,
-      };
+      event.participations = participations;
       if (event.id) {
-        await saveEvent(newEvent);
+        await saveEvent(event);
       }
       await Navigation.push(componentId, {
         component: {
           name: 'CreateEventWhat',
-          passProps: {
-            event: newEvent,
-          },
         },
       });
     };
@@ -90,9 +74,6 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
                 !searchText ||
                 (name && name.toUpperCase().includes(searchText.toUpperCase())),
             )}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
             renderItem={({item}: {item: ProjetXUser}) => {
               return (
                 <Checkbox

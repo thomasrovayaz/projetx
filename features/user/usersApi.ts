@@ -2,6 +2,9 @@ import database from '@react-native-firebase/database';
 import {getMyEvents} from '../events/eventsApi';
 import auth from '@react-native-firebase/auth';
 import {ProjetXUser, userConverter} from './usersTypes';
+import {EventParticipation} from '../events/eventsTypes';
+import {store} from '../../app/store';
+import {fetchUsers} from './usersSlice';
 
 export const getMe = () => {
   return auth().currentUser;
@@ -30,6 +33,7 @@ export async function getUsers() {
     users.push(userConverter.fromFirestore(userDb));
     return undefined;
   });
+  store.dispatch(fetchUsers(users));
   return users;
 }
 
@@ -51,7 +55,9 @@ export async function getMyFriends(): Promise<ProjetXUser[]> {
     myEvent.participations &&
       Object.keys(myEvent.participations)
         .filter(userId =>
-          ['going', 'maybe'].includes(myEvent.participations[userId]),
+          [EventParticipation.going, EventParticipation.maybe].includes(
+            myEvent.participations[userId],
+          ),
         )
         .map(treatParticipants);
   }

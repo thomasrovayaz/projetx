@@ -10,8 +10,12 @@ import Button from '../../../common/Button';
 import Title from '../../../common/Title';
 import useTabbarIcon from '../../../app/useTabbarIcon';
 import EventsList from './EventsList';
-import {ProjetXEvent} from '../eventsTypes';
-import {updateParticipation, getEvent} from '../eventsApi';
+import {EventParticipation, ProjetXEvent} from '../eventsTypes';
+import {getEvent, updateParticipation} from '../eventsApi';
+import {getUsers} from '../../user/usersApi';
+import {useSelector} from 'react-redux';
+import {createEvent, openEvent, selectCurrentEvent} from '../eventsSlice';
+import {useAppDispatch} from '../../../app/redux';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -20,20 +24,10 @@ const HomeScreen: NavigationFunctionComponent = ({
   componentId: string;
   event?: ProjetXEvent;
 }) => {
+  const currentEvent = useSelector(selectCurrentEvent);
+  const dispatch = useAppDispatch();
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   useTabbarIcon(componentId, 'home');
-
-  const goToEvent = (eventToGo: ProjetXEvent, pollId?: string) => {
-    Navigation.push(componentId, {
-      component: {
-        name: 'Event',
-        passProps: {
-          event: eventToGo,
-          pollId,
-        },
-      },
-    });
-  };
 
   const handleLocalizationChange = () => {
     setI18nConfig();
@@ -52,11 +46,15 @@ const HomeScreen: NavigationFunctionComponent = ({
         const routes = path.split('/');
         if (routes[0] === 'event') {
           const eventLoaded = await getEvent(routes[1]);
-          await updateParticipation(eventLoaded.id, 'notanswered');
+          await updateParticipation(
+            eventLoaded.id,
+            EventParticipation.notanswered,
+          );
           if (routes[2] === 'poll') {
-            goToEvent(eventLoaded, routes[3]);
+            dispatch(openEvent(eventLoaded));
+            //todo open poll routes[3]
           } else {
-            goToEvent(eventLoaded);
+            dispatch(openEvent(eventLoaded));
           }
         }
       }
@@ -67,6 +65,7 @@ const HomeScreen: NavigationFunctionComponent = ({
     RNLocalize.addEventListener('change', handleLocalizationChange);
     dynamicLinks().getInitialLink().then(handleDynamicLink);
     const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
+    getUsers();
     return () => {
       RNLocalize.removeEventListener('change', handleLocalizationChange);
       unsubscribe();
@@ -75,9 +74,26 @@ const HomeScreen: NavigationFunctionComponent = ({
 
   useEffect(() => {
     if (event) {
-      goToEvent(event);
+      dispatch(openEvent(event));
     }
   }, [event]);
+  useEffect(() => {
+    if (currentEvent) {
+      if (currentEvent.isPhantom()) {
+        Navigation.push(componentId, {
+          component: {
+            name: 'CreateEventType',
+          },
+        });
+      } else {
+        Navigation.push(componentId, {
+          component: {
+            name: 'Event',
+          },
+        });
+      }
+    }
+  }, [currentEvent]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -85,30 +101,14 @@ const HomeScreen: NavigationFunctionComponent = ({
       <Title style={styles.title}>{translate('Mes événements')}</Title>
       <EventsList
         componentId={componentId}
-        onOpenEvent={(eventClicked: ProjetXEvent) => {
-          Navigation.push(componentId, {
-            component: {
-              name: 'Event',
-              passProps: {
-                event: eventClicked,
-              },
-            },
-          });
-        }}
+        onOpenEvent={(eventClicked: ProjetXEvent) =>
+          dispatch(openEvent(eventClicked))
+        }
       />
       <View style={styles.buttonCreate}>
         <Button
           title="Créer un événement"
-          onPress={() =>
-            Navigation.push(componentId, {
-              component: {
-                name: 'CreateEventType',
-                passProps: {
-                  event: {},
-                },
-              },
-            })
-          }
+          onPress={() => dispatch(createEvent())}
         />
       </View>
     </SafeAreaView>

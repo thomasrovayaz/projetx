@@ -6,46 +6,42 @@ import {translate} from '../../../app/locales';
 import {ProjetXEvent} from '../eventsTypes';
 import {saveEvent} from '../eventsApi';
 import TextInput from '../../../common/TextInput';
+import {useSelector} from 'react-redux';
+import {selectCurrentEvent} from '../eventsSlice';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 interface CreateEventWhatScreenProps {
-  event: ProjetXEvent;
   onSave?(newEvent: ProjetXEvent): void;
 }
 
 const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenProps> =
-  ({componentId, event, onSave}) => {
-    const [title, setTitle] = useState<string>(event.title);
+  ({componentId, onSave}) => {
+    const event = useSelector(selectCurrentEvent);
+    const [title, setTitle] = useState<string | undefined>(event?.title);
     const [submitted, setSubmitted] = useState<boolean>(false);
     const [description, setDescription] = useState<string | undefined>(
-      event.description,
+      event?.description,
     );
+    if (!event) {
+      return null;
+    }
 
     const submit = async () => {
       if (!title || title === '') {
         setSubmitted(true);
         return;
       }
-      const newEvent = {
-        ...event,
-        title,
-        description,
-      };
+      event.title = title;
+      event.description = description;
       if (event.id) {
-        await saveEvent(newEvent);
+        await saveEvent(event);
       }
       if (onSave) {
-        return onSave(newEvent);
+        return onSave(event);
       }
       await Navigation.push(componentId, {
         component: {
           name: 'CreateEventEnd',
-          passProps: {
-            event: {
-              ...event,
-              title,
-              description,
-            },
-          },
         },
       });
     };
@@ -53,7 +49,7 @@ const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenPr
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
-        <View style={styles.content}>
+        <KeyboardAwareScrollView style={styles.content}>
           <View style={styles.input}>
             <TextInput
               label={translate('Titre')}
@@ -77,7 +73,7 @@ const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenPr
               placeholder={translate('Et une petite description...')}
             />
           </View>
-        </View>
+        </KeyboardAwareScrollView>
         <View style={styles.buttonNext}>
           <Button
             title={translate(
@@ -95,9 +91,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flex: 1,
     padding: 20,
-    justifyContent: 'center',
   },
   input: {
     marginVertical: 20,

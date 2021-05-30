@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -19,26 +19,26 @@ import Label from '../../../common/Label';
 import Icon from 'react-native-vector-icons/Feather';
 import Toast from '../../../common/Toast';
 import OneSignal from 'react-native-onesignal';
-import {getMyFriends} from '../../user/usersApi';
 import ShareEvent from '../eventsUtils';
+import {useSelector} from 'react-redux';
+import {selectMyFriends} from '../../user/usersSlice';
+import {selectCurrentEvent} from '../eventsSlice';
 
-interface CreateEventEndScreenProps {
-  event: ProjetXEvent;
-}
+interface CreateEventEndScreenProps {}
 
 const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProps> =
-  ({componentId, event}) => {
+  ({componentId}) => {
+    const event = useSelector(selectCurrentEvent);
+    const friends = useSelector(selectMyFriends);
     const modalToastRef = React.useRef();
-    const [savedEvent, setSavedEvent] = useState<ProjetXEvent>();
 
     const save = async (eventToSave: ProjetXEvent) => {
       const sendNotifications = true; //!eventToSave.id;
       const newEvent = await saveEvent(eventToSave);
-      setSavedEvent(newEvent);
       if (sendNotifications && newEvent) {
         const notificationObj = {
           contents: {en: newEvent.title},
-          include_player_ids: (await getMyFriends())
+          include_player_ids: friends
             .filter(
               ({id, oneSignalId}) => newEvent.participations[id] && oneSignalId,
             )
@@ -58,6 +58,16 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
       }
     };
 
+    useEffect(() => {
+      if (event) {
+        save(event);
+      }
+    }, [event]);
+
+    if (!event) {
+      return null;
+    }
+
     const share = async () => ShareEvent(event);
 
     const copyLink = async () => {
@@ -73,14 +83,6 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
         });
       }
     };
-
-    useEffect(() => {
-      save(event);
-    }, [event]);
-
-    if (!savedEvent) {
-      return null;
-    }
 
     return (
       <SafeAreaView style={styles.container}>
@@ -114,7 +116,7 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
                   component: {
                     name: 'Home',
                     passProps: {
-                      event: savedEvent,
+                      event,
                     },
                   },
                 });

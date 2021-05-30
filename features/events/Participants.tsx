@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
-import {ProjetXEvent} from './eventsTypes';
+import {EventParticipation, ProjetXEvent} from './eventsTypes';
 import {translate} from '../../app/locales';
 import Icon from 'react-native-vector-icons/Feather';
 import Avatar from '../../common/Avatar';
@@ -39,7 +39,9 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
           (name && name.toUpperCase().includes(searchText.toUpperCase()))
         );
       };
-      const friendsFilterByCategory = (category: string): ProjetXUser[] => {
+      const friendsFilterByCategory = (
+        category: EventParticipation,
+      ): ProjetXUser[] => {
         return friends.filter(
           ({id, name}) =>
             event.participations[id] === category && friendIsSearched(name),
@@ -50,22 +52,22 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
         {
           title: translate('Participe'),
           icon: 'thumbs-up',
-          data: friendsFilterByCategory('going'),
+          data: friendsFilterByCategory(EventParticipation.going),
         },
         {
           title: translate('Peut-être'),
           icon: 'meh',
-          data: friendsFilterByCategory('maybe'),
+          data: friendsFilterByCategory(EventParticipation.maybe),
         },
         {
           title: translate('En attente'),
           icon: 'clock',
-          data: friendsFilterByCategory('notanswered'),
+          data: friendsFilterByCategory(EventParticipation.notanswered),
         },
         {
           title: translate('Pas dispo'),
           icon: 'thumbs-down',
-          data: friendsFilterByCategory('notgoing'),
+          data: friendsFilterByCategory(EventParticipation.notgoing),
         },
       ]);
     }, [friends, event, searchText]);
