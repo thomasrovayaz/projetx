@@ -3,11 +3,12 @@ import {StyleSheet, TouchableOpacityProps, ViewStyle, View} from 'react-native';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
 import {updateParticipation} from '../eventsApi';
-import {ProjetXEvent} from '../eventsTypes';
+import {EventParticipation, ProjetXEvent} from '../eventsTypes';
 import {getMe} from '../../user/usersApi';
 import Title from '../../../common/Title';
-import {Navigation} from 'react-native-navigation';
-import ShareEvent from '../eventsUtils';
+import {ShareEvent} from '../eventsUtils';
+import {useAppDispatch} from '../../../app/redux';
+import {editEvent} from '../eventsSlice';
 
 interface ProjetXEventCTAsProps {
   event: ProjetXEvent;
@@ -55,15 +56,13 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
   event,
   componentId,
 }) => {
+  const dispatch = useAppDispatch();
   const [step, setStep] =
     useState<
-      | 'going'
+      | EventParticipation
       | 'accepting'
-      | 'maybe'
       | 'maybeing'
-      | 'notgoing'
       | 'refusing'
-      | 'notanswered'
       | 'repeating'
       | 'author'
       | null
@@ -81,52 +80,44 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
   }, [event]);
 
   const accept = () => {
-    updateParticipation(event.id, 'going');
+    updateParticipation(event.id, EventParticipation.going);
     setStep('accepting');
     setTimeout(() => {
-      setStep('going');
+      setStep(EventParticipation.going);
     }, 2000);
   };
   const maybe = () => {
-    updateParticipation(event.id, 'maybe');
+    updateParticipation(event.id, EventParticipation.maybe);
     setStep('maybeing');
   };
   const repeatTomorrow = () => {
     setStep('repeating');
     setTimeout(() => {
-      setStep('maybe');
+      setStep(EventParticipation.maybe);
     }, 2000);
   };
   const repeatBefore = () => {
     setStep('repeating');
     setTimeout(() => {
-      setStep('maybe');
+      setStep(EventParticipation.maybe);
     }, 2000);
   };
   const refuse = () => {
-    updateParticipation(event.id, 'notgoing');
+    updateParticipation(event.id, EventParticipation.notgoing);
     setStep('refusing');
     setTimeout(() => {
-      setStep('notgoing');
+      setStep(EventParticipation.notgoing);
     }, 2000);
   };
-  const edit = () =>
-    Navigation.push(componentId, {
-      component: {
-        name: 'CreateEventType',
-        passProps: {
-          event,
-        },
-      },
-    });
+  const edit = () => dispatch(editEvent({event, componentId}));
   const share = async () => ShareEvent(event);
 
   const renderCtas = () => {
     switch (step) {
       case null:
       case undefined:
-      case 'notanswered':
-      case 'maybe':
+      case EventParticipation.notanswered:
+      case EventParticipation.maybe:
         return (
           <>
             <Button
@@ -148,7 +139,7 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
             />
           </>
         );
-      case 'going':
+      case EventParticipation.going:
         return (
           <>
             <Button
@@ -164,7 +155,7 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
             />
           </>
         );
-      case 'notgoing':
+      case EventParticipation.notgoing:
         return (
           <>
             <Button

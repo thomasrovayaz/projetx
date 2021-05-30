@@ -45,8 +45,8 @@ const EventDescription: React.FC<ProjetXEventDescriptionProps> = ({
               component: {
                 name: 'CreateEventWhat',
                 passProps: {
-                  onSave: () => {
-                    Navigation.pop(componentId);
+                  onSave: async () => {
+                    await Navigation.pop(componentId);
                   },
                 },
               },

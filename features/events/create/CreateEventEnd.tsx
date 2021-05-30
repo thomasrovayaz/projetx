@@ -12,14 +12,13 @@ import Clipboard from '@react-native-community/clipboard';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
 import {ProjetXEvent} from '../eventsTypes';
-import {saveEvent} from '../eventsApi';
+import {pushNotifications, saveEvent} from '../eventsApi';
 import Title from '../../../common/Title';
 import Logo from '../../../assets/logo.svg';
 import Label from '../../../common/Label';
 import Icon from 'react-native-vector-icons/Feather';
 import Toast from '../../../common/Toast';
-import OneSignal from 'react-native-onesignal';
-import ShareEvent from '../eventsUtils';
+import {ShareEvent} from '../eventsUtils';
 import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../../user/usersSlice';
 import {selectCurrentEvent} from '../eventsSlice';
@@ -32,37 +31,16 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
     const friends = useSelector(selectMyFriends);
     const modalToastRef = React.useRef();
 
-    const save = async (eventToSave: ProjetXEvent) => {
-      const sendNotifications = true; //!eventToSave.id;
-      const newEvent = await saveEvent(eventToSave);
-      if (sendNotifications && newEvent) {
-        const notificationObj = {
-          contents: {en: newEvent.title},
-          include_player_ids: friends
-            .filter(
-              ({id, oneSignalId}) => newEvent.participations[id] && oneSignalId,
-            )
-            .map(({oneSignalId}) => oneSignalId),
-        };
-        console.log(notificationObj);
-        const jsonString = JSON.stringify(notificationObj);
-        OneSignal.postNotification(
-          jsonString,
-          success => {
-            console.log('Success:', success);
-          },
-          error => {
-            console.log('Error:', error);
-          },
-        );
-      }
-    };
-
     useEffect(() => {
-      if (event) {
+      const save = async (eventToSave: ProjetXEvent) => {
+        eventToSave = await saveEvent(eventToSave);
+        pushNotifications(eventToSave, friends);
+      };
+
+      if (friends && event && !event.id) {
         save(event);
       }
-    }, [event]);
+    }, [event, friends]);
 
     if (!event) {
       return null;

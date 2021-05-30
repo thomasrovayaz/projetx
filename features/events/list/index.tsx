@@ -4,7 +4,7 @@ import * as RNLocalize from 'react-native-localize';
 import dynamicLinks, {
   FirebaseDynamicLinksTypes,
 } from '@react-native-firebase/dynamic-links';
-import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
+import {NavigationFunctionComponent} from 'react-native-navigation';
 import {setI18nConfig, translate} from '../../../app/locales';
 import Button from '../../../common/Button';
 import Title from '../../../common/Title';
@@ -12,10 +12,10 @@ import useTabbarIcon from '../../../app/useTabbarIcon';
 import EventsList from './EventsList';
 import {EventParticipation, ProjetXEvent} from '../eventsTypes';
 import {getEvent, updateParticipation} from '../eventsApi';
-import {getUsers} from '../../user/usersApi';
-import {useSelector} from 'react-redux';
-import {createEvent, openEvent, selectCurrentEvent} from '../eventsSlice';
+import {getMe, getUsers} from '../../user/usersApi';
+import {createEvent, openEvent} from '../eventsSlice';
 import {useAppDispatch} from '../../../app/redux';
+import OneSignal from 'react-native-onesignal';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -24,7 +24,6 @@ const HomeScreen: NavigationFunctionComponent = ({
   componentId: string;
   event?: ProjetXEvent;
 }) => {
-  const currentEvent = useSelector(selectCurrentEvent);
   const dispatch = useAppDispatch();
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   useTabbarIcon(componentId, 'home');
@@ -32,6 +31,15 @@ const HomeScreen: NavigationFunctionComponent = ({
   const handleLocalizationChange = () => {
     setI18nConfig();
     forceUpdate();
+  };
+
+  const handleOpenEvent = async (eventId: string) => {
+    const eventLoaded = await getEvent(eventId);
+    const me = getMe();
+    if (me && !eventLoaded.participations[me.uid]) {
+      await updateParticipation(eventLoaded.id, EventParticipation.notanswered);
+    }
+    dispatch(openEvent({event: eventLoaded, componentId}));
   };
 
   const handleDynamicLink = async (
@@ -45,16 +53,9 @@ const HomeScreen: NavigationFunctionComponent = ({
         const path = matches[3];
         const routes = path.split('/');
         if (routes[0] === 'event') {
-          const eventLoaded = await getEvent(routes[1]);
-          await updateParticipation(
-            eventLoaded.id,
-            EventParticipation.notanswered,
-          );
+          await handleOpenEvent(routes[1]);
           if (routes[2] === 'poll') {
-            dispatch(openEvent(eventLoaded));
             //todo open poll routes[3]
-          } else {
-            dispatch(openEvent(eventLoaded));
           }
         }
       }
@@ -64,6 +65,11 @@ const HomeScreen: NavigationFunctionComponent = ({
   useEffect(() => {
     RNLocalize.addEventListener('change', handleLocalizationChange);
     dynamicLinks().getInitialLink().then(handleDynamicLink);
+    OneSignal.setNotificationOpenedHandler(async ({notification}) => {
+      console.log('OneSignal: notification opened:', notification);
+      // @ts-ignore
+      await handleOpenEvent(notification.additionalData.eventId);
+    });
     const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
     getUsers();
     return () => {
@@ -74,26 +80,9 @@ const HomeScreen: NavigationFunctionComponent = ({
 
   useEffect(() => {
     if (event) {
-      dispatch(openEvent(event));
+      dispatch(openEvent({event, componentId}));
     }
   }, [event]);
-  useEffect(() => {
-    if (currentEvent) {
-      if (currentEvent.isPhantom()) {
-        Navigation.push(componentId, {
-          component: {
-            name: 'CreateEventType',
-          },
-        });
-      } else {
-        Navigation.push(componentId, {
-          component: {
-            name: 'Event',
-          },
-        });
-      }
-    }
-  }, [currentEvent]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -102,13 +91,13 @@ const HomeScreen: NavigationFunctionComponent = ({
       <EventsList
         componentId={componentId}
         onOpenEvent={(eventClicked: ProjetXEvent) =>
-          dispatch(openEvent(eventClicked))
+          dispatch(openEvent({event: eventClicked, componentId}))
         }
       />
       <View style={styles.buttonCreate}>
         <Button
           title="Créer un événement"
-          onPress={() => dispatch(createEvent())}
+          onPress={() => dispatch(createEvent(componentId))}
         />
       </View>
     </SafeAreaView>

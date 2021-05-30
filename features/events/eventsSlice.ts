@@ -1,6 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../../app/store';
 import {EventParticipation, ProjetXEvent} from './eventsTypes';
+import {Navigation} from 'react-native-navigation';
 
 interface EventsState {
   current?: ProjetXEvent;
@@ -15,14 +16,38 @@ export const eventsSlice = createSlice({
   name: 'events',
   initialState,
   reducers: {
-    openEvent(state, action: PayloadAction<ProjetXEvent>) {
-      state.current = action.payload;
+    openEvent(
+      state,
+      action: PayloadAction<{event: ProjetXEvent; componentId: string}>,
+    ) {
+      state.current = action.payload.event;
+      Navigation.push(action.payload.componentId, {
+        component: {
+          name: 'Event',
+        },
+      });
+    },
+    editEvent(
+      state,
+      action: PayloadAction<{event: ProjetXEvent; componentId: string}>,
+    ) {
+      state.current = action.payload.event;
+      Navigation.push(action.payload.componentId, {
+        component: {
+          name: 'CreateEventType',
+        },
+      });
     },
     closeEvent(state) {
       state.current = undefined;
     },
-    createEvent(state) {
+    createEvent(state, action: PayloadAction<string>) {
       state.current = new ProjetXEvent('');
+      Navigation.push(action.payload, {
+        component: {
+          name: 'CreateEventType',
+        },
+      });
     },
     fetchEvents(state, action: PayloadAction<ProjetXEvent[]>) {
       state.list = {};
@@ -59,6 +84,7 @@ export const eventsSlice = createSlice({
 
 export const {
   openEvent,
+  editEvent,
   closeEvent,
   createEvent,
   fetchEvents,
