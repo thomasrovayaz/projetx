@@ -7,9 +7,7 @@ import Title from '../../../common/Title';
 import {translate} from '../../../app/locales';
 import {getMe} from '../../user/usersApi';
 import {useSelector} from 'react-redux';
-import {closeEvent, selectMyEvents} from '../eventsSlice';
-import {Navigation} from 'react-native-navigation';
-import {useAppDispatch} from '../../../app/redux';
+import {selectMyEvents} from '../eventsSlice';
 
 interface EventsListProps {
   componentId: string;
@@ -30,7 +28,6 @@ const EmptyEventsList: React.FC = () => {
 };
 
 const EventsList: React.FC<EventsListProps> = ({componentId, onOpenEvent}) => {
-  const dispatch = useAppDispatch();
   const events: ProjetXEvent[] = useSelector(selectMyEvents);
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -44,16 +41,7 @@ const EventsList: React.FC<EventsListProps> = ({componentId, onOpenEvent}) => {
   }, []);
 
   useEffect(() => {
-    const screenEventListener =
-      Navigation.events().registerComponentDidAppearListener(event => {
-        if (event.componentId === componentId) {
-          dispatch(closeEvent());
-        }
-      });
     fetchEvents();
-    return () => {
-      screenEventListener.remove();
-    };
   }, []);
 
   const renderItem = ({item}: {item: ProjetXEvent}) => (

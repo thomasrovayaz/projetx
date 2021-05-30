@@ -1,7 +1,7 @@
 import OneSignal from 'react-native-onesignal';
 import Config from 'react-native-config';
-import {Alert} from 'react-native';
 import {getMe, updateOneSignalId} from '../features/user/usersApi';
+import {getMyEvents} from '../features/events/eventsApi';
 
 export const setupOneSignal = async () => {
   OneSignal.setLogLevel(6, 0);
@@ -20,28 +20,9 @@ export const setupOneSignal = async () => {
       console.log('notification: ', notification);
       const data = notification.additionalData;
       console.log('additionalData: ', data);
-      const button1 = {
-        text: 'Cancel',
-        onPress: () => {
-          notificationReceivedEvent.complete();
-        },
-        style: 'cancel',
-      };
-      const button2 = {
-        text: 'Complete',
-        onPress: () => {
-          notificationReceivedEvent.complete(notification);
-        },
-      };
-      Alert.alert('Complete notification?', 'Test', [button1, button2], {
-        cancelable: true,
-      });
+      getMyEvents();
     },
   );
-
-  OneSignal.setNotificationOpenedHandler(notification => {
-    console.log('OneSignal: notification opened:', notification);
-  });
   const deviceState = await OneSignal.getDeviceState();
   console.log('deviceState', deviceState);
   const me = getMe();

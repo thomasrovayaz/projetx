@@ -58,7 +58,7 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle={'dark-content'} backgroundColor="white" />
+        <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
         <View style={styles.searchInput}>
           <TextInput
             value={searchText}

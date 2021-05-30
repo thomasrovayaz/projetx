@@ -10,11 +10,11 @@ export interface EventTypes {
 }
 
 export const eventTypes: EventTypes[] = [
-  {id: EventType.diner, title: translate('Diner entre amis')},
-  {id: EventType.party, title: translate('Soirée entre potes')},
+  {id: EventType.diner, title: translate('Dîner')},
+  {id: EventType.party, title: translate('Soirée')},
   {id: EventType.sport, title: translate('Sortie sport')},
-  {id: EventType.weekend, title: translate('Weekend posey')},
-  {id: EventType.week, title: translate('Semaine de défoulement')},
+  {id: EventType.weekend, title: translate('Weekend')},
+  {id: EventType.week, title: translate('Semaine de vacance')},
   {id: EventType.travel, title: translate('Voyage loiiin')},
 ];
 export const eventTypeTitle = (id: EventType | undefined) => {
@@ -30,7 +30,6 @@ export const ShareEvent = async (event: ProjetXEvent) => {
     ios: {
       activityItemSources: [
         {
-          // For sharing url with custom title.
           placeholderItem: {type: 'url', content: url},
           item: {
             default: {type: 'url', content: url},
@@ -69,7 +68,6 @@ export const ShareEvent = async (event: ProjetXEvent) => {
   // @ts-ignore
   await Share.open(options);
 };
-export default ShareEvent;
 
 export async function buildLink(event: ProjetXEvent) {
   return await dynamicLinks().buildShortLink(
