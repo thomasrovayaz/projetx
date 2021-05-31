@@ -41,7 +41,7 @@ const Toast: React.ForwardRefRenderFunction<ToastProps> = (props, ref) => {
 
 const text1Style: TextStyle = {
   fontFamily: 'Inter',
-  fontSize: 16,
+  fontSize: 14,
 };
 const text2Style: TextStyle = {
   fontFamily: 'Inter',
@@ -51,7 +51,8 @@ const infoStyle: ViewStyle = {
   borderLeftColor: '#473B78',
 };
 const contentContainerStyle: ViewStyle = {
-  paddingHorizontal: 15,
+  paddingLeft: 10,
+  borderRadius: 15,
 };
 
 export default forwardRef(Toast);

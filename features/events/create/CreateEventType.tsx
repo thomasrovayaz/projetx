@@ -77,6 +77,7 @@ CreateEventTypeScreen.options = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
   content: {
     paddingVertical: 20,

@@ -1,6 +1,7 @@
 import {FirebaseDatabaseTypes} from '@react-native-firebase/database';
 import moment from 'moment';
 import {LocationValue} from './create/components/LocationPicker';
+import {getMe} from '../user/usersApi';
 
 export interface DateValue {
   startDate?: moment.Moment;
@@ -37,20 +38,31 @@ export class ProjetXEvent {
   } = {};
   public shareLink: string = '';
 
-  constructor(
-    id: string,
-    author?: string,
-    title?: string,
-    description?: string | undefined,
-    type?: EventType,
-    date?: DateValue | undefined,
-    time?: moment.Moment | undefined,
-    location?: LocationValue | undefined,
+  constructor({
+    id,
+    author,
+    title,
+    description,
+    type,
+    date,
+    time,
+    location,
+    participations,
+    shareLink,
+  }: {
+    id: string;
+    author?: string;
+    title?: string;
+    description?: string | undefined;
+    type?: EventType;
+    date?: DateValue | undefined;
+    time?: moment.Moment | undefined;
+    location?: LocationValue | undefined;
     participations?: {
       [uid: string]: EventParticipation;
-    },
-    shareLink?: string,
-  ) {
+    };
+    shareLink?: string;
+  }) {
     this.id = id;
     this.author = author;
     this.title = title;
@@ -62,8 +74,20 @@ export class ProjetXEvent {
     this.participations = participations || {};
     this.shareLink = shareLink || '';
   }
-  isPhantom() {
-    return !this.id || this.id === '';
+  getStartingDate(): moment.Moment | undefined {
+    if (this.date) {
+      if (this.date.date) {
+        return this.time
+          ? this.date.date?.hours(this.time.hour())?.minutes(this.time.minute())
+          : this.date.date;
+      } else if (this.date.startDate) {
+        return this.date.startDate;
+      }
+    }
+    return undefined;
+  }
+  isAuthor(): Boolean {
+    return getMe()?.uid === this.author;
   }
 }
 const timeConverter = {
@@ -109,18 +133,19 @@ const dateConverter = {
 export const eventConverter = {
   fromFirestore(snapshot: FirebaseDatabaseTypes.DataSnapshot): ProjetXEvent {
     const data = snapshot.val();
-    return new ProjetXEvent(
-      snapshot.key || '',
-      data.author,
-      data.title,
-      data.description,
-      data.type,
-      dateConverter.fromFirestore(data.date),
-      timeConverter.fromFirestore(data.time),
-      data.location,
-      data.participations,
-      data.shareLink,
-    );
+    return new ProjetXEvent({
+      ...data,
+      id: snapshot.key,
+      date: dateConverter.fromFirestore(data.date),
+      time: timeConverter.fromFirestore(data.time),
+    });
+  },
+  fromLocalStorage(data: any): ProjetXEvent {
+    return new ProjetXEvent({
+      ...data,
+      date: dateConverter.fromFirestore(data.date),
+      time: timeConverter.fromFirestore(data.time),
+    });
   },
   toFirestore(event?: ProjetXEvent) {
     if (!event) {

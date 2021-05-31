@@ -16,6 +16,7 @@ import {getMe, getUsers} from '../../user/usersApi';
 import {createEvent, openEvent} from '../eventsSlice';
 import {useAppDispatch} from '../../../app/redux';
 import OneSignal from 'react-native-onesignal';
+import Toast from 'react-native-simple-toast';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -33,11 +34,19 @@ const HomeScreen: NavigationFunctionComponent = ({
     forceUpdate();
   };
 
-  const handleOpenEvent = async (eventId: string) => {
+  const handleOpenEvent = async (
+    eventId: string,
+    participation?: EventParticipation,
+  ) => {
     const eventLoaded = await getEvent(eventId);
     const me = getMe();
-    if (me && !eventLoaded.participations[me.uid]) {
-      await updateParticipation(eventLoaded.id, EventParticipation.notanswered);
+    if (me) {
+      if (participation !== undefined) {
+        await updateParticipation(eventLoaded, participation);
+        Toast.showWithGravity('Réponse envoyé 👍', Toast.SHORT, Toast.TOP);
+      } else if (!eventLoaded.participations[me.uid]) {
+        await updateParticipation(eventLoaded, EventParticipation.notanswered);
+      }
     }
     dispatch(openEvent({event: eventLoaded, componentId}));
   };
@@ -65,10 +74,14 @@ const HomeScreen: NavigationFunctionComponent = ({
   useEffect(() => {
     RNLocalize.addEventListener('change', handleLocalizationChange);
     dynamicLinks().getInitialLink().then(handleDynamicLink);
-    OneSignal.setNotificationOpenedHandler(async ({notification}) => {
-      console.log('OneSignal: notification opened:', notification);
-      // @ts-ignore
-      await handleOpenEvent(notification.additionalData.eventId);
+    OneSignal.setNotificationOpenedHandler(async ({notification, action}) => {
+      console.log('OneSignal: notification opened:', notification, action);
+      await handleOpenEvent(
+        // @ts-ignore
+        notification.additionalData.eventId,
+        // @ts-ignore
+        Number.parseInt(action.actionId, 10),
+      );
     });
     const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
     getUsers();
@@ -110,11 +123,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   title: {
-    margin: 20,
+    marginHorizontal: 20,
+    marginVertical: 10,
   },
   buttonCreate: {
-    padding: 20,
-    height: 90,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
   },
 });
 

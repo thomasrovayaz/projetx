@@ -1,9 +1,8 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../../app/store';
 import {ProjetXUser} from './usersTypes';
-import {getMyEvents} from '../events/eventsApi';
-import {EventParticipation, ProjetXEvent} from '../events/eventsTypes';
-import {getMe, getUsers} from './usersApi';
+import {EventParticipation} from '../events/eventsTypes';
+import {getMe} from './usersApi';
 import {selectMyEvents} from '../events/eventsSlice';
 
 interface UsersState {

@@ -15,6 +15,7 @@ import Avatar from '../../common/Avatar';
 import TextInput from '../../common/TextInput';
 import Button from '../../common/Button';
 import {ProjetXUser} from '../user/usersTypes';
+import {notifyNewEvent} from './eventsApi';
 
 interface ProjetXEventParticipantsProps {
   event: ProjetXEvent;

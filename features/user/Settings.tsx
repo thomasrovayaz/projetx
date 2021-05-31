@@ -38,7 +38,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   content: {
-    padding: 20,
+    marginHorizontal: 20,
+    marginVertical: 10,
     alignItems: 'stretch',
   },
   input: {

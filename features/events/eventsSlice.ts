@@ -1,7 +1,8 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../../app/store';
-import {EventParticipation, ProjetXEvent} from './eventsTypes';
+import {eventConverter, EventParticipation, ProjetXEvent} from './eventsTypes';
 import {Navigation} from 'react-native-navigation';
+import {createTransform} from 'redux-persist';
 
 interface EventsState {
   current?: ProjetXEvent;
@@ -42,7 +43,7 @@ export const eventsSlice = createSlice({
       state.current = undefined;
     },
     createEvent(state, action: PayloadAction<string>) {
-      state.current = new ProjetXEvent('');
+      state.current = new ProjetXEvent({id: ''});
       Navigation.push(action.payload, {
         component: {
           name: 'CreateEventType',
@@ -93,7 +94,40 @@ export const {
 } = eventsSlice.actions;
 
 export const selectMyEvents = (state: RootState): ProjetXEvent[] =>
-  Object.values(state.events.list);
+  Object.values<ProjetXEvent>(state.events.list).sort((eventA, eventB) => {
+    const startingDateA = eventA.getStartingDate();
+    const startingDateB = eventB.getStartingDate();
+    if (!startingDateB) {
+      return 1;
+    }
+    if (!startingDateA) {
+      return -1;
+    }
+    return startingDateB.valueOf() - startingDateA.valueOf();
+  });
 export const selectCurrentEvent = (state: RootState) => state.events.current;
 
 export default eventsSlice.reducer;
+
+export const eventsTransform = createTransform(
+  null,
+  (outboundState: any) => {
+    const events: {[id: string]: ProjetXEvent} = {};
+    if (outboundState.list) {
+      for (const eventId in outboundState.list) {
+        if (outboundState.list.hasOwnProperty(eventId)) {
+          events[eventId] = eventConverter.fromLocalStorage(
+            outboundState.list[eventId],
+          );
+        }
+      }
+    }
+    return {
+      list: events,
+      current: outboundState.current
+        ? eventConverter.fromLocalStorage(outboundState.current)
+        : null,
+    };
+  },
+  {whitelist: ['events']},
+);

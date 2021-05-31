@@ -61,32 +61,23 @@ export async function saveEvent(event: ProjetXEvent): Promise<ProjetXEvent> {
 }
 
 export async function updateParticipation(
-  eventId: string,
+  event: ProjetXEvent,
   type: EventParticipation,
 ) {
   const me = getMe();
-  if (!me || !eventId) {
+  if (!me || !event.id) {
     return;
   }
-  await database().ref(`events/${eventId}/participations/${me.uid}`).set(type);
-  store.dispatch(participationUpdated({eventId, userId: me.uid, type}));
+  await database().ref(`events/${event.id}/participations/${me.uid}`).set(type);
+  store.dispatch(
+    participationUpdated({eventId: event.id, userId: me.uid, type}),
+  );
+  notifyParticipation(event, me.displayName, type);
 }
 
-export function pushNotifications(event: ProjetXEvent, friends: ProjetXUser[]) {
+export function notifyNewEvent(event: ProjetXEvent, friends: ProjetXUser[]) {
   let message = translate('Souhaites-tu y participer?');
-  let dateMessage;
-  if (event.date) {
-    if (event.date.date) {
-      const date = event.time
-        ? event.date.date
-            ?.hours(event.time.hour())
-            ?.minutes(event.time.minute())
-        : event.date.date;
-      dateMessage = date.fromNow();
-    } else if (event.date.startDate) {
-      dateMessage = event.date.startDate.fromNow();
-    }
-  }
+  let dateMessage = event.getStartingDate()?.fromNow();
   let title = '';
   switch (event.type) {
     case EventType.diner:
@@ -125,8 +116,60 @@ export function pushNotifications(event: ProjetXEvent, friends: ProjetXUser[]) {
       {id: EventParticipation.notgoing, text: translate('Refuser')},
     ],
     include_player_ids: friends
-      .filter(({id, oneSignalId}) => event.participations[id] && oneSignalId)
+      .filter(
+        ({id, oneSignalId}) =>
+          [EventParticipation.notanswered, EventParticipation.maybe].includes(
+            event.participations[id],
+          ) && oneSignalId,
+      )
       .map(({oneSignalId}) => oneSignalId),
+  };
+  console.log(notificationObj);
+  const jsonString = JSON.stringify(notificationObj);
+  OneSignal.postNotification(
+    jsonString,
+    success => {
+      console.log('Success:', success);
+    },
+    error => {
+      console.log('Error:', error);
+    },
+  );
+}
+
+export function notifyParticipation(
+  event: ProjetXEvent,
+  pseudo: string | null,
+  type: EventParticipation,
+) {
+  if (!event.author || !pseudo) {
+    return;
+  }
+  const oneSignalIdAuthor =
+    store.getState().users.list[event.author].oneSignalId;
+  if (!oneSignalIdAuthor) {
+    return;
+  }
+  let message;
+  switch (type) {
+    case EventParticipation.going:
+      message = `${pseudo} ${translate('est chaud')}`;
+      break;
+    case EventParticipation.notgoing:
+      message = `${pseudo} ${translate("n'est pas chaud")}`;
+      break;
+    default:
+      return;
+  }
+  const notificationObj = {
+    headings: {
+      en: event.title,
+    },
+    contents: {
+      en: message,
+    },
+    data: {eventId: event.id},
+    include_player_ids: [oneSignalIdAuthor],
   };
   console.log(notificationObj);
   const jsonString = JSON.stringify(notificationObj);

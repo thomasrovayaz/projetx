@@ -15,7 +15,8 @@ import SettingsScreen from '../features/user/Settings';
 import HomeScreen from '../features/events/list';
 import LoginScreen from '../features/user/Login';
 import {Provider} from 'react-redux';
-import {store} from './store';
+import {persistor, store} from './store';
+import {PersistGate} from 'redux-persist/integration/react';
 
 function registerScreen<P>(name: string, Component: React.ComponentType<P>) {
   Navigation.registerComponent(
@@ -23,7 +24,9 @@ function registerScreen<P>(name: string, Component: React.ComponentType<P>) {
     () => props => {
       return (
         <Provider store={store}>
-          <Component {...props} />
+          <PersistGate loading={null} persistor={persistor}>
+            <Component {...props} />
+          </PersistGate>
         </Provider>
       );
     },

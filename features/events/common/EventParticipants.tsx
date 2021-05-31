@@ -132,6 +132,13 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
         </>
       );
     }
+    if (event.isAuthor()) {
+      return (
+        <Text style={styles.emptyText}>
+          {translate('Pas encore de participant, invite tes amis !')}
+        </Text>
+      );
+    }
     return (
       <Text style={styles.emptyText}>
         {translate('Pas encore de participant, soit le premier !')}
@@ -142,7 +149,10 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
     return null;
   }
   return (
-    <TouchableOpacity onPress={showModal} style={[styles.container, style]}>
+    <TouchableOpacity
+      onPress={showModal}
+      activeOpacity={0.8}
+      style={[styles.container, style]}>
       {withLabel && <Label>{translate('Participants')}</Label>}
       <View style={styles.content}>{renderAvatars()}</View>
     </TouchableOpacity>
