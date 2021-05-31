@@ -36,36 +36,3 @@ export async function getUsers() {
   store.dispatch(fetchUsers(users));
   return users;
 }
-
-export async function getMyFriends(): Promise<ProjetXUser[]> {
-  const myEvents = await getMyEvents();
-  const friendsScore: {[uid: string]: number} = {};
-  const treatParticipants = (friendId: string) => {
-    if (!friendId && friendId === '') {
-      return;
-    }
-    if (friendsScore[friendId]) {
-      friendsScore[friendId]++;
-    } else {
-      friendsScore[friendId] = 1;
-    }
-  };
-
-  for (const myEvent of myEvents) {
-    myEvent.participations &&
-      Object.keys(myEvent.participations)
-        .filter(userId =>
-          [EventParticipation.going, EventParticipation.maybe].includes(
-            myEvent.participations[userId],
-          ),
-        )
-        .map(treatParticipants);
-  }
-  const users = await getUsers();
-  return users
-    .filter(({id}) => id !== getMe()?.uid)
-    .map(user => ({...user, score: friendsScore[user.id]}))
-    .sort((friend1, friend2) => {
-      return friend1.score - friend2.score;
-    });
-}

@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
+  RefreshControl,
   SafeAreaView,
   SectionList,
   StatusBar,
@@ -15,7 +16,8 @@ import Avatar from '../../common/Avatar';
 import TextInput from '../../common/TextInput';
 import Button from '../../common/Button';
 import {ProjetXUser} from '../user/usersTypes';
-import {notifyNewEvent} from './eventsApi';
+import {getUsers} from '../user/usersApi';
+import {getEvent} from './eventsApi';
 
 interface ProjetXEventParticipantsProps {
   event: ProjetXEvent;
@@ -25,6 +27,7 @@ interface ProjetXEventParticipantsProps {
 const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsProps> =
   ({componentId, event, friends}) => {
     const [searchText, onChangeSearchText] = useState<string>();
+    const [refreshing, setRefreshing] = React.useState(false);
     const [participants, setParticipants] = useState<
       {
         title: string;
@@ -32,6 +35,14 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
         data: ProjetXUser[];
       }[]
     >([]);
+    const fetchUsers = async () => {
+      setRefreshing(true);
+      await Promise.all([getUsers(), getEvent(event.id)]);
+      setRefreshing(false);
+    };
+    const onRefresh = useCallback(() => {
+      fetchUsers();
+    }, []);
 
     useEffect(() => {
       const friendIsSearched = (name: string) => {
@@ -102,6 +113,9 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
                   <Text style={styles.headerText}>{title}</Text>
                 </View>
               ) : null
+            }
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
           />
           <Button

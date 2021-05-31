@@ -3,15 +3,20 @@ import type {RootState} from '../../app/store';
 import {eventConverter, EventParticipation, ProjetXEvent} from './eventsTypes';
 import {Navigation} from 'react-native-navigation';
 import {createTransform} from 'redux-persist';
+import {removeEventAnswerReminder} from './eventsApi';
+import moment from 'moment';
 
 interface EventsState {
   current?: ProjetXEvent;
   list: {
     [uid: string]: ProjetXEvent;
   };
+  reminders: {
+    [eventId: string]: {onesignalId: string; date: moment.Moment};
+  };
 }
 
-const initialState: EventsState = {list: {}};
+const initialState: EventsState = {list: {}, reminders: {}};
 
 export const eventsSlice = createSlice({
   name: 'events',
@@ -42,6 +47,18 @@ export const eventsSlice = createSlice({
     closeEvent(state) {
       state.current = undefined;
     },
+    remindEvent(
+      state,
+      {
+        payload: {event, onesignalId, date},
+      }: PayloadAction<{
+        event: ProjetXEvent;
+        onesignalId: string;
+        date: moment.Moment;
+      }>,
+    ) {
+      state.reminders[event.id] = {onesignalId, date};
+    },
     createEvent(state, action: PayloadAction<string>) {
       state.current = new ProjetXEvent({id: ''});
       Navigation.push(action.payload, {
@@ -63,6 +80,13 @@ export const eventsSlice = createSlice({
       }
       state.list[event.id] = event;
     },
+    eventCanceled(state, action: PayloadAction<ProjetXEvent>) {
+      const event = action.payload;
+      if (state.current && state.current.id === event.id) {
+        delete state.current;
+      }
+      delete state.list[event.id];
+    },
     participationUpdated(
       state,
       action: PayloadAction<{
@@ -79,6 +103,15 @@ export const eventsSlice = createSlice({
       if (event) {
         event.participations[userId] = type;
       }
+      if (
+        [EventParticipation.going, EventParticipation.notgoing].includes(
+          type,
+        ) &&
+        state.reminders[event.id]
+      ) {
+        removeEventAnswerReminder(state.reminders[event.id].onesignalId);
+        delete state.reminders[event.id];
+      }
     },
   },
 });
@@ -90,7 +123,9 @@ export const {
   createEvent,
   fetchEvents,
   updateEvent,
+  eventCanceled,
   participationUpdated,
+  remindEvent,
 } = eventsSlice.actions;
 
 export const selectMyEvents = (state: RootState): ProjetXEvent[] =>
@@ -106,6 +141,8 @@ export const selectMyEvents = (state: RootState): ProjetXEvent[] =>
     return startingDateB.valueOf() - startingDateA.valueOf();
   });
 export const selectCurrentEvent = (state: RootState) => state.events.current;
+export const selectReminder = (eventId: string) => (state: RootState) =>
+  state.events.reminders[eventId];
 
 export default eventsSlice.reducer;
 
@@ -127,6 +164,7 @@ export const eventsTransform = createTransform(
       current: outboundState.current
         ? eventConverter.fromLocalStorage(outboundState.current)
         : null,
+      reminders: outboundState.reminders || {},
     };
   },
   {whitelist: ['events']},

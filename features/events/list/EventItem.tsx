@@ -46,7 +46,7 @@ const EventItem: React.FC<EventItemProps> = ({componentId, event, onPress}) => {
         hideOnEmpty
         style={styles.participants}
       />
-      <EventCTAs componentId={componentId} event={event} />
+      <EventCTAs componentId={componentId} event={event} small />
     </TouchableOpacity>
   );
 };

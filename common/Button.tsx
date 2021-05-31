@@ -5,11 +5,13 @@ import {
   TouchableOpacityProps,
   ViewStyle,
   Text,
+  TextStyle,
 } from 'react-native';
 
 interface ProjetXButtonProps {
   variant?: 'default' | 'outlined';
   title: string;
+  textStyle?: TextStyle;
 }
 
 interface Style {
@@ -54,6 +56,7 @@ const styles = StyleSheet.create<Style>({
 const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
   variant = 'default',
   title,
+  textStyle,
   ...props
 }) => {
   const isOutlined = variant === 'outlined';
@@ -70,6 +73,7 @@ const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
         style={[
           styles.mainText,
           isOutlined ? styles.outlinedText : styles.defaultText,
+          textStyle,
         ]}>
         {title}
       </Text>

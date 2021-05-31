@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   FlatList,
+  RefreshControl,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -10,8 +11,8 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
 import {EventParticipation} from '../eventsTypes';
-import {saveEvent} from '../eventsApi';
-import {getMe} from '../../user/usersApi';
+import {getEvent, saveEvent} from '../eventsApi';
+import {getMe, getUsers} from '../../user/usersApi';
 import Checkbox from '../../../common/Checkbox';
 import TextInput from '../../../common/TextInput';
 import {ProjetXUser} from '../../user/usersTypes';
@@ -29,6 +30,15 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
       event?.participations ? Object.keys(event.participations) : [],
     );
     const friends = useSelector(selectMyFriends);
+    const [refreshing, setRefreshing] = React.useState(false);
+    const fetchUsers = async () => {
+      setRefreshing(true);
+      await Promise.all([getUsers(), event && getEvent(event.id)]);
+      setRefreshing(false);
+    };
+    const onRefresh = useCallback(() => {
+      fetchUsers();
+    }, []);
 
     if (!event) {
       return null;
@@ -92,6 +102,9 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
                 />
               );
             }}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
           />
         </View>
         <View style={styles.buttonNext}>
