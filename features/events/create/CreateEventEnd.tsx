@@ -12,12 +12,12 @@ import Clipboard from '@react-native-community/clipboard';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
 import {ProjetXEvent} from '../eventsTypes';
-import {pushNotifications, saveEvent} from '../eventsApi';
+import {notifyNewEvent, saveEvent} from '../eventsApi';
 import Title from '../../../common/Title';
 import Logo from '../../../assets/logo.svg';
 import Label from '../../../common/Label';
 import Icon from 'react-native-vector-icons/Feather';
-import Toast from '../../../common/Toast';
+import Toast from 'react-native-simple-toast';
 import {ShareEvent} from '../eventsUtils';
 import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../../user/usersSlice';
@@ -29,12 +29,11 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
   ({componentId}) => {
     const event = useSelector(selectCurrentEvent);
     const friends = useSelector(selectMyFriends);
-    const modalToastRef = React.useRef();
 
     useEffect(() => {
       const save = async (eventToSave: ProjetXEvent) => {
         eventToSave = await saveEvent(eventToSave);
-        pushNotifications(eventToSave, friends);
+        notifyNewEvent(eventToSave, friends);
       };
 
       if (friends && event && !event.id) {
@@ -50,16 +49,11 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
 
     const copyLink = async () => {
       Clipboard.setString(event.shareLink);
-      if (modalToastRef.current) {
-        // @ts-ignore
-        modalToastRef.current.show({
-          type: 'info',
-          text1: translate('Lien de partage copié'),
-          visibilityTime: 4000,
-          autoHide: true,
-          topOffset: 30,
-        });
-      }
+      Toast.showWithGravity(
+        translate('Lien de partage copié 👍'),
+        Toast.SHORT,
+        Toast.TOP,
+      );
     };
 
     return (
@@ -106,8 +100,6 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
             />
           </View>
         </View>
-        {/*@ts-ignore*/}
-        <Toast ref={modalToastRef} />
       </SafeAreaView>
     );
   };
@@ -115,6 +107,7 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
     padding: 20,
   },
   header: {},

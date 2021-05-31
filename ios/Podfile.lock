@@ -10,36 +10,36 @@ PODS:
     - React-Core (= 0.64.0)
     - React-jsi (= 0.64.0)
     - ReactCommon/turbomodule/core (= 0.64.0)
-  - Firebase/Auth (7.11.0):
+  - Firebase/Auth (8.0.0):
     - Firebase/CoreOnly
-    - FirebaseAuth (~> 7.11.0)
-  - Firebase/CoreOnly (7.11.0):
-    - FirebaseCore (= 7.11.0)
-  - Firebase/Database (7.11.0):
+    - FirebaseAuth (~> 8.0.0)
+  - Firebase/CoreOnly (8.0.0):
+    - FirebaseCore (= 8.0.0)
+  - Firebase/Database (8.0.0):
     - Firebase/CoreOnly
-    - FirebaseDatabase (~> 7.11.0)
-  - Firebase/DynamicLinks (7.11.0):
+    - FirebaseDatabase (~> 8.0.0)
+  - Firebase/DynamicLinks (8.0.0):
     - Firebase/CoreOnly
-    - FirebaseDynamicLinks (~> 7.11.0)
-  - FirebaseAuth (7.11.0):
-    - FirebaseCore (~> 7.0)
-    - GoogleUtilities/AppDelegateSwizzler (~> 7.0)
-    - GoogleUtilities/Environment (~> 7.0)
-    - GTMSessionFetcher/Core (~> 1.4)
-  - FirebaseCore (7.11.0):
-    - FirebaseCoreDiagnostics (~> 7.4)
-    - GoogleUtilities/Environment (~> 7.0)
-    - GoogleUtilities/Logger (~> 7.0)
-  - FirebaseCoreDiagnostics (7.11.0):
-    - GoogleDataTransport (~> 8.4)
-    - GoogleUtilities/Environment (~> 7.0)
-    - GoogleUtilities/Logger (~> 7.0)
+    - FirebaseDynamicLinks (~> 8.0.0)
+  - FirebaseAuth (8.0.0):
+    - FirebaseCore (~> 8.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.4)
+    - GoogleUtilities/Environment (~> 7.4)
+    - GTMSessionFetcher/Core (~> 1.5)
+  - FirebaseCore (8.0.0):
+    - FirebaseCoreDiagnostics (~> 8.0)
+    - GoogleUtilities/Environment (~> 7.4)
+    - GoogleUtilities/Logger (~> 7.4)
+  - FirebaseCoreDiagnostics (8.0.0):
+    - GoogleDataTransport (~> 9.0)
+    - GoogleUtilities/Environment (~> 7.4)
+    - GoogleUtilities/Logger (~> 7.4)
     - nanopb (~> 2.30908.0)
-  - FirebaseDatabase (7.11.0):
-    - FirebaseCore (~> 7.0)
+  - FirebaseDatabase (8.0.0):
+    - FirebaseCore (~> 8.0)
     - leveldb-library (~> 1.22)
-  - FirebaseDynamicLinks (7.11.0):
-    - FirebaseCore (~> 7.0)
+  - FirebaseDynamicLinks (8.0.0):
+    - FirebaseCore (~> 8.0)
   - Flipper (0.87.0):
     - Flipper-Folly (~> 2.5)
     - Flipper-RSocket (~> 1.3)
@@ -114,7 +114,7 @@ PODS:
     - GoogleMaps
   - Google-Maps-iOS-Utils/QuadTree (2.1.0):
     - GoogleMaps
-  - GoogleDataTransport (8.4.0):
+  - GoogleDataTransport (9.0.0):
     - GoogleUtilities/Environment (~> 7.2)
     - nanopb (~> 2.30908.0)
     - PromisesObjC (~> 1.2)
@@ -147,6 +147,7 @@ PODS:
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
   - OneSignal (3.4.3)
+  - OneSignalXCFramework (3.4.4)
   - OpenSSL-Universal (1.1.180)
   - PromisesObjC (1.2.12)
   - RCT-Folly (2020.01.13.00):
@@ -354,11 +355,14 @@ PODS:
     - React-Core
   - react-native-maps (0.28.0):
     - React-Core
-  - react-native-onesignal (4.1.0):
-    - OneSignal (= 3.4.3)
+  - react-native-onesignal (4.1.1):
+    - OneSignalXCFramework (= 3.4.4)
     - React (< 1.0.0, >= 0.13.0)
   - react-native-safe-area-context (3.2.0):
     - React-Core
+  - react-native-simple-toast (1.1.3):
+    - React-Core
+    - Toast (~> 4.0.0)
   - react-native-splash-screen (3.2.0):
     - React
   - React-perflogger (0.64.0)
@@ -434,25 +438,27 @@ PODS:
     - React-Core
     - React-RCTImage
     - React-RCTText
+  - RNCAsyncStorage (1.12.1):
+    - React-Core
   - RNCClipboard (1.5.1):
     - React-Core
   - RNCMaskedView (0.1.11):
     - React
   - RNDateTimePicker (3.4.7):
     - React-Core
-  - RNFBApp (11.5.0):
-    - Firebase/CoreOnly (= 7.11.0)
+  - RNFBApp (12.0.0):
+    - Firebase/CoreOnly (= 8.0.0)
     - React-Core
-  - RNFBAuth (11.5.0):
-    - Firebase/Auth (= 7.11.0)
+  - RNFBAuth (12.0.0):
+    - Firebase/Auth (= 8.0.0)
     - React-Core
     - RNFBApp
-  - RNFBDatabase (11.5.0):
-    - Firebase/Database (= 7.11.0)
+  - RNFBDatabase (12.0.0):
+    - Firebase/Database (= 8.0.0)
     - React-Core
     - RNFBApp
   - RNFBDynamicLinks (12.0.0):
-    - Firebase/DynamicLinks (= 7.11.0)
+    - Firebase/DynamicLinks (= 8.0.0)
     - GoogleUtilities/AppDelegateSwizzler
     - React-Core
     - RNFBApp
@@ -497,6 +503,7 @@ PODS:
     - React
   - RNVectorIcons (8.1.0):
     - React-Core
+  - Toast (4.0.0)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -545,6 +552,7 @@ DEPENDENCIES:
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-onesignal (from `../node_modules/react-native-onesignal`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-simple-toast (from `../node_modules/react-native-simple-toast`)
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -559,6 +567,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeNavigation (from `../node_modules/react-native-navigation`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
@@ -601,8 +610,10 @@ SPEC REPOS:
     - libevent
     - nanopb
     - OneSignal
+    - OneSignalXCFramework
     - OpenSSL-Universal
     - PromisesObjC
+    - Toast
     - YogaKit
 
 EXTERNAL SOURCES:
@@ -648,6 +659,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-onesignal"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-simple-toast:
+    :path: "../node_modules/react-native-simple-toast"
   react-native-splash-screen:
     :path: "../node_modules/react-native-splash-screen"
   React-perflogger:
@@ -676,6 +689,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeNavigation:
     :path: "../node_modules/react-native-navigation"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-community/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-community/clipboard"
   RNCMaskedView:
@@ -713,12 +728,12 @@ SPEC CHECKSUMS:
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: 49cbe4b43e445b06bf29199b6ad2057649e4c8f5
   FBReactNativeSpec: 4ffc19f291d8a5e6bf5e8ea4b63848fe9bd32c21
-  Firebase: c121feb35e4126c0b355e3313fa9b487d47319fd
-  FirebaseAuth: 5fe4585c2ed847319f0ea68bd1d82c77e49ff9a0
-  FirebaseCore: 907447d8917a4d3eb0cce2829c5a0ad21d90b432
-  FirebaseCoreDiagnostics: 68ad972f99206cef818230f3f3179d52ccfb7f8c
-  FirebaseDatabase: 6c39fbf1c8514a2f32e610f9bf9ef30c535dc15a
-  FirebaseDynamicLinks: 07f101c20bb40fd39f6b3e5278a64a5f2f660dc1
+  Firebase: 73c3e3b216ec1ecbc54d2ffdd4670c65c749edb1
+  FirebaseAuth: b8cd992fca5b53dc6eec09e873a3f375f000c5a1
+  FirebaseCore: 3f09591d51292843e2a46f18358d60bf4e996255
+  FirebaseCoreDiagnostics: a31d987ba0fe16d59886a5dbadc2f1de871f88c8
+  FirebaseDatabase: 363961e25451425be8b14bb8801a592515ec58f2
+  FirebaseDynamicLinks: 42858c22626d9c519b28e0421b2ea6bcc5a241ff
   Flipper: 1bd2db48dcc31e4b167b9a33ec1df01c2ded4893
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -728,7 +743,7 @@ SPEC CHECKSUMS:
   FlipperKit: 651f50a42eb95c01b3e89a60996dd6aded529eeb
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   Google-Maps-iOS-Utils: c32891ff472eaaa1fca032beedafa1a013af7875
-  GoogleDataTransport: cd9db2180fcecd8da1b561aea31e3e56cf834aa7
+  GoogleDataTransport: 11e3a5f2c190327df1a4a5d7e7ae3d4d5b9c9e4c
   GoogleMaps: 32ca02de09de357a10ac773f2c70f1986751392d
   GoogleUtilities: f8a43108b38a68eebe8b3540e1f4f2d28843ce20
   GTMSessionFetcher: b3503b20a988c4e20cc189aa798fd18220133f52
@@ -736,6 +751,7 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OneSignal: e4dfb1912410f302dc9661ce98fc829f6c18ff6a
+  OneSignalXCFramework: eaf286b7438aa1f030f03e5fa9f1c79ede5d8f04
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
@@ -753,8 +769,9 @@ SPEC CHECKSUMS:
   react-native-get-random-values: 237bffb1c7e05fb142092681531810a29ba53015
   react-native-google-maps: 46dea4aa4acb7300beff508f64d9f8c84e9fb106
   react-native-maps: 2d405b4e8cee0282e4c02bac434d81450dfea877
-  react-native-onesignal: 6d3d3ac10192c5694049ce8c1ba481e5392c1a73
+  react-native-onesignal: 2a7c3a5f2aa1c599d94cda6cc583205e1548828d
   react-native-safe-area-context: f0906bf8bc9835ac9a9d3f97e8bde2a997d8da79
+  react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   React-perflogger: 9c547d8f06b9bf00cb447f2b75e8d7f19b7e02af
   React-RCTActionSheet: 3080b6e12e0e1a5b313c8c0050699b5c794a1b11
@@ -769,13 +786,14 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: cad74a1eaa53ee6e7a3620231939d8fe2c6afcf0
   ReactCommon: cfe2b7fd20e0dbd2d1185cd7d8f99633fbc5ff05
   ReactNativeNavigation: ff4873e683e5f23822af097e4fe643c82469c3d2
+  RNCAsyncStorage: b03032fdbdb725bea0bd9e5ec5a7272865ae7398
   RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
   RNCMaskedView: 0e1bc4bfa8365eba5fbbb71e07fbdc0555249489
   RNDateTimePicker: 8dcfab802edece406f4f4780130974a0e04213b4
-  RNFBApp: 9c90f9d576861947ba75fe0830567c570bcbcf6d
-  RNFBAuth: 99fdbce04ff3d39e57a7a3956d632ee69145685b
-  RNFBDatabase: 64aaecd9e48c6378864ef7d0fe65cc5f312987ed
-  RNFBDynamicLinks: e870c49eb6be2170d3946d2eb9b4468a9c467fe0
+  RNFBApp: cc2ff3f925840c53f0117d92e0f5e269b356d0f7
+  RNFBAuth: 6853dd2d92ed8635831679b695a6690151ae6b77
+  RNFBDatabase: da5a3f22b05750d334ae34458cc6317d558eb719
+  RNFBDynamicLinks: 9110076a214ce2eb4f6e5be754b5269046f89e49
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNLocalize: 99e59cad311ca1b6872b1764514009416ccba03d
   RNReanimated: b8c8004b43446e3c2709fe64b2b41072f87428ad
@@ -783,6 +801,7 @@ SPEC CHECKSUMS:
   RNShare: c93ee0df653c76d913554272d56f6ffd8bdcb3cc
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
+  Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 

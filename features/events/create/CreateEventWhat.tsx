@@ -89,6 +89,7 @@ const CreateEventWhatScreen: NavigationFunctionComponent<CreateEventWhatScreenPr
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
   content: {
     padding: 20,

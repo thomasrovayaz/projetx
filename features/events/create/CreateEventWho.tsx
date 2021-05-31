@@ -104,6 +104,7 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
   searchInput: {
     paddingTop: 20,

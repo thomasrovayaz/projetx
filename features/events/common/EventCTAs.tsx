@@ -5,10 +5,10 @@ import {translate} from '../../../app/locales';
 import {updateParticipation} from '../eventsApi';
 import {EventParticipation, ProjetXEvent} from '../eventsTypes';
 import {getMe} from '../../user/usersApi';
-import Title from '../../../common/Title';
 import {ShareEvent} from '../eventsUtils';
 import {useAppDispatch} from '../../../app/redux';
 import {editEvent} from '../eventsSlice';
+import Toast from 'react-native-simple-toast';
 
 interface ProjetXEventCTAsProps {
   event: ProjetXEvent;
@@ -58,20 +58,12 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const [step, setStep] =
-    useState<
-      | EventParticipation
-      | 'accepting'
-      | 'maybeing'
-      | 'refusing'
-      | 'repeating'
-      | 'author'
-      | null
-    >();
+    useState<EventParticipation | 'maybeing' | 'author' | undefined>();
 
   useEffect(() => {
     const me = getMe()?.uid;
-    if (!me || !event || !event.participations || !event.participations[me]) {
-      setStep(null);
+    if (!me || !event || !event.participations) {
+      setStep(undefined);
     } else if (me === event.author) {
       setStep('author');
     } else {
@@ -79,35 +71,31 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
     }
   }, [event]);
 
-  const accept = () => {
-    updateParticipation(event.id, EventParticipation.going);
-    setStep('accepting');
-    setTimeout(() => {
-      setStep(EventParticipation.going);
-    }, 2000);
+  const showToast = (message: string) => {
+    Toast.showWithGravity(message, Toast.SHORT, Toast.TOP);
   };
-  const maybe = () => {
-    updateParticipation(event.id, EventParticipation.maybe);
+
+  const accept = async () => {
+    await updateParticipation(event, EventParticipation.going);
+    showToast(translate('Que serait une soirée sans toi 😍'));
+    setStep(EventParticipation.going);
+  };
+  const maybe = async () => {
+    await updateParticipation(event, EventParticipation.maybe);
     setStep('maybeing');
   };
-  const repeatTomorrow = () => {
-    setStep('repeating');
-    setTimeout(() => {
-      setStep(EventParticipation.maybe);
-    }, 2000);
+  const repeatTomorrow = async () => {
+    showToast(translate('Rappel enregistré 👌'));
+    setStep(EventParticipation.maybe);
   };
-  const repeatBefore = () => {
-    setStep('repeating');
-    setTimeout(() => {
-      setStep(EventParticipation.maybe);
-    }, 2000);
+  const repeatBefore = async () => {
+    showToast(translate('Rappel enregistré 👌'));
+    setStep(EventParticipation.maybe);
   };
-  const refuse = () => {
-    updateParticipation(event.id, EventParticipation.notgoing);
-    setStep('refusing');
-    setTimeout(() => {
-      setStep(EventParticipation.notgoing);
-    }, 2000);
+  const refuse = async () => {
+    await updateParticipation(event, EventParticipation.notgoing);
+    showToast(translate('Dommage 😢'));
+    setStep(EventParticipation.notgoing);
   };
   const edit = () => dispatch(editEvent({event, componentId}));
   const share = async () => ShareEvent(event);
@@ -171,14 +159,6 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
             />
           </>
         );
-      case 'accepting':
-        return (
-          <Title style={styles.message}>
-            Que serait une soirée sans toi... 😍
-          </Title>
-        );
-      case 'refusing':
-        return <Title style={styles.message}>Dommage 😢</Title>;
       case 'maybeing':
         return (
           <>
@@ -196,8 +176,6 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
             />
           </>
         );
-      case 'repeating':
-        return <Title style={styles.message}>Rappel enregistré 👌</Title>;
       case 'author':
         return (
           <>
@@ -214,6 +192,8 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
             />
           </>
         );
+      default:
+        console.log('default partipation');
     }
   };
 
