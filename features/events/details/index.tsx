@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -6,6 +6,7 @@ import {
   View,
   Text,
   ScrollView,
+  RefreshControl,
 } from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Title from '../../../common/Title';
@@ -17,6 +18,8 @@ import EventDate from '../common/EventDate';
 import {eventTypeTitle} from '../eventsUtils';
 import {useSelector} from 'react-redux';
 import {selectCurrentEvent} from '../eventsSlice';
+import {getUsers} from '../../user/usersApi';
+import {getEvent} from '../eventsApi';
 
 interface EventScreenProps {
   componentId: string;
@@ -26,7 +29,21 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
   componentId,
 }) => {
   const event = useSelector(selectCurrentEvent);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const fetchEvent = async () => {
+    setRefreshing(true);
+    await getEvent(event.id);
+    setRefreshing(false);
+  };
+  const onRefresh = useCallback(() => {
+    fetchEvent();
+  }, []);
+
   useEffect(() => {
+    if (!event) {
+      Navigation.pop(componentId);
+      return;
+    }
     Navigation.mergeOptions(componentId, {
       topBar: {
         title: {
@@ -47,7 +64,11 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
         <Text style={styles.subtitle}>{eventTypeTitle(event.type)}</Text>
         <Title style={styles.title}>{event.title}</Title>
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
         <EventDate event={event} componentId={componentId} />
         <EventDescription event={event} componentId={componentId} />
         <EventLocation event={event} componentId={componentId} />

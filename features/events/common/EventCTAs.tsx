@@ -1,18 +1,31 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, TouchableOpacityProps, ViewStyle, View} from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacityProps,
+  ViewStyle,
+  View,
+  TextStyle,
+  Alert,
+} from 'react-native';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
-import {updateParticipation} from '../eventsApi';
+import {
+  addEventAnswerReminder,
+  cancelEvent,
+  updateParticipation,
+} from '../eventsApi';
 import {EventParticipation, ProjetXEvent} from '../eventsTypes';
 import {getMe} from '../../user/usersApi';
 import {ShareEvent} from '../eventsUtils';
-import {useAppDispatch} from '../../../app/redux';
-import {editEvent} from '../eventsSlice';
+import {useAppDispatch, useAppSelector} from '../../../app/redux';
+import {editEvent, selectReminder} from '../eventsSlice';
 import Toast from 'react-native-simple-toast';
+import moment from 'moment';
 
 interface ProjetXEventCTAsProps {
   event: ProjetXEvent;
   componentId: string;
+  small?: Boolean;
 }
 
 interface Style {
@@ -22,6 +35,8 @@ interface Style {
   ctaLeft: ViewStyle;
   ctaRight: ViewStyle;
   ctaMiddle: ViewStyle;
+  ctaCancel: ViewStyle;
+  ctaTextCancel: TextStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -47,6 +62,13 @@ const styles = StyleSheet.create<Style>({
     flex: 1,
     marginHorizontal: 5,
   },
+  ctaCancel: {
+    borderWidth: 0,
+  },
+  ctaTextCancel: {
+    color: '#ac0c0c',
+    fontWeight: '700',
+  },
   message: {
     fontSize: 14,
   },
@@ -55,10 +77,15 @@ const styles = StyleSheet.create<Style>({
 const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
   event,
   componentId,
+  small,
 }) => {
   const dispatch = useAppDispatch();
   const [step, setStep] =
     useState<EventParticipation | 'maybeing' | 'author' | undefined>();
+  const reminder = useAppSelector(selectReminder(event.id));
+  const hasReminder =
+    reminder && reminder.date && moment(reminder.date).isAfter(moment());
+  const startingDate = event.getStartingDate();
 
   useEffect(() => {
     const me = getMe()?.uid;
@@ -71,6 +98,10 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
     }
   }, [event]);
 
+  if (startingDate?.isBefore(moment())) {
+    return null;
+  }
+
   const showToast = (message: string) => {
     Toast.showWithGravity(message, Toast.SHORT, Toast.TOP);
   };
@@ -82,15 +113,17 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
   };
   const maybe = async () => {
     await updateParticipation(event, EventParticipation.maybe);
-    setStep('maybeing');
-  };
-  const repeatTomorrow = async () => {
-    showToast(translate('Rappel enregistré 👌'));
     setStep(EventParticipation.maybe);
+    await addReminder(moment().add({day: 1}));
   };
-  const repeatBefore = async () => {
-    showToast(translate('Rappel enregistré 👌'));
-    setStep(EventParticipation.maybe);
+  const addReminder = async (date: moment.Moment) => {
+    try {
+      await addEventAnswerReminder(event, date);
+      showToast(translate('Rappel enregistré 👌'));
+    } catch (e) {
+      console.error(e);
+      showToast(translate("Erreur lors de l'ajout du rappel 😕"));
+    }
   };
   const refuse = async () => {
     await updateParticipation(event, EventParticipation.notgoing);
@@ -98,6 +131,16 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
     setStep(EventParticipation.notgoing);
   };
   const edit = () => dispatch(editEvent({event, componentId}));
+  const cancel = () => {
+    Alert.alert(translate("Annuler l'événement"), translate('Es-tu sûr?'), [
+      {
+        text: 'Non',
+        onPress: () => console.log('Cancel cancel'),
+        style: 'cancel',
+      },
+      {text: 'Oui', onPress: () => cancelEvent(event)},
+    ]);
+  };
   const share = async () => ShareEvent(event);
 
   const renderCtas = () => {
@@ -106,6 +149,9 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
       case undefined:
       case EventParticipation.notanswered:
       case EventParticipation.maybe:
+        const isBeforeTommorrow =
+          startingDate &&
+          startingDate.isBefore(moment().add({day: 1}).subtract({hour: 1}));
         return (
           <>
             <Button
@@ -113,12 +159,14 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
               title={translate('Accepter')}
               onPress={accept}
             />
-            <Button
-              style={[styles.cta, styles.ctaMiddle]}
-              variant="outlined"
-              title={translate('Peut-être')}
-              onPress={maybe}
-            />
+            {hasReminder || isBeforeTommorrow ? null : (
+              <Button
+                style={[styles.cta, styles.ctaMiddle]}
+                variant="outlined"
+                title={translate('Demande moi demain')}
+                onPress={maybe}
+              />
+            )}
             <Button
               style={[styles.cta, styles.ctaRight]}
               variant="outlined"
@@ -159,37 +207,29 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
             />
           </>
         );
-      case 'maybeing':
-        return (
-          <>
-            <Button
-              style={[styles.cta, styles.ctaLeft]}
-              variant="outlined"
-              title={translate('Me redemander demain')}
-              onPress={repeatTomorrow}
-            />
-            <Button
-              style={[styles.cta, styles.ctaRight]}
-              variant="outlined"
-              title={translate('Me redemander la veille')}
-              onPress={repeatBefore}
-            />
-          </>
-        );
       case 'author':
         return (
           <>
             <Button
               style={[styles.cta, styles.ctaLeft]}
-              title={translate("Partager l'événement")}
+              title={translate('Partager')}
               onPress={share}
             />
             <Button
-              style={[styles.cta, styles.ctaRight]}
+              style={[styles.cta, styles.ctaMiddle]}
               variant="outlined"
               title={translate('Modifier')}
               onPress={edit}
             />
+            {small ? null : (
+              <Button
+                style={[styles.cta, styles.ctaRight, styles.ctaCancel]}
+                textStyle={styles.ctaTextCancel}
+                variant="outlined"
+                title={translate('Annuler')}
+                onPress={cancel}
+              />
+            )}
           </>
         );
       default:

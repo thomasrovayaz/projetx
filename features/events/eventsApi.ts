@@ -9,11 +9,20 @@ import {
   ProjetXEvent,
 } from './eventsTypes';
 import {buildLink} from './eventsUtils';
-import {fetchEvents, participationUpdated, updateEvent} from './eventsSlice';
+import {
+  eventCanceled,
+  fetchEvents,
+  participationUpdated,
+  remindEvent,
+  updateEvent,
+} from './eventsSlice';
 import {store} from '../../app/store';
 import {translate} from '../../app/locales';
 import OneSignal from 'react-native-onesignal';
 import {ProjetXUser} from '../user/usersTypes';
+import moment from 'moment';
+import axios from 'axios';
+import Config from 'react-native-config';
 
 export async function getEvent(id: string): Promise<ProjetXEvent> {
   const eventDb = await database().ref(`events/${id}`).once('value');
@@ -58,6 +67,10 @@ export async function saveEvent(event: ProjetXEvent): Promise<ProjetXEvent> {
   );
   store.dispatch(updateEvent(updatedEvent));
   return updatedEvent;
+}
+export async function cancelEvent(event: ProjetXEvent): Promise<void> {
+  await database().ref(`events/${event.id}`).remove();
+  store.dispatch(eventCanceled(event));
 }
 
 export async function updateParticipation(
@@ -180,6 +193,64 @@ export function notifyParticipation(
     },
     error => {
       console.log('Error:', error);
+    },
+  );
+}
+
+export async function addEventAnswerReminder(
+  event: ProjetXEvent,
+  date: moment.Moment,
+) {
+  const me = getMe();
+  if (!me) {
+    throw new Error(translate("Tu n'es pas connecté"));
+  }
+  const oneSignalId = store.getState().users.list[me.uid].oneSignalId;
+  if (!oneSignalId) {
+    throw new Error(translate('Tu ne peux pas envoyer de notification'));
+  }
+  const notificationObj = {
+    headings: {
+      en: event.title,
+    },
+    contents: {
+      en: translate('Rappel pour avoir ta réponse'),
+    },
+    data: {eventId: event.id},
+    buttons: [
+      {id: EventParticipation.going, text: translate('Accepter')},
+      {id: EventParticipation.notgoing, text: translate('Refuser')},
+    ],
+    send_after: date.format(),
+    include_player_ids: [oneSignalId],
+  };
+  console.log(notificationObj);
+  const jsonString = JSON.stringify(notificationObj);
+  await new Promise((resolve, reject) => {
+    OneSignal.postNotification(
+      jsonString,
+      (success: any) => {
+        console.log('Success:', success);
+        if (success.errors) {
+          reject(success.errors);
+        }
+        store.dispatch(remindEvent({event, onesignalId: success.id, date}));
+        resolve();
+      },
+      error => {
+        console.log('Error:', error);
+        reject(error);
+      },
+    );
+  });
+}
+export async function removeEventAnswerReminder(onesignalId: string) {
+  return axios.delete(
+    `https://onesignal.com/api/v1/notifications/${onesignalId}?app_id=${Config.ONESIGNAL_API_KEY}`,
+    {
+      headers: {
+        Authorization: `Basic ${Config.ONESIGNAL_REST_API_KEY}`,
+      },
     },
   );
 }

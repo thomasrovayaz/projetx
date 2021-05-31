@@ -75,7 +75,7 @@ const styles = StyleSheet.create<Style>({
     marginLeft: -5,
   },
 });
-const MAX_SIZE = (width - 40) / (40 - 5) - 1;
+const MAX_SIZE = Math.floor((width - 40) / (40 - 5) - 1);
 
 const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
   event,
