@@ -3,13 +3,14 @@ import 'react-native-get-random-values';
 import {Navigation} from 'react-native-navigation';
 import SplashScreen from 'react-native-splash-screen';
 
-import {getMe} from './features/user/usersApi';
 import {setI18nConfig} from './app/locales';
 import {setupOneSignal} from './app/onesignal';
 import {loginRoot, mainRoot} from './app/navigation';
+import auth from '@react-native-firebase/auth';
 
 const isRegistered = () => {
-  return getMe()?.displayName;
+  const me = auth().currentUser;
+  return me && me.displayName;
 };
 
 Navigation.events().registerAppLaunchedListener(() => {

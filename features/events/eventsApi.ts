@@ -31,13 +31,9 @@ export async function getEvent(id: string): Promise<ProjetXEvent> {
   return event;
 }
 export async function getMyEvents() {
-  const me = getMe()?.uid;
-  if (!me) {
-    return [];
-  }
   const eventsDb = await database()
     .ref('events')
-    .orderByChild('participations/' + me)
+    .orderByChild('participations/' + getMe().uid)
     .startAt(0)
     .once('value');
   const events: ProjetXEvent[] = [];
@@ -49,19 +45,18 @@ export async function getMyEvents() {
   return events;
 }
 export async function saveEvent(event: ProjetXEvent): Promise<ProjetXEvent> {
-  const me = getMe()?.uid;
   if (!event.id) {
     event.id = `${slugify(event.title || '', {
       lower: true,
     })}-${nanoid(11)}`;
-    event.author = me;
+    event.author = getMe().uid;
   }
   if (!event.shareLink) {
     event.shareLink = await buildLink(event);
   }
   await database()
     .ref(`events/${event.id}`)
-    .set(eventConverter.toFirestore(event));
+    .update({values: eventConverter.toFirestore(event)});
   const updatedEvent = eventConverter.fromFirestore(
     await database().ref(`events/${event.id}`).once('value'),
   );
@@ -77,15 +72,16 @@ export async function updateParticipation(
   event: ProjetXEvent,
   type: EventParticipation,
 ) {
-  const me = getMe();
-  if (!me || !event.id) {
+  if (!event.id) {
     return;
   }
-  await database().ref(`events/${event.id}/participations/${me.uid}`).set(type);
+  await database()
+    .ref(`events/${event.id}/participations/${getMe().uid}`)
+    .set(type);
   store.dispatch(
-    participationUpdated({eventId: event.id, userId: me.uid, type}),
+    participationUpdated({eventId: event.id, userId: getMe().uid, type}),
   );
-  notifyParticipation(event, me.displayName, type);
+  notifyParticipation(event, getMe().displayName, type);
 }
 
 export function notifyNewEvent(event: ProjetXEvent, friends: ProjetXUser[]) {
@@ -201,11 +197,7 @@ export async function addEventAnswerReminder(
   event: ProjetXEvent,
   date: moment.Moment,
 ) {
-  const me = getMe();
-  if (!me) {
-    throw new Error(translate("Tu n'es pas connecté"));
-  }
-  const oneSignalId = store.getState().users.list[me.uid].oneSignalId;
+  const oneSignalId = store.getState().users.list[getMe().uid].oneSignalId;
   if (!oneSignalId) {
     throw new Error(translate('Tu ne peux pas envoyer de notification'));
   }

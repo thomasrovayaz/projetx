@@ -88,8 +88,8 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
   const startingDate = event.getStartingDate();
 
   useEffect(() => {
-    const me = getMe()?.uid;
-    if (!me || !event || !event.participations) {
+    const me = getMe().uid;
+    if (!event || !event.participations) {
       setStep(undefined);
     } else if (me === event.author) {
       setStep('author');

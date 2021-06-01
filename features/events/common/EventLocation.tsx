@@ -36,8 +36,7 @@ const EventLocation: React.FC<ProjetXEventLocationProps> = ({
   event,
 }) => {
   if (!event.location) {
-    const me = getMe()?.uid;
-    if (me === event.author) {
+    if (getMe().uid === event.author) {
       return (
         <Button
           style={styles.button}

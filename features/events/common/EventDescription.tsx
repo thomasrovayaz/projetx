@@ -33,8 +33,7 @@ const EventDescription: React.FC<ProjetXEventDescriptionProps> = ({
   event,
 }) => {
   if (!event.description) {
-    const me = getMe()?.uid;
-    if (me === event.author) {
+    if (getMe().uid === event.author) {
       return (
         <Button
           style={styles.button}

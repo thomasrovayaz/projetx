@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {translate} from '../../../app/locales';
 import TextInput from '../../../common/TextInput';
-import {getMe, updateMyName} from '../usersApi';
+import {getMe, isRegistered, updateMyName} from '../usersApi';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 
 interface PseudoInputProps {
@@ -10,9 +10,14 @@ interface PseudoInputProps {
 }
 
 const PseudoInput: React.FC<PseudoInputProps> = ({label, onRegister}) => {
-  const [name, setName] = useState<string>(getMe()?.displayName || '');
+  const [name, setName] = useState<string>('');
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  useEffect(() => {
+    if (isRegistered()) {
+      setName(getMe().displayName || '');
+    }
+  }, []);
   const register = async () => {
     if (!name || name === '') {
       setSubmitted(true);

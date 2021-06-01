@@ -18,7 +18,7 @@ const EmptyEventsList: React.FC = () => {
   return (
     <View style={styles.emptyList}>
       <Title style={styles.emptyText}>
-        {translate(`Salut ${getMe()?.displayName} 👋\n`)}
+        {translate(`Salut ${getMe().displayName} 👋\n`)}
       </Title>
       <Title style={styles.emptyText}>
         {translate('Tu peux créer et inviter tes amis à ton premier événement')}
