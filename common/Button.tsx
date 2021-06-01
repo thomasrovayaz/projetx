@@ -7,10 +7,12 @@ import {
   Text,
   TextStyle,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
 
 interface ProjetXButtonProps {
   variant?: 'default' | 'outlined';
   title: string;
+  icon?: string;
   textStyle?: TextStyle;
 }
 
@@ -21,6 +23,7 @@ interface Style {
   mainText: ViewStyle;
   defaultText: ViewStyle;
   outlinedText: ViewStyle;
+  icon: ViewStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -30,6 +33,7 @@ const styles = StyleSheet.create<Style>({
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'row',
   },
   default: {
     backgroundColor: '#E6941B',
@@ -51,12 +55,16 @@ const styles = StyleSheet.create<Style>({
   outlinedText: {
     color: '#473B78',
   },
+  icon: {
+    marginRight: 5,
+  },
 });
 
 const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
   variant = 'default',
   title,
   textStyle,
+  icon,
   ...props
 }) => {
   const isOutlined = variant === 'outlined';
@@ -69,6 +77,14 @@ const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
         isOutlined ? styles.outlined : styles.default,
         props.style,
       ])}>
+      {icon ? (
+        <Icon
+          name={icon}
+          style={styles.icon}
+          size={20}
+          color={isOutlined ? '#473B78' : 'white'}
+        />
+      ) : null}
       <Text
         style={[
           styles.mainText,

@@ -1,11 +1,12 @@
 import React from 'react';
 import {StyleSheet, Text, ViewStyle} from 'react-native';
-import {ProjetXEvent} from '../eventsTypes';
+import {EventDateType, ProjetXEvent} from '../eventsTypes';
 import {translate} from '../../../app/locales';
 import Label from '../../../common/Label';
 import {getMe} from '../../user/usersApi';
 import Button from '../../../common/Button';
 import {Navigation} from 'react-native-navigation';
+import Date from '../../../common/Date';
 
 interface ProjetXEventDateProps {
   componentId: string;
@@ -31,9 +32,11 @@ const styles = StyleSheet.create<Style>({
 const format = 'ddd DD MMM YYYY';
 
 const EventDate: React.FC<ProjetXEventDateProps> = ({componentId, event}) => {
-  if (!event.date) {
-    const me = getMe()?.uid;
-    if (me === event.author) {
+  if (
+    (event.dateType === EventDateType.fixed && !event.date) ||
+    (event.dateType === EventDateType.poll && !event.datePoll)
+  ) {
+    if (getMe().uid === event.author) {
       return (
         <Button
           style={styles.button}
@@ -58,29 +61,39 @@ const EventDate: React.FC<ProjetXEventDateProps> = ({componentId, event}) => {
     return null;
   }
 
-  const renderDate = () => {
-    if (!event.date) {
-      return null;
-    }
-    if (event.date.date) {
-      return <Text style={styles.value}>{event.date.date.fromNow()}</Text>;
-    }
-    if (event.date.startDate) {
-      return (
-        <Text style={styles.value}>
-          {event.date.endDate
-            ? `${event.date.startDate.format(
-                format,
-              )} -> ${event.date.endDate.format(format)}`
-            : event.date.startDate.format(format)}
-        </Text>
-      );
-    }
+  const showPollModal = () => {
+    return Navigation.showModal({
+      stack: {
+        children: [
+          {
+            component: {
+              name: 'Poll',
+              passProps: {
+                pollId: event.datePoll,
+              },
+            },
+          },
+        ],
+      },
+    });
   };
+
+  if (event.dateType === EventDateType.poll) {
+    return (
+      <Button
+        icon="calendar"
+        style={styles.button}
+        title={translate('Sondage pour la date')}
+        variant="outlined"
+        onPress={showPollModal}
+      />
+    );
+  }
+
   return (
     <>
       <Label>{translate('Quand?')}</Label>
-      {renderDate()}
+      <Date date={event.date} short style={styles.value} />
     </>
   );
 };

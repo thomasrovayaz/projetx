@@ -11,6 +11,8 @@ import Icon from 'react-native-vector-icons/Feather';
 // @ts-ignore
 import DateRangePicker from 'react-native-daterange-picker';
 import {DateValue} from '../features/events/eventsTypes';
+import {translate} from '../app/locales';
+import Date from './Date';
 
 interface DateDialogState extends DateValue {
   displayedDate?: moment.Moment;
@@ -47,9 +49,10 @@ const styles = StyleSheet.create<Style>({
   mainText: {
     fontSize: 14,
     fontWeight: '500',
-    textAlign: 'center',
+    textAlign: 'left',
     fontFamily: 'Inter',
     color: '#473B78',
+    flex: 1,
   },
   placeholder: {
     opacity: 0.5,
@@ -103,30 +106,7 @@ const DateInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
     if (!value) {
       return placeholderView;
     }
-    let valueToText;
-    if (range) {
-      if (!value.startDate) {
-        return placeholderView;
-      }
-      valueToText = value.endDate
-        ? `${value.startDate.format(format)} -> ${value.endDate.format(format)}`
-        : value.startDate.format(format);
-    } else {
-      if (!value.date) {
-        return placeholderView;
-      }
-      valueToText = value.date.format(format);
-    }
-
-    return (
-      <Text
-        style={{
-          ...styles.mainText,
-          ...styles.valueText,
-        }}>
-        {valueToText}
-      </Text>
-    );
+    return <Date date={value} style={[styles.mainText, styles.valueText]} />;
   };
 
   return (

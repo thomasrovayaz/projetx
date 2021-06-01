@@ -23,6 +23,10 @@ export enum EventParticipation {
   notanswered,
   notgoing,
 }
+export enum EventDateType {
+  poll = 'poll',
+  fixed = 'fixed',
+}
 
 export class ProjetXEvent {
   public id: string;
@@ -30,12 +34,12 @@ export class ProjetXEvent {
   public title: string | undefined;
   public description: string | undefined;
   public type: EventType | undefined;
+  public dateType: EventDateType;
   public date: DateValue | undefined;
+  public datePoll: string | undefined;
   public time: moment.Moment | undefined;
   public location: LocationValue | undefined;
-  public participations: {
-    [uid: string]: EventParticipation;
-  } = {};
+  public participations: Record<string, EventParticipation> = {};
   public shareLink: string = '';
 
   constructor({
@@ -44,7 +48,9 @@ export class ProjetXEvent {
     title,
     description,
     type,
+    dateType,
     date,
+    datePoll,
     time,
     location,
     participations,
@@ -55,12 +61,12 @@ export class ProjetXEvent {
     title?: string;
     description?: string | undefined;
     type?: EventType;
+    dateType?: EventDateType;
     date?: DateValue | undefined;
+    datePoll?: string | undefined;
     time?: moment.Moment | undefined;
     location?: LocationValue | undefined;
-    participations?: {
-      [uid: string]: EventParticipation;
-    };
+    participations?: Record<string, EventParticipation>;
     shareLink?: string;
   }) {
     this.id = id;
@@ -68,7 +74,9 @@ export class ProjetXEvent {
     this.title = title;
     this.description = description;
     this.type = type;
+    this.dateType = dateType || EventDateType.fixed;
     this.date = date;
+    this.datePoll = datePoll;
     this.time = time;
     this.location = location;
     this.participations = participations || {};
@@ -87,7 +95,7 @@ export class ProjetXEvent {
     return undefined;
   }
   isAuthor(): Boolean {
-    return getMe()?.uid === this.author;
+    return getMe().uid === this.author;
   }
 }
 const timeConverter = {
@@ -104,7 +112,7 @@ const timeConverter = {
     return time.format();
   },
 };
-const dateConverter = {
+export const dateConverter = {
   fromFirestore(date?: {
     date: string;
     startDate: string;

@@ -60,7 +60,7 @@ export const selectMyFriends = (state: RootState): ProjetXUser[] => {
   }
   const users = selectUsers(state);
   return users
-    .filter(({id}) => id !== getMe()?.uid)
+    .filter(({id}) => id !== getMe().uid)
     .map(user => ({...user, score: friendsScore[user.id]}))
     .sort((friend1, friend2) => {
       return friend1.score - friend2.score;

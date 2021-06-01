@@ -18,6 +18,7 @@ import Button from '../../common/Button';
 import {ProjetXUser} from '../user/usersTypes';
 import {getUsers} from '../user/usersApi';
 import {getEvent} from './eventsApi';
+import {filterWithFuse} from '../../app/fuse';
 
 interface ProjetXEventParticipantsProps {
   event: ProjetXEvent;
@@ -26,7 +27,7 @@ interface ProjetXEventParticipantsProps {
 
 const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsProps> =
   ({componentId, event, friends}) => {
-    const [searchText, onChangeSearchText] = useState<string>();
+    const [searchText, onChangeSearchText] = useState<string>('');
     const [refreshing, setRefreshing] = React.useState(false);
     const [participants, setParticipants] = useState<
       {
@@ -35,28 +36,23 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
         data: ProjetXUser[];
       }[]
     >([]);
-    const fetchUsers = async () => {
-      setRefreshing(true);
-      await Promise.all([getUsers(), getEvent(event.id)]);
-      setRefreshing(false);
-    };
     const onRefresh = useCallback(() => {
+      const fetchUsers = async () => {
+        setRefreshing(true);
+        await Promise.all([getUsers(), getEvent(event.id)]);
+        setRefreshing(false);
+      };
       fetchUsers();
-    }, []);
+    }, [event.id]);
 
     useEffect(() => {
-      const friendIsSearched = (name: string) => {
-        return (
-          !searchText ||
-          (name && name.toUpperCase().includes(searchText.toUpperCase()))
-        );
-      };
       const friendsFilterByCategory = (
         category: EventParticipation,
       ): ProjetXUser[] => {
-        return friends.filter(
-          ({id, name}) =>
-            event.participations[id] === category && friendIsSearched(name),
+        return filterWithFuse(
+          friends.filter(({id}) => event.participations[id] === category),
+          ['name'],
+          searchText,
         );
       };
 
@@ -82,7 +78,7 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
           data: friendsFilterByCategory(EventParticipation.notgoing),
         },
       ]);
-    }, [friends, event, searchText]);
+    }, [friends, event.participations, searchText]);
 
     const Item = ({friend}: {friend: ProjetXUser}) => (
       <View style={styles.item}>
@@ -119,6 +115,7 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
             }
           />
           <Button
+            style={styles.closeButton}
             variant="outlined"
             title={translate('Fermer')}
             onPress={() => Navigation.dismissModal(componentId)}
@@ -166,6 +163,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
     marginLeft: 5,
+  },
+  closeButton: {
+    marginTop: 10,
   },
 });
 

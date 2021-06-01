@@ -19,26 +19,27 @@ import {ProjetXUser} from '../../user/usersTypes';
 import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../../user/usersSlice';
 import {selectCurrentEvent} from '../eventsSlice';
+import {filterWithFuse} from '../../../app/fuse';
 
 interface CreateEventWhoScreenProps {}
 
 const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProps> =
   ({componentId}) => {
     const event = useSelector(selectCurrentEvent);
-    const [searchText, onChangeSearchText] = useState<string>();
+    const [searchText, onChangeSearchText] = useState<string>('');
     const [selectedFriends, setSelectedFriends] = useState<string[]>(
       event?.participations ? Object.keys(event.participations) : [],
     );
     const friends = useSelector(selectMyFriends);
     const [refreshing, setRefreshing] = React.useState(false);
-    const fetchUsers = async () => {
-      setRefreshing(true);
-      await Promise.all([getUsers(), event && getEvent(event.id)]);
-      setRefreshing(false);
-    };
     const onRefresh = useCallback(() => {
+      const fetchUsers = async () => {
+        setRefreshing(true);
+        await Promise.all([getUsers(), event && getEvent(event.id)]);
+        setRefreshing(false);
+      };
       fetchUsers();
-    }, []);
+    }, [event]);
 
     if (!event) {
       return null;
@@ -52,7 +53,7 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
         }
       }
       const me = getMe();
-      if (me && !participations[me.uid]) {
+      if (!participations[me.uid]) {
         participations[me.uid] = EventParticipation.going;
       }
       event.participations = participations;
@@ -79,11 +80,7 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
         <View style={styles.content}>
           <FlatList
             contentContainerStyle={styles.usersList}
-            data={friends.filter(
-              ({name}) =>
-                !searchText ||
-                (name && name.toUpperCase().includes(searchText.toUpperCase())),
-            )}
+            data={filterWithFuse(friends, ['name'], searchText)}
             renderItem={({item}: {item: ProjetXUser}) => {
               return (
                 <Checkbox

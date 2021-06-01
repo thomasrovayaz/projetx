@@ -1,16 +1,25 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
 import DateInput from '../../../common/DateInput';
-import {DateValue, EventType, ProjetXEvent} from '../eventsTypes';
+import {
+  DateValue,
+  EventDateType,
+  EventType,
+  ProjetXEvent,
+} from '../eventsTypes';
 import {saveEvent} from '../eventsApi';
 import moment from 'moment';
 import TimeInput from '../../../common/TimeInput';
 import Tabs, {Tab} from '../../../common/Tabs';
 import {useSelector} from 'react-redux';
 import {selectCurrentEvent} from '../eventsSlice';
+import PollCreator from '../../polls/PollCreator';
+import {createPoll, getPoll, savePoll} from '../../polls/pollsApi';
+import {PollType} from '../../polls/pollsTypes';
+import {selectPoll} from '../../polls/pollsSlice';
 
 interface CreateEventWhenScreenProps {
   onSave?(newEvent: ProjetXEvent): void;
@@ -19,11 +28,16 @@ interface CreateEventWhenScreenProps {
 const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenProps> =
   ({componentId, onSave}) => {
     const event = useSelector(selectCurrentEvent);
+
+    const eventPoll = useSelector(selectPoll(event.datePoll));
+    const [poll, setPoll] = useState(
+      eventPoll || createPoll(PollType.DATE, event.id),
+    );
     const tabs: Tab[] = [
-      {id: 'date', title: translate('Date connue')},
-      {id: 'poll', title: translate('Sondage')},
+      {id: EventDateType.fixed, title: translate('Date connue')},
+      {id: EventDateType.poll, title: translate('Sondage')},
     ];
-    const [tab, setTab] = useState<string>(tabs[0].id);
+    const [tab, setTab] = useState<EventDateType>(event.dateType);
     const [dateValue, setDateValue] = useState<DateValue | undefined>(
       event?.date,
     );
@@ -31,15 +45,26 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
       event?.time,
     );
 
+    useEffect(() => {
+      if (event.datePoll) {
+        getPoll(event.datePoll);
+      }
+    }, [event]);
+    useEffect(() => {
+      if (eventPoll) {
+        setPoll(eventPoll);
+      }
+    }, [eventPoll]);
+
     if (!event) {
       return null;
     }
+    const isSingleDate =
+      event &&
+      event.type &&
+      [EventType.party, EventType.diner].includes(event.type);
 
     const renderDateSelector = () => {
-      const isSingleDate =
-        event &&
-        event.type &&
-        [EventType.party, EventType.diner].includes(event.type);
       return (
         <View style={styles.content}>
           <View style={styles.item}>
@@ -63,10 +88,23 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
       );
     };
     const renderPoll = () => {
-      return <View style={styles.content} />;
+      return (
+        <View style={styles.content}>
+          <PollCreator
+            poll={poll}
+            onChange={setPoll}
+            isSingleDate={isSingleDate}
+          />
+        </View>
+      );
     };
 
     const next = async () => {
+      event.dateType = tab;
+      if (poll) {
+        await savePoll(poll);
+      }
+      event.datePoll = poll.id;
       event.date = dateValue;
       event.time = timeValue;
       if (event.id) {
@@ -86,10 +124,14 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
         <View style={styles.tabs}>
-          <Tabs tabs={tabs} selectedTab={tab} onChangeTab={setTab} />
+          <Tabs
+            tabs={tabs}
+            selectedTab={tab}
+            onChangeTab={tabSelected => setTab(tabSelected as EventDateType)}
+          />
         </View>
-        {tab === 'date' ? renderDateSelector() : null}
-        {tab === 'poll' ? renderPoll() : null}
+        {tab === EventDateType.fixed ? renderDateSelector() : null}
+        {tab === EventDateType.poll ? renderPoll() : null}
         <View style={styles.buttonNext}>
           <Button
             title={translate(onSave ? 'Enregistrer' : 'Suivant >')}
@@ -110,7 +152,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
@@ -123,7 +165,6 @@ const styles = StyleSheet.create({
   },
   buttonNext: {
     padding: 20,
-    height: 90,
   },
 });
 

@@ -39,14 +39,11 @@ const HomeScreen: NavigationFunctionComponent = ({
     participation?: EventParticipation,
   ) => {
     const eventLoaded = await getEvent(eventId);
-    const me = getMe();
-    if (me) {
-      if (participation !== undefined) {
-        await updateParticipation(eventLoaded, participation);
-        Toast.showWithGravity('Réponse envoyé 👍', Toast.SHORT, Toast.TOP);
-      } else if (!eventLoaded.participations[me.uid]) {
-        await updateParticipation(eventLoaded, EventParticipation.notanswered);
-      }
+    if (participation !== undefined) {
+      await updateParticipation(eventLoaded, participation);
+      Toast.showWithGravity('Réponse envoyé 👍', Toast.SHORT, Toast.TOP);
+    } else if (!eventLoaded.participations[getMe().uid]) {
+      await updateParticipation(eventLoaded, EventParticipation.notanswered);
     }
     dispatch(openEvent({event: eventLoaded, componentId}));
   };
