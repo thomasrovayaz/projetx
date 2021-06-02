@@ -1,7 +1,6 @@
 import {I18nManager} from 'react-native';
 import i18n from 'i18n-js';
 import * as RNLocalize from 'react-native-localize';
-import memoize from 'lodash.memoize';
 import momentTz from 'moment-timezone';
 import moment from 'moment';
 import 'moment/locale/fr';
@@ -11,8 +10,8 @@ const translationGetters: any = {
   fr: () => require('../android/app/src/main/assets/translations/fr.json'),
 };
 
-export const translate = memoize(key => i18n.t(key, {defaultValue: key}));
-
+export const translate = (key: string, options = {}) =>
+  i18n.t(key, {...options, defaultValue: key});
 export const setI18nConfig = () => {
   // fallback if no available language fits
   const fallback = {languageTag: 'fr', isRTL: false};
@@ -21,9 +20,6 @@ export const setI18nConfig = () => {
     RNLocalize.findBestAvailableLanguage(Object.keys(translationGetters)) ||
     fallback;
 
-  // clear translation cache
-  // @ts-ignore
-  translate.cache.clear();
   // update layout direction
   I18nManager.forceRTL(isRTL);
 

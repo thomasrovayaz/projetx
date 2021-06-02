@@ -47,6 +47,7 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
 
     const next = async () => {
       let participations = event.participations || {};
+      console.log('selectedFriend', selectedFriends);
       for (const selectedFriend of selectedFriends) {
         if (!participations[selectedFriend]) {
           participations[selectedFriend] = EventParticipation.notanswered;
@@ -56,6 +57,7 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
       if (!participations[me.uid]) {
         participations[me.uid] = EventParticipation.going;
       }
+      console.log('participations', participations);
       event.participations = participations;
       if (event.id) {
         await saveEvent(event);

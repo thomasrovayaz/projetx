@@ -25,10 +25,7 @@ export async function savePoll(poll: ProjetXPoll): Promise<ProjetXPoll> {
   if (!poll.shareLink) {
     poll.shareLink = await buildLink(poll);
   }
-  const values = pollConverter.toFirestore(poll);
-  await database()
-    .ref(`polls/${poll.id}`)
-    .update({values: _.omit(values, ['answers'])});
+  await database().ref(`polls/${poll.id}`).set(pollConverter.toFirestore(poll));
   const updatedPoll = pollConverter.fromFirestore(
     await database().ref(`polls/${poll.id}`).once('value'),
   );

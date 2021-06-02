@@ -4,20 +4,19 @@ import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {useAppSelector} from '../../app/redux';
 import {selectPoll} from './pollsSlice';
 import {getPoll, updatePollAnswers} from './pollsApi';
-import {PollType} from './pollsTypes';
 import {DateValue} from '../events/eventsTypes';
-import Date from '../../common/Date';
-import Icon from 'react-native-vector-icons/Feather';
 import {getMe} from '../user/usersApi';
 import Button from '../../common/Button';
 import {translate} from '../../app/locales';
+import PollItem from './PollItem';
+import {LocationValue} from '../events/create/components/LocationPicker';
+import {PollState} from './pollsTypes';
 
 interface ProjetXPollProps {
   pollId: string;
@@ -29,17 +28,46 @@ const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
 }) => {
   const poll = useAppSelector(selectPoll(pollId));
   const me = getMe().uid;
-  const [answers, setAnswers] = useState(poll.answers[me] || []);
+  const [answers, setAnswers] = useState(poll?.answers[me] || []);
+  const [answersCount, setAnswersCount] = useState<{
+    [answerId: string]: number;
+  }>({});
 
   useEffect(() => {
     getPoll(pollId);
   }, [pollId]);
   useEffect(() => {
-    setAnswers(poll.answers[me] || []);
-  }, [poll.answers, me]);
+    if (poll) {
+      setAnswers(poll.answers[me] || []);
+      setAnswersCount(
+        Object.values<string[]>(poll.answers).reduce<{
+          [answerId: string]: number;
+        }>(
+          (accumulator, userAnswers) => {
+            for (const answerId of userAnswers) {
+              if (!accumulator[answerId]) {
+                accumulator[answerId] = 0;
+              }
+              accumulator[answerId]++;
+              accumulator.total++;
+            }
+            return accumulator;
+          },
+          {total: 0},
+        ),
+      );
+    }
+  }, [poll, me]);
+  if (!poll) {
+    return null;
+  }
   const isMultiplePoll = poll.settings.multiple;
+  const hasAnswered = answers.length > 0;
 
   const toggleAnswer = (answerId: string) => {
+    if (poll.state === PollState.FINISHED) {
+      return;
+    }
     const isSelected = answers.includes(answerId);
     if (isMultiplePoll) {
       if (isSelected) {
@@ -52,9 +80,25 @@ const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
       setAnswers([answerId]);
     }
   };
-  const validAnswers = (newAnswers: string[]) => {
+  const validAnswers = (newAnswers: string[]) =>
     updatePollAnswers(poll, newAnswers);
-    Navigation.dismissModal(componentId);
+
+  const renderItem = ({
+    item: {id, value},
+  }: {
+    item: {id: string; value: DateValue | LocationValue};
+  }) => {
+    return (
+      <PollItem
+        onPress={() => toggleAnswer(id)}
+        count={answersCount[id]}
+        totalVote={answersCount.total}
+        value={value}
+        type={poll.type}
+        showResult={poll.state === PollState.FINISHED || hasAnswered}
+        selected={answers.includes(id)}
+      />
+    );
   };
 
   return (
@@ -64,39 +108,7 @@ const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
         <FlatList
           contentContainerStyle={styles.choicesList}
           data={poll.choices.filter((choice: any) => Boolean(choice.value))}
-          renderItem={({item: {id, value}}) => {
-            const isSelected = answers.includes(id);
-            let input;
-            switch (poll.type) {
-              case PollType.DATE:
-                const dateValue = value as DateValue;
-                input = (
-                  <Date
-                    date={dateValue}
-                    style={[styles.item, isSelected ? styles.itemSelected : {}]}
-                  />
-                );
-            }
-            return (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => toggleAnswer(id)}
-                style={[
-                  styles.itemContainer,
-                  isSelected ? styles.itemContainerSelected : {},
-                ]}>
-                <Icon
-                  name="calendar"
-                  size={20}
-                  style={[
-                    styles.itemIcon,
-                    isSelected ? styles.itemSelected : {},
-                  ]}
-                />
-                {input}
-              </TouchableOpacity>
-            );
-          }}
+          renderItem={renderItem}
         />
         <View style={styles.buttons}>
           {isMultiplePoll ? (

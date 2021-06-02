@@ -32,7 +32,13 @@ export const pollsSlice = createSlice({
       if (state.current && state.current.id === pollId) {
         state.current.answers[getMe().uid] = answers;
       }
-      state.list[pollId].answers[getMe().uid] = answers;
+      state.list[pollId] = {
+        ...state.list[pollId],
+        answers: {
+          ...state.list[pollId].answers,
+          [getMe().uid]: answers,
+        },
+      };
     },
   },
 });

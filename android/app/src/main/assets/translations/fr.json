@@ -1,3 +1,7 @@
 {
-    "hello": "Salut le Monde!"
+    "votes": {
+        "zero": "{{count}} vote",
+        "one": "{{count}} vote",
+        "other": "{{count}} votes"
+    }
 }
