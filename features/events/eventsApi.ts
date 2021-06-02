@@ -56,7 +56,7 @@ export async function saveEvent(event: ProjetXEvent): Promise<ProjetXEvent> {
   }
   await database()
     .ref(`events/${event.id}`)
-    .update({values: eventConverter.toFirestore(event)});
+    .set(eventConverter.toFirestore(event));
   const updatedEvent = eventConverter.fromFirestore(
     await database().ref(`events/${event.id}`).once('value'),
   );

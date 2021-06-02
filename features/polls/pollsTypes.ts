@@ -7,6 +7,10 @@ export enum PollType {
   DATE,
   LOCATION,
 }
+export enum PollState {
+  RUNNING,
+  FINISHED,
+}
 
 export class ProjetXPoll<Type = DateValue | LocationValue> {
   public id: string;
@@ -14,6 +18,7 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
   public created: moment.Moment;
   public author: string | undefined;
   public type: PollType;
+  public state: PollState = PollState.RUNNING;
   public choices: {id: string; value: Type | undefined}[];
   public answers: Record<string, string[]>;
   public settings: {multiple: boolean};
