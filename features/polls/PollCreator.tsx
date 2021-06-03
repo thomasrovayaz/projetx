@@ -1,6 +1,6 @@
 import React from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
-import {PollType, ProjetXPoll} from './pollsTypes';
+import {PollState, PollType, ProjetXPoll} from './pollsTypes';
 import {DateValue} from '../events/eventsTypes';
 import DateInput from '../../common/DateInput';
 import {translate} from '../../app/locales';
@@ -8,6 +8,8 @@ import {LocationValue} from '../events/create/components/LocationPicker';
 import IconButton from '../../common/IconButton';
 import Button from '../../common/Button';
 import {nanoid} from 'nanoid';
+import Poll from './Poll';
+import {getMe} from '../user/usersApi';
 
 interface ProjetXPollProps {
   poll: ProjetXPoll;
@@ -20,8 +22,17 @@ const PollCreator: React.FC<ProjetXPollProps> = ({
   onChange,
   isSingleDate,
 }) => {
+  const me = getMe().uid;
   if (!poll) {
     return null;
+  }
+
+  if (poll.state === PollState.FINISHED) {
+    return (
+      <View style={styles.content}>
+        <Poll poll={poll} myAnswers={poll.answers[me]} showResult />
+      </View>
+    );
   }
 
   const addChoice = () => {

@@ -18,7 +18,7 @@ import {useSelector} from 'react-redux';
 import {selectCurrentEvent} from '../eventsSlice';
 import PollCreator from '../../polls/PollCreator';
 import {createPoll, getPoll, savePoll} from '../../polls/pollsApi';
-import {PollType} from '../../polls/pollsTypes';
+import {PollState, PollType} from '../../polls/pollsTypes';
 import {selectPoll} from '../../polls/pollsSlice';
 
 interface CreateEventWhenScreenProps {
@@ -30,9 +30,7 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
     const event = useSelector(selectCurrentEvent);
 
     const eventPoll = useSelector(selectPoll(event.datePoll));
-    const [poll, setPoll] = useState(
-      eventPoll || createPoll(PollType.DATE, event.id),
-    );
+    const [poll, setPoll] = useState(eventPoll);
     const tabs: Tab[] = [
       {id: EventDateType.fixed, title: translate('Date connue')},
       {id: EventDateType.poll, title: translate('Sondage')},
@@ -43,6 +41,9 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
     );
     const [timeValue, setTimeValue] = useState<moment.Moment | undefined>(
       event?.time,
+    );
+    const [editPollMode, setEditPollMode] = useState(
+      event.dateType === EventDateType.poll && event.id,
     );
 
     useEffect(() => {
@@ -55,6 +56,11 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
         setPoll(eventPoll);
       }
     }, [eventPoll]);
+    useEffect(() => {
+      if (tab === EventDateType.poll && !poll) {
+        setPoll(createPoll(PollType.DATE, event.id));
+      }
+    }, [tab, poll, event.id]);
 
     if (!event) {
       return null;
@@ -72,7 +78,11 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
               range={!isSingleDate}
               value={dateValue}
               onChange={setDateValue}
-              placeholder={translate('Ajouter une date')}
+              placeholder={translate(
+                isSingleDate
+                  ? 'Ajouter une date'
+                  : 'Ajoute les dates\nde début et de fin',
+              )}
             />
           </View>
           {isSingleDate ? (
@@ -100,11 +110,12 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
     };
 
     const next = async () => {
-      event.dateType = tab;
-      if (poll) {
+      event.dateType =
+        poll && poll.state === PollState.FINISHED ? EventDateType.fixed : tab;
+      if (poll && tab === EventDateType.poll) {
         await savePoll(poll);
+        event.datePoll = poll.id;
       }
-      event.datePoll = poll.id;
       event.date = dateValue;
       event.time = timeValue;
       if (event.id) {
@@ -119,24 +130,50 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
         },
       });
     };
+    const endPoll = async () => {
+      event.dateType = EventDateType.fixed;
+      const [, newPoll] = await Promise.all([
+        saveEvent(event),
+        savePoll({
+          ...poll,
+          state: PollState.FINISHED,
+        }),
+      ]);
+      setPoll(newPoll);
+      setTab(EventDateType.fixed);
+      setEditPollMode(false);
+    };
 
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
-        <View style={styles.tabs}>
-          <Tabs
-            tabs={tabs}
-            selectedTab={tab}
-            onChangeTab={tabSelected => setTab(tabSelected as EventDateType)}
-          />
-        </View>
+        {editPollMode ? (
+          <View style={styles.spacing} />
+        ) : (
+          <View style={styles.tabs}>
+            <Tabs
+              tabs={tabs}
+              selectedTab={tab}
+              onChangeTab={tabSelected => setTab(tabSelected as EventDateType)}
+            />
+          </View>
+        )}
         {tab === EventDateType.fixed ? renderDateSelector() : null}
         {tab === EventDateType.poll ? renderPoll() : null}
         <View style={styles.buttonNext}>
           <Button
+            style={[styles.cta]}
             title={translate(onSave ? 'Enregistrer' : 'Suivant >')}
             onPress={next}
           />
+          {editPollMode ? (
+            <Button
+              style={[styles.cta, styles.ctaRight]}
+              variant="outlined"
+              title={translate('Terminer le sondage')}
+              onPress={endPoll}
+            />
+          ) : null}
         </View>
       </SafeAreaView>
     );
@@ -150,6 +187,9 @@ const styles = StyleSheet.create({
   tabs: {
     padding: 20,
     flexDirection: 'row',
+  },
+  spacing: {
+    height: 20,
   },
   content: {
     paddingHorizontal: 20,
@@ -165,6 +205,13 @@ const styles = StyleSheet.create({
   },
   buttonNext: {
     padding: 20,
+    flexDirection: 'row',
+  },
+  cta: {
+    flex: 1,
+  },
+  ctaRight: {
+    marginLeft: 10,
   },
 });
 

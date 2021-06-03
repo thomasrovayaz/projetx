@@ -9,7 +9,7 @@ import CreateEventWhenAddOptionScreen from '../features/events/create/CreateEven
 import CreateEventWhenScreen from '../features/events/create/CreateEventWhen';
 import CreateEventTypeScreen from '../features/events/create/CreateEventType';
 import ParticipantsModal from '../features/events/Participants';
-import PollModal from '../features/polls/Poll';
+import PollModal from '../features/polls/PollModal';
 import EventScreen from '../features/events/details';
 import SettingsScreen from '../features/user/Settings';
 import HomeScreen from '../features/events/list';

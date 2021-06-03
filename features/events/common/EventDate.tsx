@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, ViewStyle} from 'react-native';
+import {StyleSheet, ViewStyle} from 'react-native';
 import {EventDateType, ProjetXEvent} from '../eventsTypes';
 import {translate} from '../../../app/locales';
 import Label from '../../../common/Label';
@@ -26,10 +26,9 @@ const styles = StyleSheet.create<Style>({
     fontFamily: 'Inter',
     fontSize: 14,
     marginBottom: 20,
+    textTransform: 'capitalize',
   },
 });
-
-const format = 'ddd DD MMM YYYY';
 
 const EventDate: React.FC<ProjetXEventDateProps> = ({componentId, event}) => {
   if (

@@ -11,7 +11,6 @@ import Icon from 'react-native-vector-icons/Feather';
 // @ts-ignore
 import DateRangePicker from 'react-native-daterange-picker';
 import {DateValue} from '../features/events/eventsTypes';
-import {translate} from '../app/locales';
 import Date from './Date';
 
 interface DateDialogState extends DateValue {
@@ -64,8 +63,6 @@ const styles = StyleSheet.create<Style>({
     backgroundColor: '#E6941B',
   },
 });
-
-const format = 'ddd DD MMM YYYY';
 
 const DateInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
   placeholder,
