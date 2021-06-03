@@ -4,7 +4,7 @@ import * as RNLocalize from 'react-native-localize';
 import dynamicLinks, {
   FirebaseDynamicLinksTypes,
 } from '@react-native-firebase/dynamic-links';
-import {NavigationFunctionComponent} from 'react-native-navigation';
+import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {setI18nConfig, translate} from '../../../app/locales';
 import Button from '../../../common/Button';
 import Title from '../../../common/Title';
@@ -34,6 +34,15 @@ const HomeScreen: NavigationFunctionComponent = ({
     forceUpdate();
   };
 
+  const onOpenEvent = (eventToOpen: ProjetXEvent) => {
+    dispatch(openEvent(eventToOpen));
+    Navigation.push(componentId, {
+      component: {
+        name: 'Event',
+      },
+    });
+  };
+
   const handleOpenEvent = async (
     eventId: string,
     participation?: EventParticipation,
@@ -45,7 +54,7 @@ const HomeScreen: NavigationFunctionComponent = ({
     } else if (!eventLoaded.participations[getMe().uid]) {
       await updateParticipation(eventLoaded, EventParticipation.notanswered);
     }
-    dispatch(openEvent({event: eventLoaded, componentId}));
+    onOpenEvent(eventLoaded);
   };
 
   const handleDynamicLink = async (
@@ -90,7 +99,7 @@ const HomeScreen: NavigationFunctionComponent = ({
 
   useEffect(() => {
     if (event) {
-      dispatch(openEvent({event, componentId}));
+      onOpenEvent(event);
     }
   }, [event]);
 
@@ -98,12 +107,7 @@ const HomeScreen: NavigationFunctionComponent = ({
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <Title style={styles.title}>{translate('Mes événements')}</Title>
-      <EventsList
-        componentId={componentId}
-        onOpenEvent={(eventClicked: ProjetXEvent) =>
-          dispatch(openEvent({event: eventClicked, componentId}))
-        }
-      />
+      <EventsList componentId={componentId} onOpenEvent={onOpenEvent} />
       <View style={styles.buttonCreate}>
         <Button
           title="Créer un événement"

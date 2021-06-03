@@ -22,16 +22,8 @@ export const eventsSlice = createSlice({
   name: 'events',
   initialState,
   reducers: {
-    openEvent(
-      state,
-      action: PayloadAction<{event: ProjetXEvent; componentId: string}>,
-    ) {
-      state.current = action.payload.event;
-      Navigation.push(action.payload.componentId, {
-        component: {
-          name: 'Event',
-        },
-      });
+    openEvent(state, action: PayloadAction<ProjetXEvent>) {
+      state.current = action.payload;
     },
     editEvent(
       state,
@@ -147,6 +139,8 @@ export const selectMyEvents = (state: RootState): ProjetXEvent[] =>
     return startingDateB.valueOf() - startingDateA.valueOf();
   });
 export const selectCurrentEvent = (state: RootState) => state.events.current;
+export const selectEvent = (eventId: string) => (state: RootState) =>
+  state.events.list[eventId];
 export const selectReminder = (eventId: string) => (state: RootState) =>
   state.events.reminders[eventId];
 

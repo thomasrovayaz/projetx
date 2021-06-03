@@ -10,7 +10,7 @@ import {
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
-import {EventParticipation} from '../eventsTypes';
+import {EventParticipation, ProjetXEvent} from '../eventsTypes';
 import {getEvent, saveEvent} from '../eventsApi';
 import {getMe, getUsers} from '../../user/usersApi';
 import Checkbox from '../../../common/Checkbox';
@@ -21,10 +21,12 @@ import {selectMyFriends} from '../../user/usersSlice';
 import {selectCurrentEvent} from '../eventsSlice';
 import {filterWithFuse} from '../../../app/fuse';
 
-interface CreateEventWhoScreenProps {}
+interface CreateEventWhoScreenProps {
+  onSave?(newEvent: ProjetXEvent): void;
+}
 
 const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProps> =
-  ({componentId}) => {
+  ({componentId, onSave}) => {
     const event = useSelector(selectCurrentEvent);
     const [searchText, onChangeSearchText] = useState<string>('');
     const [selectedFriends, setSelectedFriends] = useState<string[]>(
@@ -46,21 +48,22 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
     }
 
     const next = async () => {
-      let participations = event.participations || {};
-      console.log('selectedFriend', selectedFriends);
+      let participations: {[userId: string]: EventParticipation} = {};
       for (const selectedFriend of selectedFriends) {
-        if (!participations[selectedFriend]) {
-          participations[selectedFriend] = EventParticipation.notanswered;
-        }
+        participations[selectedFriend] =
+          event.participations[selectedFriend] ||
+          EventParticipation.notanswered;
       }
       const me = getMe();
       if (!participations[me.uid]) {
         participations[me.uid] = EventParticipation.going;
       }
-      console.log('participations', participations);
-      event.participations = participations;
-      if (event.id) {
-        await saveEvent(event);
+      const newEvent = {...event, participations};
+      if (newEvent.id) {
+        await saveEvent(newEvent);
+      }
+      if (onSave) {
+        return onSave(newEvent);
       }
       await Navigation.push(componentId, {
         component: {
@@ -107,7 +110,10 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
           />
         </View>
         <View style={styles.buttonNext}>
-          <Button title={translate('Suivant >')} onPress={next} />
+          <Button
+            title={translate(onSave ? 'Enregistrer' : 'Suivant >')}
+            onPress={next}
+          />
         </View>
       </SafeAreaView>
     );

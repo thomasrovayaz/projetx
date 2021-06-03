@@ -102,7 +102,7 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
             component: {
               name: 'Participants',
               passProps: {
-                event,
+                eventId: event.id,
                 friends,
               },
             },
