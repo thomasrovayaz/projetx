@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
-import {EventParticipation, ProjetXEvent} from './eventsTypes';
+import {EventParticipation} from './eventsTypes';
 import {translate} from '../../app/locales';
 import Icon from 'react-native-vector-icons/Feather';
 import Avatar from '../../common/Avatar';
@@ -19,14 +19,19 @@ import {ProjetXUser} from '../user/usersTypes';
 import {getUsers} from '../user/usersApi';
 import {getEvent} from './eventsApi';
 import {filterWithFuse} from '../../app/fuse';
+import {useSelector} from 'react-redux';
+import {openEvent, selectEvent} from './eventsSlice';
+import {useAppDispatch, useAppSelector} from '../../app/redux';
 
 interface ProjetXEventParticipantsProps {
-  event: ProjetXEvent;
+  eventId: string;
   friends: ProjetXUser[];
 }
 
 const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsProps> =
-  ({componentId, event, friends}) => {
+  ({componentId, eventId, friends}) => {
+    const dispatch = useAppDispatch();
+    const event = useAppSelector(selectEvent(eventId));
     const [searchText, onChangeSearchText] = useState<string>('');
     const [refreshing, setRefreshing] = React.useState(false);
     const [participants, setParticipants] = useState<
@@ -43,9 +48,12 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
         setRefreshing(false);
       };
       fetchUsers();
-    }, [event.id]);
+    }, [event]);
 
     useEffect(() => {
+      if (!friends || !event) {
+        return;
+      }
       const friendsFilterByCategory = (
         category: EventParticipation,
       ): ProjetXUser[] => {
@@ -78,7 +86,19 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
           data: friendsFilterByCategory(EventParticipation.notgoing),
         },
       ]);
-    }, [friends, event.participations, searchText]);
+    }, [friends, event, searchText]);
+
+    const edit = () => {
+      dispatch(openEvent(event));
+      Navigation.push(componentId, {
+        component: {
+          name: 'CreateEventWho',
+          passProps: {
+            onSave: async () => Navigation.pop(componentId),
+          },
+        },
+      });
+    };
 
     const Item = ({friend}: {friend: ProjetXUser}) => (
       <View style={styles.item}>
@@ -114,12 +134,19 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
           />
-          <Button
-            style={styles.closeButton}
-            variant="outlined"
-            title={translate('Fermer')}
-            onPress={() => Navigation.dismissModal(componentId)}
-          />
+          <View style={styles.buttons}>
+            <Button
+              title={translate('Modifier')}
+              style={[styles.cta, styles.ctaLeft]}
+              onPress={edit}
+            />
+            <Button
+              style={styles.cta}
+              variant="outlined"
+              title={translate('Fermer')}
+              onPress={() => Navigation.dismissModal(componentId)}
+            />
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -164,8 +191,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginLeft: 5,
   },
-  closeButton: {
+  buttons: {
     marginTop: 10,
+    flexDirection: 'row',
+  },
+  cta: {
+    flex: 1,
+  },
+  ctaLeft: {
+    marginRight: 10,
   },
 });
 

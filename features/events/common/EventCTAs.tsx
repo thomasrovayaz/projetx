@@ -135,7 +135,6 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
     Alert.alert(translate("Annuler l'événement"), translate('Es-tu sûr?'), [
       {
         text: 'Non',
-        onPress: () => console.log('Cancel cancel'),
         style: 'cancel',
       },
       {text: 'Oui', onPress: () => cancelEvent(event)},
