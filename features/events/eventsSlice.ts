@@ -138,6 +138,12 @@ export const selectMyEvents = (state: RootState): ProjetXEvent[] =>
     if (!startingDateA) {
       return -1;
     }
+    if (startingDateA.isAfter(moment())) {
+      if (startingDateB.isBefore(moment())) {
+        return -1;
+      }
+      return startingDateA.valueOf() - startingDateB.valueOf();
+    }
     return startingDateB.valueOf() - startingDateA.valueOf();
   });
 export const selectCurrentEvent = (state: RootState) => state.events.current;

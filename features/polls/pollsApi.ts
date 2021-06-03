@@ -8,7 +8,6 @@ import {buildLink} from './pollsUtils';
 import moment from 'moment';
 import {DateValue} from '../events/eventsTypes';
 import {LocationValue} from '../events/create/components/LocationPicker';
-import _ from 'lodash';
 
 export async function getPoll(id: string): Promise<ProjetXPoll> {
   const pollDb = await database().ref(`polls/${id}`).once('value');

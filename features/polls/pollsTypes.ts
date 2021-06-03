@@ -15,13 +15,13 @@ export enum PollState {
 export class ProjetXPoll<Type = DateValue | LocationValue> {
   public id: string;
   public parentEventId: string;
-  public created: moment.Moment;
+  public created: moment.Moment = moment();
   public author: string | undefined;
   public type: PollType;
   public state: PollState = PollState.RUNNING;
-  public choices: {id: string; value: Type | undefined}[];
-  public answers: Record<string, string[]>;
-  public settings: {multiple: boolean};
+  public choices: {id: string; value: Type | undefined}[] = [];
+  public answers: Record<string, string[]> = {};
+  public settings: {multiple: boolean} = {multiple: false};
   public shareLink: string;
 
   constructor({
@@ -30,6 +30,7 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
     created,
     author,
     type,
+    state,
     choices,
     answers,
     settings,
@@ -40,6 +41,7 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
     created: moment.Moment;
     author?: string;
     type: PollType;
+    state: PollState;
     choices?: {id: string; value: Type}[];
     answers?: Record<string, string[]>;
     settings?: {multiple: boolean};
@@ -49,6 +51,7 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
     this.parentEventId = parentEventId;
     this.created = created;
     this.type = type;
+    this.state = state;
     this.choices = choices || [];
     this.answers = answers || {};
     this.settings = settings || {multiple: false};
@@ -68,10 +71,12 @@ export const pollConverter = {
       case PollType.DATE:
         return new ProjetXPoll<DateValue>({
           ...data,
-          choices: data.choices.map((choice: any) => ({
-            id: choice.id,
-            value: dateConverter.fromFirestore(choice.value),
-          })),
+          choices:
+            data.choices &&
+            data.choices.map((choice: any) => ({
+              id: choice.id,
+              value: dateConverter.fromFirestore(choice.value),
+            })),
         });
       case PollType.LOCATION:
         return new ProjetXPoll<LocationValue>(data);

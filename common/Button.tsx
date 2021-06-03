@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -6,8 +6,12 @@ import {
   ViewStyle,
   Text,
   TextStyle,
+  GestureResponderEvent,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+import Toast from 'react-native-simple-toast';
+import {translate} from '../app/locales';
 
 interface ProjetXButtonProps {
   variant?: 'default' | 'outlined';
@@ -65,26 +69,63 @@ const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
   title,
   textStyle,
   icon,
+  onPress,
   ...props
 }) => {
+  const [loading, setLoading] = useState(false);
   const isOutlined = variant === 'outlined';
-  return (
-    <TouchableOpacity
-      {...props}
-      activeOpacity={0.8}
-      style={StyleSheet.flatten([
-        styles.main,
-        isOutlined ? styles.outlined : styles.default,
-        props.style,
-      ])}>
-      {icon ? (
+  const onClick = async (event: GestureResponderEvent) => {
+    if (!onPress || loading) {
+      return;
+    }
+    setLoading(true);
+    try {
+      await onPress(event);
+    } catch (error) {
+      console.error(error);
+      Toast.showWithGravity(
+        translate('Une problème est survenu 😕'),
+        Toast.SHORT,
+        Toast.TOP,
+      );
+    }
+    setLoading(false);
+  };
+
+  const renderIcon = () => {
+    if (loading) {
+      return (
+        <ActivityIndicator
+          style={styles.icon}
+          size="small"
+          color={isOutlined ? '#473B78' : 'white'}
+        />
+      );
+    }
+    if (icon) {
+      return (
         <Icon
           name={icon}
           style={styles.icon}
           size={20}
           color={isOutlined ? '#473B78' : 'white'}
         />
-      ) : null}
+      );
+    }
+    return null;
+  };
+
+  return (
+    <TouchableOpacity
+      {...props}
+      onPress={onClick}
+      activeOpacity={loading ? 1 : 0.8}
+      style={StyleSheet.flatten([
+        styles.main,
+        isOutlined ? styles.outlined : styles.default,
+        props.style,
+      ])}>
+      {renderIcon()}
       <Text
         style={[
           styles.mainText,
