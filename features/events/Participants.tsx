@@ -16,7 +16,7 @@ import Avatar from '../../common/Avatar';
 import TextInput from '../../common/TextInput';
 import Button from '../../common/Button';
 import {ProjetXUser} from '../user/usersTypes';
-import {getUsers} from '../user/usersApi';
+import {getMe, getUsers} from '../user/usersApi';
 import {getEvent} from './eventsApi';
 import {filterWithFuse} from '../../app/fuse';
 import {useSelector} from 'react-redux';
@@ -135,11 +135,13 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
             }
           />
           <View style={styles.buttons}>
-            <Button
-              title={translate('Modifier')}
-              style={[styles.cta, styles.ctaLeft]}
-              onPress={edit}
-            />
+            {event.author === getMe().uid ? (
+              <Button
+                title={translate('Modifier')}
+                style={[styles.cta, styles.ctaLeft]}
+                onPress={edit}
+              />
+            ) : null}
             <Button
               style={styles.cta}
               variant="outlined"

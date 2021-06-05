@@ -24,7 +24,7 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
   type,
   value,
   showResult,
-  count,
+  count = 0,
   totalVote,
 }) => {
   let input;

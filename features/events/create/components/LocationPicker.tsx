@@ -1,11 +1,13 @@
-import MapView, {Region} from 'react-native-maps';
-import React, {useRef} from 'react';
-import {StyleSheet, View} from 'react-native';
+import MapView, {EdgePadding, LatLng} from 'react-native-maps';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {StyleSheet, View, Platform, PermissionsAndroid} from 'react-native';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {translate} from '../../../../app/locales';
 import Icon from 'react-native-vector-icons/Feather';
 import axios from 'axios';
 import Config from 'react-native-config';
+import Geolocation from '@react-native-community/geolocation';
+import IconButton from '../../../../common/IconButton';
 
 export interface LocationValue {
   url: string;
@@ -27,32 +29,45 @@ const defaultRegion = {
 };
 const REVRSE_GEO_CODE_URL = 'https://maps.googleapis.com/maps/api/geocode/json';
 
+const isSameLocation = (locationA: LatLng, locationB: LatLng) => {
+  return (
+    Math.abs(locationA.latitude - locationB.latitude) < 0.000001 &&
+    Math.abs(locationA.longitude - locationB.longitude) < 0.000001
+  );
+};
+
 const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
   value,
   onChange,
 }) => {
-  const ref = useRef();
-  const getInitialRegion = (): Region => {
-    if (value) {
-      return {
-        latitude: value.lat,
-        longitude: value.lng,
-        latitudeDelta: defaultRegion.latitudeDelta,
-        longitudeDelta: defaultRegion.longitudeDelta,
-      };
-    }
-    return defaultRegion;
-  };
+  const [isMapReady, setMapReady] = useState(Platform.OS === 'ios');
+  const ref = useRef<MapView>(null);
+  const [hasUserLocation, setHasUserLocation] = useState<boolean>(false);
 
-  const fetchAddressForLocation = (location: Region) => {
-    let {latitude, longitude} = location;
-    if (
-      latitude === defaultRegion.latitude &&
-      longitude === defaultRegion.longitude
-    ) {
-      return;
+  const initialRegion = useRef(
+    value
+      ? {
+          latitude: value.lat,
+          longitude: value.lng,
+          latitudeDelta: defaultRegion.latitudeDelta,
+          longitudeDelta: defaultRegion.longitudeDelta,
+        }
+      : defaultRegion,
+  );
+
+  const handleMapReady = useCallback(() => {
+    if (ref.current) {
+      setMapReady(true);
     }
-    if (value && latitude === value.lat && longitude === value.lng) {
+  }, [ref, setMapReady]);
+
+  const fetchAddressForLocation = (coords: LatLng) => {
+    const {latitude, longitude} = coords;
+    if (
+      isSameLocation(coords, defaultRegion) ||
+      (value &&
+        isSameLocation(coords, {latitude: value.lat, longitude: value.lng}))
+    ) {
       return;
     }
     axios
@@ -76,16 +91,78 @@ const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
       });
   };
 
+  const zoomIn = async () => {
+    if (!ref.current) {
+      return;
+    }
+    const camera = await ref.current.getCamera();
+    ref.current.animateCamera({altitude: camera.altitude / 2});
+  };
+  const zoomOut = async () => {
+    if (!ref.current) {
+      return;
+    }
+    const camera = await ref.current.getCamera();
+    ref.current.animateCamera({altitude: camera.altitude * 2});
+  };
+  const zoomToUserLocation = async () => {
+    Geolocation.getCurrentPosition(position => {
+      if (!ref.current) {
+        return;
+      }
+      ref.current.animateCamera({
+        center: position.coords,
+      });
+    });
+  };
+
+  useEffect(() => {
+    const getUserLocation = async () => {
+      let locationPermision;
+      if (Platform.OS === 'android') {
+        locationPermision = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        );
+      } else {
+        locationPermision = PermissionsAndroid.RESULTS.GRANTED;
+      }
+      if (locationPermision === PermissionsAndroid.RESULTS.GRANTED) {
+        const watchId = Geolocation.watchPosition(({coords}) => {
+          Geolocation.clearWatch(watchId);
+          if (!value && ref.current) {
+            ref.current.animateCamera({
+              center: coords,
+            });
+            fetchAddressForLocation(coords);
+          }
+        });
+      }
+    };
+    getUserLocation();
+  }, [value]);
+
   return (
     <View style={styles.container}>
       <MapView
-        // @ts-ignore
         ref={ref}
-        style={styles.map}
-        initialRegion={getInitialRegion()}
+        style={isMapReady ? styles.map : {}}
+        showsUserLocation={true}
+        onUserLocationChange={() => {
+          if (!hasUserLocation) {
+            setHasUserLocation(true);
+          }
+        }}
+        mapPadding={isMapReady ? mapPadding : undefined}
+        onMapReady={handleMapReady}
+        initialRegion={initialRegion.current}
         onRegionChangeComplete={fetchAddressForLocation}
       />
-      <Icon name="map-pin" size={50} color="#473B78" />
+      <Icon
+        style={styles.markerIcon}
+        name="map-pin"
+        size={50}
+        color="#473B78"
+      />
       <GooglePlacesAutocomplete
         styles={{
           container: styles.autocompleteContainer,
@@ -95,7 +172,6 @@ const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
         placeholder={translate('Rechercher')}
         onPress={(data, details) => {
           if (details) {
-            // @ts-ignore
             ref?.current?.animateCamera({
               center: {
                 latitude: details.geometry.location.lat,
@@ -116,9 +192,39 @@ const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
           language: 'fr',
         }}
       />
+      <View style={styles.toolbar}>
+        {hasUserLocation ? (
+          <IconButton
+            onPress={zoomToUserLocation}
+            style={[styles.toolbarButton]}
+            size={18}
+            name="crosshair"
+          />
+        ) : null}
+        <IconButton
+          onPress={zoomIn}
+          style={styles.toolbarButton}
+          size={18}
+          name="zoom-in"
+        />
+        <IconButton
+          onPress={zoomOut}
+          style={[styles.toolbarButton]}
+          size={18}
+          name="zoom-out"
+        />
+      </View>
     </View>
   );
 };
+
+const mapPadding: EdgePadding = {
+  right: 10,
+  bottom: 0,
+  left: 0,
+  top: 80,
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -132,6 +238,17 @@ const styles = StyleSheet.create({
     right: 20,
     left: 20,
   },
+  toolbar: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  toolbarButton: {
+    padding: 10,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+  },
   textInput: {
     borderRadius: 15,
     paddingHorizontal: 15,
@@ -144,6 +261,9 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  markerIcon: {
+    marginTop: -50 + 80,
   },
 });
 

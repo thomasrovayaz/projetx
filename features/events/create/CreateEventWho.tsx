@@ -11,7 +11,7 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
 import {EventParticipation, ProjetXEvent} from '../eventsTypes';
-import {getEvent, saveEvent} from '../eventsApi';
+import {getEvent, notifyNewEvent, saveEvent} from '../eventsApi';
 import {getMe, getUsers} from '../../user/usersApi';
 import Checkbox from '../../../common/Checkbox';
 import TextInput from '../../../common/TextInput';
@@ -20,6 +20,7 @@ import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../../user/usersSlice';
 import {selectCurrentEvent} from '../eventsSlice';
 import {filterWithFuse} from '../../../app/fuse';
+import _ from 'lodash';
 
 interface CreateEventWhoScreenProps {
   onSave?(newEvent: ProjetXEvent): void;
@@ -58,12 +59,19 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
       if (!participations[me.uid]) {
         participations[me.uid] = EventParticipation.going;
       }
-      const newEvent = {...event, participations};
-      if (newEvent.id) {
-        await saveEvent(newEvent);
+      if (event.id) {
+        const newParticipants = _.difference(
+          Object.keys(participations),
+          Object.keys(event.participations),
+        );
+        event.participations = participations;
+        await saveEvent({...event});
+        notifyNewEvent(event, friends, newParticipants);
+      } else {
+        event.participations = participations;
       }
       if (onSave) {
-        return onSave(newEvent);
+        return onSave(event);
       }
       await Navigation.push(componentId, {
         component: {

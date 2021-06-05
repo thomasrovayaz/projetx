@@ -21,12 +21,19 @@ const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
 }) => {
   const me = getMe().uid;
   const poll = useAppSelector(selectPoll(pollId));
-  const [myAnswers, setMyAnswers] = useState<string[]>(poll.answers[me] || []);
-  const [hasAnswered, setHasAnswered] = useState(myAnswers.length > 0);
+  const [myAnswers, setMyAnswers] = useState<string[]>(poll?.answers[me]);
+  const [hasAnswered, setHasAnswered] = useState(myAnswers?.length > 0);
 
   useEffect(() => {
     getPoll(pollId);
   }, [pollId]);
+  useEffect(() => {
+    if (poll && !myAnswers) {
+      const myNewAnswers = poll.answers[me] || [];
+      setMyAnswers(myNewAnswers);
+      setHasAnswered(myNewAnswers.length > 0);
+    }
+  }, [poll]);
   if (!poll) {
     return null;
   }

@@ -1,16 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import {DateValue} from '../events/eventsTypes';
-import {getMe} from '../user/usersApi';
 import PollItem from './PollItem';
 import {LocationValue} from '../events/create/components/LocationPicker';
 import {PollState, ProjetXPoll} from './pollsTypes';
+import Title from '../../common/Title';
+import {translate} from '../../app/locales';
 
 interface ProjetXPollProps {
   poll: ProjetXPoll;
   onChange?(answers: string[]): void;
   showResult?: boolean;
-  myAnswers: string[];
+  myAnswers?: string[];
 }
 
 const Poll: React.FC<ProjetXPollProps> = ({
@@ -53,8 +54,8 @@ const Poll: React.FC<ProjetXPollProps> = ({
     if (poll.state === PollState.FINISHED || !onChange) {
       return;
     }
-    const isSelected = myAnswers.includes(answerId);
-    if (isMultiplePoll) {
+    const isSelected = myAnswers?.includes(answerId);
+    if (isMultiplePoll && myAnswers) {
       if (isSelected) {
         onChange(myAnswers.filter((answer: string) => answer !== answerId));
       } else {
@@ -81,17 +82,26 @@ const Poll: React.FC<ProjetXPollProps> = ({
         value={value}
         type={poll.type}
         showResult={showResult}
-        selected={myAnswers.includes(id)}
+        selected={myAnswers?.includes(id)}
       />
     );
   };
 
   return (
-    <FlatList
-      contentContainerStyle={styles.choicesList}
-      data={poll.choices.filter((choice: any) => choice.value !== undefined)}
-      renderItem={renderItem}
-    />
+    <>
+      <Title style={styles.title}>
+        {showResult
+          ? translate('Voici les résultats')
+          : isMultiplePoll
+          ? translate('Quel sont tes choix ?')
+          : translate('Quel est ton choix ?')}
+      </Title>
+      <FlatList
+        contentContainerStyle={styles.choicesList}
+        data={poll.choices.filter((choice: any) => choice.value !== undefined)}
+        renderItem={renderItem}
+      />
+    </>
   );
 };
 
@@ -103,6 +113,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+  },
+  title: {
+    marginBottom: 20,
   },
   choicesList: {},
   itemContainer: {
