@@ -96,14 +96,22 @@ const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
       return;
     }
     const camera = await ref.current.getCamera();
-    ref.current.animateCamera({altitude: camera.altitude / 2});
+    if (Platform.OS === 'ios') {
+      ref.current.animateCamera({altitude: camera.altitude / 2});
+    } else {
+      ref.current.animateCamera({zoom: camera.zoom + 1});
+    }
   };
   const zoomOut = async () => {
     if (!ref.current) {
       return;
     }
     const camera = await ref.current.getCamera();
-    ref.current.animateCamera({altitude: camera.altitude * 2});
+    if (Platform.OS === 'ios') {
+      ref.current.animateCamera({altitude: camera.altitude * 2});
+    } else {
+      ref.current.animateCamera({zoom: camera.zoom - 1});
+    }
   };
   const zoomToUserLocation = async () => {
     Geolocation.getCurrentPosition(position => {
@@ -147,6 +155,8 @@ const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
         ref={ref}
         style={isMapReady ? styles.map : {}}
         showsUserLocation={true}
+        showsMyLocationButton={false}
+        zoomControlEnabled={false}
         onUserLocationChange={() => {
           if (!hasUserLocation) {
             setHasUserLocation(true);
