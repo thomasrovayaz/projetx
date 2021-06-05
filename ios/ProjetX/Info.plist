@@ -51,7 +51,7 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>To locate the event</string>
+	<string>Pour localiser un événement</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Feather.ttf</string>

@@ -84,9 +84,21 @@ export async function updateParticipation(
   notifyParticipation(event, getMe().displayName, type);
 }
 
-export function notifyNewEvent(event: ProjetXEvent, friends: ProjetXUser[]) {
+export function notifyNewEvent(
+  event: ProjetXEvent,
+  friends: ProjetXUser[],
+  limitedUserIds?: string[],
+) {
+  if (
+    !friends ||
+    friends.length <= 0 ||
+    !event.participations ||
+    Object.keys(event.participations).length <= 0
+  ) {
+    return;
+  }
   let message = translate('Souhaites-tu y participer?');
-  let dateMessage = event.getStartingDate()?.fromNow();
+  let dateMessage = event.getStartingDate()?.fromNow() || '';
   let title = '';
   switch (event.type) {
     case EventType.diner:
@@ -129,7 +141,9 @@ export function notifyNewEvent(event: ProjetXEvent, friends: ProjetXUser[]) {
         ({id, oneSignalId}) =>
           [EventParticipation.notanswered, EventParticipation.maybe].includes(
             event.participations[id],
-          ) && oneSignalId,
+          ) &&
+          (!limitedUserIds || limitedUserIds.includes(id)) &&
+          oneSignalId,
       )
       .map(({oneSignalId}) => oneSignalId),
   };

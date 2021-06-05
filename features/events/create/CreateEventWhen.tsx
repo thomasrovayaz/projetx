@@ -147,7 +147,7 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
-        {editPollMode ? (
+        {onSave && editPollMode ? (
           <View style={styles.spacing} />
         ) : (
           <View style={styles.tabs}>
@@ -166,7 +166,7 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
             title={translate(onSave ? 'Enregistrer' : 'Suivant >')}
             onPress={next}
           />
-          {editPollMode ? (
+          {tab === EventDateType.poll && editPollMode ? (
             <Button
               style={[styles.cta, styles.ctaRight]}
               variant="outlined"
