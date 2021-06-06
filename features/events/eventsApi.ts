@@ -136,6 +136,8 @@ export function notifyNewEvent(
       {id: EventParticipation.maybe, text: translate('Peut-être')},
       {id: EventParticipation.notgoing, text: translate('Refuser')},
     ],
+    android_group: event.id,
+    thread_id: event.id,
     include_player_ids: friends
       .filter(
         ({id, oneSignalId}) =>
@@ -193,6 +195,8 @@ export function notifyParticipation(
     },
     data: {eventId: event.id},
     include_player_ids: [oneSignalIdAuthor],
+    android_group: event.id,
+    thread_id: event.id,
   };
   console.log(notificationObj);
   const jsonString = JSON.stringify(notificationObj);

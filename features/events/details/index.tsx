@@ -1,43 +1,39 @@
-import React, {useCallback, useEffect} from 'react';
-import {
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  RefreshControl,
-} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {SafeAreaView, StatusBar, StyleSheet, View, Text} from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Title from '../../../common/Title';
-import EventCTAs from '../common/EventCTAs';
-import EventParticipants from '../common/EventParticipants';
-import EventDescription from '../common/EventDescription';
-import EventLocation from '../common/EventLocation';
-import EventDate from '../common/EventDate';
 import {eventTypeTitle} from '../eventsUtils';
 import {useSelector} from 'react-redux';
-import {selectCurrentEvent} from '../eventsSlice';
-import {getUsers} from '../../user/usersApi';
-import {getEvent} from '../eventsApi';
+import {selectAmIParticipating, selectCurrentEvent} from '../eventsSlice';
+import Tabs, {Tab} from '../../../common/Tabs';
+import {translate} from '../../../app/locales';
+import EventDetails from './EventDetails';
+import EventChat from '../../chat/EventChat';
+import {useAppSelector} from '../../../app/redux';
+import {selectUnreadMessageCount} from '../../chat/chatsSlice';
+enum EventTab {
+  details = 'details',
+  chat = 'chat',
+}
 
 interface EventScreenProps {
   componentId: string;
+  chat?: boolean;
 }
-
 const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
   componentId,
+  chat,
 }) => {
   const event = useSelector(selectCurrentEvent);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const fetchEvent = async () => {
-    setRefreshing(true);
-    await getEvent(event.id);
-    setRefreshing(false);
-  };
-  const onRefresh = useCallback(() => {
-    fetchEvent();
-  }, []);
+  const [tab, setTab] = useState<EventTab>(
+    chat ? EventTab.chat : EventTab.details,
+  );
+  const unreadMessages = useAppSelector(selectUnreadMessageCount(event.id));
+  const participating = useAppSelector(selectAmIParticipating(event.id));
+  const tabs: Tab[] = [
+    {id: EventTab.details, title: translate('Détails')},
+    {id: EventTab.chat, title: translate('Messages'), badge: unreadMessages},
+  ];
 
   useEffect(() => {
     if (!event) {
@@ -48,11 +44,12 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
       topBar: {
         title: {
           color: 'transparent',
-          text: event?.title,
+          text: event.title,
         },
       },
     });
-  }, [event]);
+  }, [event, componentId]);
+
   if (!event) {
     return null;
   }
@@ -64,19 +61,21 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
         <Text style={styles.subtitle}>{eventTypeTitle(event.type)}</Text>
         <Title style={styles.title}>{event.title}</Title>
       </View>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }>
-        <EventDate event={event} componentId={componentId} />
-        <EventDescription event={event} componentId={componentId} />
-        <EventLocation event={event} componentId={componentId} />
-        <EventParticipants event={event} withLabel />
-      </ScrollView>
-      <View style={styles.ctas}>
-        <EventCTAs event={event} componentId={componentId} />
-      </View>
+      {participating ? (
+        <View style={styles.tabContainer}>
+          <Tabs
+            tabs={tabs}
+            selectedTab={tab}
+            onChangeTab={tabSelected => setTab(tabSelected as EventTab)}
+          />
+        </View>
+      ) : null}
+      {tab === EventTab.details && (
+        <EventDetails event={event} componentId={componentId} />
+      )}
+      {tab === EventTab.chat && (
+        <EventChat event={event} componentId={componentId} />
+      )}
     </SafeAreaView>
   );
 };
@@ -102,22 +101,10 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'left',
   },
-  content: {
-    padding: 20,
-  },
-  label: {
-    fontFamily: 'Inter',
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 5,
-  },
-  ctas: {
-    backgroundColor: 'white',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+  tabContainer: {
+    flexDirection: 'row',
+    paddingTop: 20,
+    paddingHorizontal: 10,
   },
 });
 

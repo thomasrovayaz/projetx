@@ -1,4 +1,5 @@
 import {combineReducers, configureStore} from '@reduxjs/toolkit';
+import chatsSlice from '../features/chat/chatsSlice';
 import eventsSlice, {eventsTransform} from '../features/events/eventsSlice';
 import pollsSlice, {pollsTransform} from '../features/polls/pollsSlice';
 import usersSlice from '../features/user/usersSlice';
@@ -15,6 +16,7 @@ const persistConfig = {
 const persistedReducer = persistReducer(
   persistConfig,
   combineReducers({
+    chats: chatsSlice,
     events: eventsSlice,
     polls: pollsSlice,
     users: usersSlice,

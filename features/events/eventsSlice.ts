@@ -5,6 +5,7 @@ import {Navigation} from 'react-native-navigation';
 import {createTransform} from 'redux-persist';
 import {removeEventAnswerReminder} from './eventsApi';
 import moment from 'moment';
+import {getMe} from '../user/usersApi';
 
 interface EventsState {
   current?: ProjetXEvent;
@@ -66,7 +67,7 @@ export const eventsSlice = createSlice({
       }
     },
     updateEvent(state, action: PayloadAction<ProjetXEvent>) {
-      const event = action.payload;
+      const event = new ProjetXEvent(action.payload);
       if (state.current && state.current.id === event.id) {
         state.current = event;
       }
@@ -88,21 +89,24 @@ export const eventsSlice = createSlice({
       }>,
     ) {
       const {eventId, userId, type} = action.payload;
-      if (state.current && state.current.id === eventId) {
-        state.current.participations[userId] = type;
-      }
-      const event = state.list[eventId];
+      const event = state.list[eventId]
+        ? new ProjetXEvent(state.list[eventId])
+        : undefined;
       if (event) {
         event.participations[userId] = type;
+        state.list[eventId] = event;
+      }
+      if (state.current && state.current.id === eventId) {
+        state.current = event;
       }
       if (
         [EventParticipation.going, EventParticipation.notgoing].includes(
           type,
         ) &&
-        state.reminders[event.id]
+        state.reminders[eventId]
       ) {
-        removeEventAnswerReminder(state.reminders[event.id].onesignalId);
-        delete state.reminders[event.id];
+        removeEventAnswerReminder(state.reminders[eventId].onesignalId);
+        delete state.reminders[eventId];
       }
     },
   },
@@ -143,6 +147,15 @@ export const selectEvent = (eventId: string) => (state: RootState) =>
   state.events.list[eventId];
 export const selectReminder = (eventId: string) => (state: RootState) =>
   state.events.reminders[eventId];
+export const selectAmIParticipating =
+  (eventId: string) => (state: RootState) => {
+    const me = getMe().uid;
+    const event = state.events.list[eventId];
+    return (
+      event.author === me ||
+      event.participations[me] === EventParticipation.going
+    );
+  };
 
 export default eventsSlice.reducer;
 
