@@ -5,11 +5,14 @@ import {
   ViewStyle,
   Text,
   View,
+  TextStyle,
 } from 'react-native';
+import Badge from './Badge';
 
 export interface Tab {
   id: string;
   title: string;
+  badge?: number;
 }
 interface ProjetXTabsProps {
   tabs: Tab[];
@@ -23,6 +26,7 @@ interface Style {
   tabSelected: ViewStyle;
   tabTitle: ViewStyle;
   tabTitleSelected: ViewStyle;
+  badge: ViewStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -40,6 +44,7 @@ const styles = StyleSheet.create<Style>({
   tab: {
     flex: 1,
     height: '100%',
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -57,12 +62,15 @@ const styles = StyleSheet.create<Style>({
   tabTitleSelected: {
     color: 'white',
   },
+  badge: {
+    marginLeft: 5,
+  },
 });
 
 const Tabs: React.FC<ProjetXTabsProps> = ({tabs, selectedTab, onChangeTab}) => {
   return (
     <View style={styles.tabs}>
-      {tabs.map(({id, title}) => {
+      {tabs.map(({id, title, badge}) => {
         const isSelected = id === selectedTab;
         return (
           <TouchableOpacity
@@ -76,12 +84,13 @@ const Tabs: React.FC<ProjetXTabsProps> = ({tabs, selectedTab, onChangeTab}) => {
               ...(isSelected ? styles.tabSelected : {}),
             }}>
             <Text
-              style={{
-                ...styles.tabTitle,
-                ...(isSelected ? styles.tabTitleSelected : {}),
-              }}>
+              style={[
+                styles.tabTitle,
+                isSelected ? styles.tabTitleSelected : {},
+              ]}>
               {title}
             </Text>
+            <Badge count={badge} style={styles.badge} />
           </TouchableOpacity>
         );
       })}

@@ -17,6 +17,7 @@ import {createEvent, openEvent} from '../eventsSlice';
 import {useAppDispatch} from '../../../app/redux';
 import OneSignal from 'react-native-onesignal';
 import Toast from 'react-native-simple-toast';
+import {connectChats} from '../../chat/chatApi';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -34,27 +35,34 @@ const HomeScreen: NavigationFunctionComponent = ({
     forceUpdate();
   };
 
-  const onOpenEvent = (eventToOpen: ProjetXEvent) => {
+  const onOpenEvent = (eventToOpen: ProjetXEvent, chat?: boolean) => {
     dispatch(openEvent(eventToOpen));
     Navigation.push(componentId, {
       component: {
         name: 'Event',
+        passProps: {
+          chat,
+        },
       },
     });
   };
 
   const handleOpenEvent = async (
-    eventId: string,
+    {eventId, chat}: {eventId: string; chat?: boolean},
     participation?: EventParticipation,
   ) => {
     const eventLoaded = await getEvent(eventId);
-    if (participation !== undefined) {
+    if (participation !== undefined && Number.isInteger(participation)) {
       await updateParticipation(eventLoaded, participation);
       Toast.showWithGravity('Réponse envoyé 👍', Toast.SHORT, Toast.TOP);
     } else if (!eventLoaded.participations[getMe().uid]) {
       await updateParticipation(eventLoaded, EventParticipation.notanswered);
     }
-    onOpenEvent(eventLoaded);
+    onOpenEvent(
+      eventLoaded,
+      chat &&
+        eventLoaded.participations[getMe().uid] === EventParticipation.going,
+    );
   };
 
   const handleDynamicLink = async (
@@ -68,7 +76,7 @@ const HomeScreen: NavigationFunctionComponent = ({
         const path = matches[3];
         const routes = path.split('/');
         if (routes[0] === 'event') {
-          await handleOpenEvent(routes[1]);
+          await handleOpenEvent({eventId: routes[1]});
           if (routes[2] === 'poll') {
             //todo open poll routes[3]
           }
@@ -84,13 +92,14 @@ const HomeScreen: NavigationFunctionComponent = ({
       console.log('OneSignal: notification opened:', notification, action);
       await handleOpenEvent(
         // @ts-ignore
-        notification.additionalData.eventId,
+        notification.additionalData,
         // @ts-ignore
         Number.parseInt(action.actionId, 10),
       );
     });
     const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
     getUsers();
+    connectChats();
     return () => {
       RNLocalize.removeEventListener('change', handleLocalizationChange);
       unsubscribe();

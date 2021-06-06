@@ -40,6 +40,7 @@ const styles = StyleSheet.create<Style>({
     width: '100%',
     alignItems: 'flex-start',
     justifyContent: 'center',
+    marginBottom: 20,
   },
   label: {
     fontFamily: 'Inter',

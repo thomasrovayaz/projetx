@@ -3,7 +3,9 @@ import i18n from 'i18n-js';
 import * as RNLocalize from 'react-native-localize';
 import momentTz from 'moment-timezone';
 import moment from 'moment';
+import dayjs from 'dayjs';
 import 'moment/locale/fr';
+import 'dayjs/locale/fr';
 
 const translationGetters: any = {
   // lazy requires (metro bundler does not support symlinks)
@@ -29,4 +31,5 @@ export const setI18nConfig = () => {
 
   momentTz.tz.setDefault(RNLocalize.getTimeZone());
   moment.locale(languageTag);
+  dayjs.locale(languageTag);
 };

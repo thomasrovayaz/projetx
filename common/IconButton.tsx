@@ -10,11 +10,12 @@ interface ProjetXIconButtonProps extends IconProps {
 const IconButton: React.FC<ProjetXIconButtonProps> = ({
   onPress,
   style,
+  color,
   ...props
 }) => {
   return (
     <TouchableOpacity onPress={onPress} style={[style]} activeOpacity={0.8}>
-      <Icon {...props} color="#473B78" />
+      <Icon {...props} color={color || '#473B78'} />
     </TouchableOpacity>
   );
 };

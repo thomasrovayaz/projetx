@@ -32,8 +32,8 @@ export const usersSlice = createSlice({
 
 export const {fetchUsers, updateUser} = usersSlice.actions;
 
-export const selectUsers = (state: RootState): ProjetXUser[] =>
-  Object.values(state.users.list);
+export const selectUsers = (state: RootState): {[id: string]: ProjetXUser} =>
+  state.users.list;
 export const selectMyFriends = (state: RootState): ProjetXUser[] => {
   const myEvents = selectMyEvents(state);
   const friendsScore: {[uid: string]: number} = {};
@@ -58,7 +58,7 @@ export const selectMyFriends = (state: RootState): ProjetXUser[] => {
         )
         .map(treatParticipants);
   }
-  const users = selectUsers(state);
+  const users = Object.values(selectUsers(state));
   return users
     .filter(({id}) => id !== getMe().uid)
     .map(user => ({...user, score: friendsScore[user.id]}))

@@ -4,7 +4,6 @@ import {
   TouchableOpacityProps,
   ViewStyle,
   View,
-  TextStyle,
   Alert,
 } from 'react-native';
 import Button from '../../../common/Button';
@@ -21,6 +20,7 @@ import {useAppDispatch, useAppSelector} from '../../../app/redux';
 import {editEvent, selectReminder} from '../eventsSlice';
 import Toast from 'react-native-simple-toast';
 import moment from 'moment';
+import IconButton from '../../../common/IconButton';
 
 interface ProjetXEventCTAsProps {
   event: ProjetXEvent;
@@ -36,7 +36,6 @@ interface Style {
   ctaRight: ViewStyle;
   ctaMiddle: ViewStyle;
   ctaCancel: ViewStyle;
-  ctaTextCancel: TextStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -64,10 +63,8 @@ const styles = StyleSheet.create<Style>({
   },
   ctaCancel: {
     borderWidth: 0,
-  },
-  ctaTextCancel: {
-    color: '#ac0c0c',
-    fontWeight: '700',
+    flex: 0,
+    padding: 5,
   },
   message: {
     fontSize: 14,
@@ -221,11 +218,11 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
               onPress={edit}
             />
             {small ? null : (
-              <Button
-                style={[styles.cta, styles.ctaRight, styles.ctaCancel]}
-                textStyle={styles.ctaTextCancel}
-                variant="outlined"
-                title={translate('Annuler')}
+              <IconButton
+                style={[styles.ctaRight, styles.ctaCancel]}
+                color="#ac0c0c"
+                size={20}
+                name="trash"
                 onPress={cancel}
               />
             )}
