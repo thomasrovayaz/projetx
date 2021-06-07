@@ -48,6 +48,7 @@ export async function saveEvent(event: ProjetXEvent): Promise<ProjetXEvent> {
   if (!event.id) {
     event.id = `${slugify(event.title || '', {
       lower: true,
+      remove: /[*+~.()'"!:@]/g,
     })}-${nanoid(11)}`;
     event.author = getMe().uid;
   }

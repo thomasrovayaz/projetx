@@ -55,7 +55,10 @@ const HomeScreen: NavigationFunctionComponent = ({
     if (participation !== undefined && Number.isInteger(participation)) {
       await updateParticipation(eventLoaded, participation);
       Toast.showWithGravity('Réponse envoyé 👍', Toast.SHORT, Toast.TOP);
-    } else if (!eventLoaded.participations[getMe().uid]) {
+    } else if (
+      !eventLoaded.participations[getMe().uid] &&
+      eventLoaded.participations[getMe().uid] !== EventParticipation.going
+    ) {
       await updateParticipation(eventLoaded, EventParticipation.notanswered);
     }
     onOpenEvent(
