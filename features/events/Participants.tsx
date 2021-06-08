@@ -19,7 +19,6 @@ import {ProjetXUser} from '../user/usersTypes';
 import {getMe, getUsers} from '../user/usersApi';
 import {getEvent} from './eventsApi';
 import {filterWithFuse} from '../../app/fuse';
-import {useSelector} from 'react-redux';
 import {openEvent, selectEvent} from './eventsSlice';
 import {useAppDispatch, useAppSelector} from '../../app/redux';
 

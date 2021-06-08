@@ -10,8 +10,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-import Toast from 'react-native-simple-toast';
 import {translate} from '../app/locales';
+import {showToast} from './Toast';
 
 interface ProjetXButtonProps {
   variant?: 'default' | 'outlined';
@@ -83,11 +83,7 @@ const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
       await onPress(event);
     } catch (error) {
       console.error(error);
-      Toast.showWithGravity(
-        translate('Une problème est survenu 😕'),
-        Toast.SHORT,
-        Toast.TOP,
-      );
+      await showToast({message: translate('Une problème est survenu 😕')});
     }
     setLoading(false);
   };

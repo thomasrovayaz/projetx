@@ -16,6 +16,7 @@ export enum EventType {
   weekend,
   week,
   travel,
+  other,
 }
 export enum EventParticipation {
   going,

@@ -11,7 +11,9 @@ import {mainRoot} from '../../app/navigation';
 
 const LoginScreen: NavigationFunctionComponent = () => {
   useEffect(() => {
+    console.log('useEffect', auth().currentUser);
     if (!auth().currentUser) {
+      console.log('signInAnonymously');
       auth().signInAnonymously();
     }
   }, []);

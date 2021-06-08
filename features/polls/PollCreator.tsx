@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {PollState, PollType, ProjetXPoll} from './pollsTypes';
 import {DateValue} from '../events/eventsTypes';
@@ -10,6 +10,7 @@ import Button from '../../common/Button';
 import {nanoid} from 'nanoid';
 import Poll from './Poll';
 import {getMe} from '../user/usersApi';
+import {Navigation} from 'react-native-navigation';
 
 interface ProjetXPollProps {
   poll: ProjetXPoll;
@@ -56,6 +57,17 @@ const PollCreator: React.FC<ProjetXPollProps> = ({
     onChange({
       ...poll,
       choices: poll.choices.filter(choice => choice.id !== id),
+    });
+  };
+  const showSettings = () => {
+    Navigation.showOverlay({
+      component: {
+        name: 'PollSettings',
+        passProps: {
+          poll,
+          onChange,
+        },
+      },
     });
   };
 
@@ -105,7 +117,7 @@ const PollCreator: React.FC<ProjetXPollProps> = ({
               name="settings"
               style={styles.itemAction}
               size={22}
-              onPress={() => {}}
+              onPress={showSettings}
             />
           </View>
         }

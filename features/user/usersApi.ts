@@ -24,12 +24,12 @@ export async function updateMyName(name: string) {
   await database().ref(`users/${me.uid}/displayName`).set(name);
   await me.updateProfile({displayName: name});
 }
-export async function updateOneSignalId(id: string) {
-  const me = getMe();
-  if (!id || id === '') {
+export async function updateOneSignalId(oneSignalId: string, userId: string) {
+  console.log('updateOneSignalId', oneSignalId, userId);
+  if (!oneSignalId || oneSignalId === '') {
     return;
   }
-  await database().ref(`users/${me.uid}/oneSignalId`).set(id);
+  await database().ref(`users/${userId}/oneSignalId`).set(oneSignalId);
 }
 
 export async function getUsers() {

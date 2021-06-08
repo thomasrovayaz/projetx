@@ -5,6 +5,7 @@ import {store} from '../../app/store';
 import OneSignal from 'react-native-onesignal';
 import {getMe} from '../user/usersApi';
 import {chatsUpdated} from './chatsSlice';
+import {NotificationType} from '../../app/onesignal';
 
 export async function connectChats() {
   return database()
@@ -56,7 +57,7 @@ function messageNotification(
     contents: {
       en: message,
     },
-    data: {eventId: event.id, chat: true},
+    data: {eventId: event.id, type: NotificationType.NEW_MESSAGE},
     include_player_ids: Object.keys(event.participations)
       .filter(
         userId =>

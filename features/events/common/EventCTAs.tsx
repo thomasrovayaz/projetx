@@ -18,9 +18,9 @@ import {getMe} from '../../user/usersApi';
 import {ShareEvent} from '../eventsUtils';
 import {useAppDispatch, useAppSelector} from '../../../app/redux';
 import {editEvent, selectReminder} from '../eventsSlice';
-import Toast from 'react-native-simple-toast';
 import moment from 'moment';
 import IconButton from '../../../common/IconButton';
+import {showToast} from '../../../common/Toast';
 
 interface ProjetXEventCTAsProps {
   event: ProjetXEvent;
@@ -99,13 +99,9 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
     return null;
   }
 
-  const showToast = (message: string) => {
-    Toast.showWithGravity(message, Toast.SHORT, Toast.TOP);
-  };
-
   const accept = async () => {
     await updateParticipation(event, EventParticipation.going);
-    showToast(translate('Que serait une soirée sans toi 😍'));
+    await showToast({message: translate('Que serait une soirée sans toi 😍')});
     setStep(EventParticipation.going);
   };
   const maybe = async () => {
@@ -116,15 +112,17 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
   const addReminder = async (date: moment.Moment) => {
     try {
       await addEventAnswerReminder(event, date);
-      showToast(translate('Rappel enregistré 👌'));
+      await showToast({message: translate('Rappel enregistré 👌')});
     } catch (e) {
       console.error(e);
-      showToast(translate("Erreur lors de l'ajout du rappel 😕"));
+      await showToast({
+        message: translate("Erreur lors de l'ajout du rappel 😕"),
+      });
     }
   };
   const refuse = async () => {
     await updateParticipation(event, EventParticipation.notgoing);
-    showToast(translate('Dommage 😢'));
+    await showToast({message: translate('Dommage 😢')});
     setStep(EventParticipation.notgoing);
   };
   const edit = () => dispatch(editEvent({event, componentId}));

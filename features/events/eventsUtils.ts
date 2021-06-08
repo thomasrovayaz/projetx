@@ -18,6 +18,7 @@ export const eventTypes: EventTypes[] = [
   {id: EventType.weekend, title: translate('Weekend')},
   {id: EventType.week, title: translate('Semaine de vacance')},
   {id: EventType.travel, title: translate('Voyage loiiin')},
+  {id: EventType.other, title: translate('Autre 🤔')},
 ];
 export const eventTypeTitle = (id: EventType | undefined) => {
   return eventTypes.find(eventType => eventType.id === id)?.title;
