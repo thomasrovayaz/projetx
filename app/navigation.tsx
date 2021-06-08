@@ -17,6 +17,8 @@ import LoginScreen from '../features/user/Login';
 import {Provider} from 'react-redux';
 import {persistor, store} from './store';
 import {PersistGate} from 'redux-persist/integration/react';
+import Toast from '../common/Toast';
+import PollSettings from '../features/polls/PollSettings';
 
 function registerScreen<P>(name: string, Component: React.ComponentType<P>) {
   Navigation.registerComponent(
@@ -71,6 +73,7 @@ registerScreen('Settings', SettingsScreen);
 
 registerScreen('Event', EventScreen);
 registerScreen('Poll', PollModal);
+registerScreen('PollSettings', PollSettings);
 registerScreen('Participants', ParticipantsModal);
 
 registerScreen('CreateEventType', CreateEventTypeScreen);
@@ -84,6 +87,8 @@ registerScreen('CreateEventWhere', CreateEventWhereScreen);
 registerScreen('CreateEventWho', CreateEventWhoScreen);
 registerScreen('CreateEventWhat', CreateEventWhatScreen);
 registerScreen('CreateEventEnd', CreateEventEndScreen);
+
+Navigation.registerComponent('Toast', () => Toast);
 
 export const loginRoot = {
   root: {

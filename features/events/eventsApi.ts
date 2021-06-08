@@ -23,6 +23,7 @@ import {ProjetXUser} from '../user/usersTypes';
 import moment from 'moment';
 import axios from 'axios';
 import Config from 'react-native-config';
+import {NotificationType} from '../../app/onesignal';
 
 export async function getEvent(id: string): Promise<ProjetXEvent> {
   const eventDb = await database().ref(`events/${id}`).once('value');
@@ -120,6 +121,9 @@ export function notifyNewEvent(
     case EventType.weekend:
       title = translate('Tu es invité à un weekend');
       break;
+    case EventType.other:
+      title = translate('Tu es invité à un événement');
+      break;
   }
 
   const notificationObj = {
@@ -131,10 +135,9 @@ export function notifyNewEvent(
         getMe()?.displayName
       }\n${message}`,
     },
-    data: {eventId: event.id},
+    data: {eventId: event.id, type: NotificationType.EVENT_INVITATION},
     buttons: [
       {id: EventParticipation.going, text: translate('Accepter')},
-      {id: EventParticipation.maybe, text: translate('Peut-être')},
       {id: EventParticipation.notgoing, text: translate('Refuser')},
     ],
     android_group: event.id,
@@ -194,7 +197,7 @@ export function notifyParticipation(
     contents: {
       en: message,
     },
-    data: {eventId: event.id},
+    data: {eventId: event.id, type: NotificationType.PARTICIPATION_UPDATE},
     include_player_ids: [oneSignalIdAuthor],
     android_group: event.id,
     thread_id: event.id,
@@ -227,7 +230,7 @@ export async function addEventAnswerReminder(
     contents: {
       en: translate('Rappel pour avoir ta réponse'),
     },
-    data: {eventId: event.id},
+    data: {eventId: event.id, type: NotificationType.EVENT_REMINDER},
     buttons: [
       {id: EventParticipation.going, text: translate('Accepter')},
       {id: EventParticipation.notgoing, text: translate('Refuser')},

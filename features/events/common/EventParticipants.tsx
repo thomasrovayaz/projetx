@@ -15,6 +15,7 @@ import Label from '../../../common/Label';
 import Avatar from '../../../common/Avatar';
 import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../../user/usersSlice';
+import Icon from 'react-native-vector-icons/Feather';
 
 const {width} = Dimensions.get('window');
 
@@ -32,6 +33,9 @@ interface Style {
   moreAvatarContainer: ViewStyle;
   moreAvatar: ViewStyle;
   emptyText: TextStyle;
+  avatarContainer: ViewStyle;
+  avatarStatusIconContainer: ViewStyle;
+  avatarStatusIcon: ViewStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -53,6 +57,19 @@ const styles = StyleSheet.create<Style>({
     alignItems: 'center',
     justifyContent: 'flex-start',
     marginLeft: 5,
+  },
+  avatarContainer: {},
+  avatarStatusIconContainer: {
+    position: 'absolute',
+    bottom: -4,
+    right: 0,
+    borderRadius: 15,
+    borderColor: '#473B78',
+    overflow: 'hidden',
+  },
+  avatarStatusIcon: {
+    backgroundColor: 'white',
+    padding: 2,
   },
   moreAvatarContainer: {
     width: 40,
@@ -77,6 +94,13 @@ const styles = StyleSheet.create<Style>({
   },
 });
 const MAX_SIZE = Math.floor((width - 40) / (40 - 5) - 1);
+
+const participationToIcon = {
+  [EventParticipation.going]: 'thumbs-up',
+  [EventParticipation.notgoing]: 'thumbs-down',
+  [EventParticipation.maybe]: 'meh',
+  [EventParticipation.notanswered]: 'clock',
+};
 
 const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
   event,
@@ -123,7 +147,21 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
             participants
               .slice(0, moreAvatarLength === 1 ? MAX_SIZE + 1 : MAX_SIZE)
               .map(friend => {
-                return <Avatar key={friend.id} friend={friend} />;
+                return (
+                  <View style={styles.avatarContainer}>
+                    <Avatar key={friend.id} friend={friend} />
+                    <View style={styles.avatarStatusIconContainer}>
+                      <Icon
+                        style={styles.avatarStatusIcon}
+                        color="#473B78"
+                        size={13}
+                        name={
+                          participationToIcon[event.participations[friend.id]]
+                        }
+                      />
+                    </View>
+                  </View>
+                );
               })}
           {moreAvatarLength > 1 && (
             <View style={[styles.moreAvatarContainer]}>

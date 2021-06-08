@@ -16,8 +16,13 @@ import {getMe, getUsers} from '../../user/usersApi';
 import {createEvent, openEvent} from '../eventsSlice';
 import {useAppDispatch} from '../../../app/redux';
 import OneSignal from 'react-native-onesignal';
-import Toast from 'react-native-simple-toast';
 import {connectChats} from '../../chat/chatApi';
+import {showToast} from '../../../common/Toast';
+import {
+  AdditionalData,
+  NotificationType,
+  notificationWillShowInForegroundHandler,
+} from '../../../app/onesignal';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -48,13 +53,13 @@ const HomeScreen: NavigationFunctionComponent = ({
   };
 
   const handleOpenEvent = async (
-    {eventId, chat}: {eventId: string; chat?: boolean},
+    {eventId, chat, type}: AdditionalData,
     participation?: EventParticipation,
   ) => {
     const eventLoaded = await getEvent(eventId);
     if (participation !== undefined && Number.isInteger(participation)) {
       await updateParticipation(eventLoaded, participation);
-      Toast.showWithGravity('Réponse envoyé 👍', Toast.SHORT, Toast.TOP);
+      await showToast({message: translate('Réponse envoyé 👍')});
     } else if (
       !eventLoaded.participations[getMe().uid] &&
       eventLoaded.participations[getMe().uid] !== EventParticipation.going
@@ -63,7 +68,7 @@ const HomeScreen: NavigationFunctionComponent = ({
     }
     onOpenEvent(
       eventLoaded,
-      chat &&
+      (chat || type === NotificationType.NEW_MESSAGE) &&
         eventLoaded.participations[getMe().uid] === EventParticipation.going,
     );
   };
@@ -91,6 +96,10 @@ const HomeScreen: NavigationFunctionComponent = ({
   useEffect(() => {
     RNLocalize.addEventListener('change', handleLocalizationChange);
     dynamicLinks().getInitialLink().then(handleDynamicLink);
+
+    OneSignal.setNotificationWillShowInForegroundHandler(
+      notificationWillShowInForegroundHandler(onOpenEvent),
+    );
     OneSignal.setNotificationOpenedHandler(async ({notification, action}) => {
       console.log('OneSignal: notification opened:', notification, action);
       await handleOpenEvent(

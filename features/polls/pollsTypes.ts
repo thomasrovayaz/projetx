@@ -21,7 +21,10 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
   public state: PollState = PollState.RUNNING;
   public choices: {id: string; value: Type | undefined}[] = [];
   public answers: Record<string, string[]> = {};
-  public settings: {multiple: boolean} = {multiple: false};
+  public settings: {multiple: boolean; custom: boolean} = {
+    multiple: true,
+    custom: false,
+  };
   public shareLink: string;
 
   constructor({
@@ -44,7 +47,7 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
     state: PollState;
     choices?: {id: string; value: Type}[];
     answers?: Record<string, string[]>;
-    settings?: {multiple: boolean};
+    settings?: {multiple: boolean; custom: boolean};
     shareLink?: string;
   }) {
     this.id = id;
@@ -54,7 +57,7 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
     this.state = state;
     this.choices = choices || [];
     this.answers = answers || {};
-    this.settings = settings || {multiple: false};
+    this.settings = settings || {multiple: true, custom: false};
     this.shareLink = shareLink || '';
     this.author = author;
   }

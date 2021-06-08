@@ -17,11 +17,11 @@ import Title from '../../../common/Title';
 import Logo from '../../../assets/logo.svg';
 import Label from '../../../common/Label';
 import Icon from 'react-native-vector-icons/Feather';
-import Toast from 'react-native-simple-toast';
 import {ShareEvent} from '../eventsUtils';
 import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../../user/usersSlice';
 import {selectCurrentEvent} from '../eventsSlice';
+import {showToast} from '../../../common/Toast';
 
 interface CreateEventEndScreenProps {}
 
@@ -49,11 +49,7 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
 
     const copyLink = async () => {
       Clipboard.setString(event.shareLink);
-      Toast.showWithGravity(
-        translate('Lien de partage copié 👍'),
-        Toast.SHORT,
-        Toast.TOP,
-      );
+      await showToast({message: translate('Lien de partage copié 👍')});
     };
 
     return (
