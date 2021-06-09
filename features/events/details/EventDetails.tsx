@@ -7,6 +7,7 @@ import EventDescription from '../common/EventDescription';
 import EventLocation from '../common/EventLocation';
 import EventParticipants from '../common/EventParticipants';
 import EventCTAs from '../common/EventCTAs';
+import EventOwner from '../common/EventOwner';
 
 interface EventDetailsProps {
   event: ProjetXEvent;
@@ -31,6 +32,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({event, componentId}) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }>
         <EventDate event={event} componentId={componentId} />
+        <EventOwner event={event} />
         <EventDescription event={event} componentId={componentId} />
         <EventParticipants event={event} withLabel componentId={componentId} />
         <EventLocation event={event} componentId={componentId} />
@@ -44,7 +46,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({event, componentId}) => {
 
 const styles = StyleSheet.create({
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
   },
   label: {
     fontFamily: 'Inter',

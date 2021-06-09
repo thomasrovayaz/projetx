@@ -34,6 +34,10 @@ export const {fetchUsers, updateUser} = usersSlice.actions;
 
 export const selectUsers = (state: RootState): {[id: string]: ProjetXUser} =>
   state.users.list;
+export const selectUser =
+  (id: string | undefined) =>
+  (state: RootState): ProjetXUser =>
+    state.users.list && id && state.users.list[id];
 export const selectMyFriends = (state: RootState): ProjetXUser[] => {
   const myEvents = selectMyEvents(state);
   const friendsScore: {[uid: string]: number} = {};

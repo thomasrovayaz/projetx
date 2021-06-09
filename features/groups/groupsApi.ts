@@ -1,0 +1,42 @@
+import database from '@react-native-firebase/database';
+import {groupConverter, ProjetXGroup} from './groupsTypes';
+import {store} from '../../app/store';
+import {fetchGroups, updateGroup} from './groupsSlice';
+import {getMe} from '../user/usersApi';
+import slugify from 'slugify';
+import {nanoid} from 'nanoid';
+import {buildLink} from './groupsUtils';
+
+export async function getMyGroups() {
+  const groupsDb = await database()
+    .ref('groups')
+    .orderByChild('users/' + getMe().uid)
+    .equalTo(true)
+    .once('value');
+  const groups: ProjetXGroup[] = [];
+  groupsDb.forEach(groupDb => {
+    groups.push(groupConverter.fromFirestore(groupDb));
+    return undefined;
+  });
+  store.dispatch(fetchGroups(groups));
+  return groups;
+}
+
+export async function saveGroup(group: ProjetXGroup): Promise<ProjetXGroup> {
+  if (!group.id) {
+    group.id = `${slugify(group.name || '', {
+      lower: true,
+      remove: /[*+~.()'"!:@]/g,
+    })}-${nanoid(11)}`;
+    group.author = getMe().uid;
+  }
+  if (!group.shareLink) {
+    group.shareLink = await buildLink(group);
+  }
+  await database().ref(`groups/${group.id}`).set(group);
+  const updatedGroup = groupConverter.fromFirestore(
+    await database().ref(`groups/${group.id}`).once('value'),
+  );
+  store.dispatch(updateGroup(updatedGroup));
+  return updatedGroup;
+}

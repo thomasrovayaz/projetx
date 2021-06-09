@@ -68,7 +68,13 @@ const CreateEventWhenScreen: NavigationFunctionComponent<CreateEventWhenScreenPr
     const isSingleDate =
       event &&
       event.type &&
-      [EventType.party, EventType.diner].includes(event.type);
+      [
+        EventType.party,
+        EventType.sport,
+        EventType.diner,
+        EventType.other,
+      ].includes(event.type);
+    console.log('event.type', event.type);
 
     const renderDateSelector = () => {
       return (

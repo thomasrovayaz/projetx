@@ -44,7 +44,6 @@ const styles = StyleSheet.create<Style>({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50,
   },
   cta: {
     flex: 1,
@@ -170,11 +169,14 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
           </>
         );
       case EventParticipation.going:
+        if (small) {
+          return null;
+        }
         return (
           <>
             <Button
               style={[styles.cta, styles.ctaLeft]}
-              title={translate("Partager l'événement")}
+              title={translate('Partager')}
               onPress={share}
             />
             <Button
@@ -186,11 +188,14 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
           </>
         );
       case EventParticipation.notgoing:
+        if (small) {
+          return null;
+        }
         return (
           <>
             <Button
               style={[styles.cta, styles.ctaLeft]}
-              title={translate("Partager l'événement")}
+              title={translate('Partager')}
               onPress={share}
             />
             <Button
@@ -202,6 +207,9 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
           </>
         );
       case 'author':
+        if (small) {
+          return null;
+        }
         return (
           <>
             <Button
@@ -215,15 +223,13 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
               title={translate('Modifier')}
               onPress={edit}
             />
-            {small ? null : (
-              <IconButton
-                style={[styles.ctaRight, styles.ctaCancel]}
-                color="#ac0c0c"
-                size={20}
-                name="trash"
-                onPress={cancel}
-              />
-            )}
+            <IconButton
+              style={[styles.ctaRight, styles.ctaCancel]}
+              color="#ac0c0c"
+              size={20}
+              name="trash"
+              onPress={cancel}
+            />
           </>
         );
       default:
@@ -231,7 +237,7 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
     }
   };
 
-  return <View style={styles.container}>{renderCtas()}</View>;
+  return <View style={[styles.container]}>{renderCtas()}</View>;
 };
 
 export default EventCTAs;

@@ -10,13 +10,13 @@ export interface DateValue {
 }
 
 export enum EventType {
-  sport,
-  diner,
-  party,
-  weekend,
-  week,
-  travel,
-  other,
+  sport = 'sport',
+  diner = 'diner',
+  party = 'party',
+  weekend = 'weekend',
+  week = 'week',
+  travel = 'travel',
+  other = 'other',
 }
 export enum EventParticipation {
   going,
@@ -139,12 +139,30 @@ export const dateConverter = {
     };
   },
 };
+const convertOldType = (oldType: number): EventType => {
+  switch (oldType) {
+    case 0:
+      return EventType.sport;
+    case 1:
+      return EventType.diner;
+    case 2:
+      return EventType.party;
+    case 3:
+      return EventType.weekend;
+    case 4:
+      return EventType.week;
+    case 5:
+      return EventType.travel;
+  }
+  return EventType.other;
+};
 export const eventConverter = {
   fromFirestore(snapshot: FirebaseDatabaseTypes.DataSnapshot): ProjetXEvent {
     const data = snapshot.val();
     return new ProjetXEvent({
       ...data,
       id: snapshot.key,
+      type: Number.isInteger(data.type) ? convertOldType(data.type) : data.type,
       date: dateConverter.fromFirestore(data.date),
       time: timeConverter.fromFirestore(data.time),
     });
@@ -152,6 +170,7 @@ export const eventConverter = {
   fromLocalStorage(data: any): ProjetXEvent {
     return new ProjetXEvent({
       ...data,
+      type: Number.isInteger(data.type) ? convertOldType(data.type) : data.type,
       date: dateConverter.fromFirestore(data.date),
       time: timeConverter.fromFirestore(data.time),
     });
