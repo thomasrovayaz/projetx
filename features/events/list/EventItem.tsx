@@ -69,8 +69,13 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 15,
   },
-  header: {flexDirection: 'row', alignItems: 'flex-start'},
-  headerTitle: {flex: 1},
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  headerTitle: {
+    flex: 1,
+  },
   headerDate: {
     paddingTop: 2,
     marginLeft: 5,

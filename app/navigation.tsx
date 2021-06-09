@@ -19,6 +19,8 @@ import {persistor, store} from './store';
 import {PersistGate} from 'redux-persist/integration/react';
 import Toast from '../common/Toast';
 import PollSettings from '../features/polls/PollSettings';
+import GroupsScreen from '../features/groups';
+import CreateGroupScreen from '../features/groups/CreateGroup';
 
 function registerScreen<P>(name: string, Component: React.ComponentType<P>) {
   Navigation.registerComponent(
@@ -69,6 +71,7 @@ Navigation.setDefaultOptions({
 registerScreen('Login', LoginScreen);
 
 registerScreen('Home', HomeScreen);
+registerScreen('Groups', GroupsScreen);
 registerScreen('Settings', SettingsScreen);
 
 registerScreen('Event', EventScreen);
@@ -87,6 +90,8 @@ registerScreen('CreateEventWhere', CreateEventWhereScreen);
 registerScreen('CreateEventWho', CreateEventWhoScreen);
 registerScreen('CreateEventWhat', CreateEventWhatScreen);
 registerScreen('CreateEventEnd', CreateEventEndScreen);
+
+registerScreen('CreateGroupScreen', CreateGroupScreen);
 
 Navigation.registerComponent('Toast', () => Toast);
 
@@ -107,6 +112,17 @@ export const mainRoot = {
               {
                 component: {
                   name: 'Home',
+                },
+              },
+            ],
+          },
+        },
+        {
+          stack: {
+            children: [
+              {
+                component: {
+                  name: 'Groups',
                 },
               },
             ],

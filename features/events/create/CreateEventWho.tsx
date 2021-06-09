@@ -1,26 +1,16 @@
-import React, {useCallback, useState} from 'react';
-import {
-  FlatList,
-  RefreshControl,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  View,
-} from 'react-native';
+import React, {useState} from 'react';
+import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
 import {EventParticipation, ProjetXEvent} from '../eventsTypes';
-import {getEvent, notifyNewEvent, saveEvent} from '../eventsApi';
-import {getMe, getUsers} from '../../user/usersApi';
-import Checkbox from '../../../common/Checkbox';
-import TextInput from '../../../common/TextInput';
-import {ProjetXUser} from '../../user/usersTypes';
+import {notifyNewEvent, saveEvent} from '../eventsApi';
+import {getMe} from '../../user/usersApi';
 import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../../user/usersSlice';
 import {selectCurrentEvent} from '../eventsSlice';
-import {filterWithFuse} from '../../../app/fuse';
 import _ from 'lodash';
+import SelectableUsersList from '../../../common/SelectableUsersList';
 
 interface CreateEventWhoScreenProps {
   onSave?(newEvent: ProjetXEvent): void;
@@ -29,20 +19,10 @@ interface CreateEventWhoScreenProps {
 const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProps> =
   ({componentId, onSave}) => {
     const event = useSelector(selectCurrentEvent);
-    const [searchText, onChangeSearchText] = useState<string>('');
     const [selectedFriends, setSelectedFriends] = useState<string[]>(
       event?.participations ? Object.keys(event.participations) : [],
     );
     const friends = useSelector(selectMyFriends);
-    const [refreshing, setRefreshing] = React.useState(false);
-    const onRefresh = useCallback(() => {
-      const fetchUsers = async () => {
-        setRefreshing(true);
-        await Promise.all([getUsers(), event && getEvent(event.id)]);
-        setRefreshing(false);
-      };
-      fetchUsers();
-    }, [event]);
 
     if (!event) {
       return null;
@@ -85,40 +65,10 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
-        <View style={styles.searchInput}>
-          <TextInput
-            value={searchText}
-            onChangeText={onChangeSearchText}
-            placeholder={translate('Rechercher...')}
-          />
-        </View>
-        <View style={styles.content}>
-          <FlatList
-            contentContainerStyle={styles.usersList}
-            data={filterWithFuse(friends, ['name'], searchText)}
-            renderItem={({item}: {item: ProjetXUser}) => {
-              return (
-                <Checkbox
-                  key={item.id}
-                  label={item.name}
-                  selected={selectedFriends.some(id => id === item.id)}
-                  onSelect={selected => {
-                    if (selected) {
-                      setSelectedFriends([...selectedFriends, item.id]);
-                    } else {
-                      setSelectedFriends(
-                        selectedFriends.filter(id => id !== item.id),
-                      );
-                    }
-                  }}
-                />
-              );
-            }}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-          />
-        </View>
+        <SelectableUsersList
+          selection={selectedFriends}
+          onChange={setSelectedFriends}
+        />
         <View style={styles.buttonNext}>
           <Button
             title={translate(onSave ? 'Enregistrer' : 'Suivant >')}
@@ -134,19 +84,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
-  searchInput: {
-    paddingTop: 20,
-    paddingBottom: 0,
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-  },
-  content: {
-    flex: 1,
-    paddingTop: 0,
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-  },
-  usersList: {paddingTop: 20},
   buttonNext: {
     padding: 20,
   },

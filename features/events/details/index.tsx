@@ -13,6 +13,7 @@ import {useAppSelector} from '../../../app/redux';
 import {selectUnreadMessageCount} from '../../chat/chatsSlice';
 enum EventTab {
   details = 'details',
+  sondages = 'sondages',
   chat = 'chat',
 }
 
@@ -32,6 +33,7 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
   const participating = useAppSelector(selectAmIParticipating(event.id));
   const tabs: Tab[] = [
     {id: EventTab.details, title: translate('Détails')},
+    {id: EventTab.sondages, title: translate('Sondages')},
     {id: EventTab.chat, title: translate('Messages'), badge: unreadMessages},
   ];
 
@@ -103,8 +105,7 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    paddingTop: 20,
-    paddingHorizontal: 10,
+    padding: 10,
   },
 });
 

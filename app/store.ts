@@ -1,5 +1,6 @@
 import {combineReducers, configureStore} from '@reduxjs/toolkit';
 import chatsSlice from '../features/chat/chatsSlice';
+import groupsSlice from '../features/groups/groupsSlice';
 import eventsSlice, {eventsTransform} from '../features/events/eventsSlice';
 import pollsSlice, {pollsTransform} from '../features/polls/pollsSlice';
 import usersSlice from '../features/user/usersSlice';
@@ -18,6 +19,7 @@ const persistedReducer = persistReducer(
   combineReducers({
     chats: chatsSlice,
     events: eventsSlice,
+    groups: groupsSlice,
     polls: pollsSlice,
     users: usersSlice,
   }),

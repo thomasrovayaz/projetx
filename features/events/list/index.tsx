@@ -23,6 +23,7 @@ import {
   NotificationType,
   notificationWillShowInForegroundHandler,
 } from '../../../app/onesignal';
+import {getMyGroups} from '../../groups/groupsApi';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -111,6 +112,7 @@ const HomeScreen: NavigationFunctionComponent = ({
     });
     const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
     getUsers();
+    getMyGroups();
     connectChats();
     return () => {
       RNLocalize.removeEventListener('change', handleLocalizationChange);
@@ -131,7 +133,7 @@ const HomeScreen: NavigationFunctionComponent = ({
       <EventsList componentId={componentId} onOpenEvent={onOpenEvent} />
       <View style={styles.buttonCreate}>
         <Button
-          title="Créer un événement"
+          title={translate('Créer un événement')}
           onPress={() => dispatch(createEvent(componentId))}
         />
       </View>
