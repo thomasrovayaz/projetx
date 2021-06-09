@@ -3,7 +3,6 @@ import {StyleSheet, Text, ViewStyle} from 'react-native';
 import {ProjetXEvent} from '../eventsTypes';
 import {translate} from '../../../app/locales';
 import Label from '../../../common/Label';
-import {getMe} from '../../user/usersApi';
 import Button from '../../../common/Button';
 import {Navigation} from 'react-native-navigation';
 
@@ -33,7 +32,7 @@ const EventDescription: React.FC<ProjetXEventDescriptionProps> = ({
   event,
 }) => {
   if (!event.description) {
-    if (getMe().uid === event.author) {
+    if (event.isAuthor()) {
       return (
         <Button
           style={styles.button}

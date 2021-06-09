@@ -32,7 +32,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({event, componentId}) => {
         }>
         <EventDate event={event} componentId={componentId} />
         <EventDescription event={event} componentId={componentId} />
-        <EventParticipants event={event} withLabel />
+        <EventParticipants event={event} withLabel componentId={componentId} />
         <EventLocation event={event} componentId={componentId} />
       </ScrollView>
       <View style={styles.ctas}>

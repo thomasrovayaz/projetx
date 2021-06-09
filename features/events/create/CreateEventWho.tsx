@@ -51,12 +51,14 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
     const next = async () => {
       let participations: {[userId: string]: EventParticipation} = {};
       for (const selectedFriend of selectedFriends) {
-        participations[selectedFriend] =
-          event.participations[selectedFriend] ||
-          EventParticipation.notanswered;
+        if (event.participations[selectedFriend] === undefined) {
+          participations[selectedFriend] = EventParticipation.notanswered;
+        } else {
+          participations[selectedFriend] = event.participations[selectedFriend];
+        }
       }
       const me = getMe();
-      if (!participations[me.uid]) {
+      if (participations[me.uid] === undefined) {
         participations[me.uid] = EventParticipation.going;
       }
       if (event.id) {
