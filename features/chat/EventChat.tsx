@@ -33,7 +33,7 @@ const EventChat: React.FC<EventDetailsProps> = ({event}) => {
                 ...message,
                 user: {
                   ...message.user,
-                  name: users[message.user._id].name,
+                  name: users[message.user._id]?.name,
                 },
               };
             }
@@ -52,8 +52,11 @@ const EventChat: React.FC<EventDetailsProps> = ({event}) => {
 
   const renderBubble = (props: BubbleProps<IMessage>) => {
     const {currentMessage, previousMessage} = props;
+    if (!currentMessage) {
+      return null;
+    }
     const renderUsername =
-      currentMessage?.user &&
+      currentMessage.user &&
       currentMessage.user._id !== getMe().uid &&
       (!previousMessage ||
         !previousMessage.user ||
@@ -61,7 +64,7 @@ const EventChat: React.FC<EventDetailsProps> = ({event}) => {
     return (
       <View>
         {renderUsername ? (
-          <Text style={styles.username}>{currentMessage?.user.name}</Text>
+          <Text style={styles.username}>{currentMessage.user.name}</Text>
         ) : null}
         <Bubble
           {...props}

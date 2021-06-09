@@ -54,6 +54,7 @@ const EventItem: React.FC<EventItemProps> = ({componentId, event, onPress}) => {
         ) : null}
       </View>
       <EventParticipants
+        componentId={componentId}
         event={event}
         hideOnEmpty
         style={styles.participants}

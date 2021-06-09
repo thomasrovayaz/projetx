@@ -46,6 +46,7 @@ export async function getMyEvents() {
   return events;
 }
 export async function saveEvent(event: ProjetXEvent): Promise<ProjetXEvent> {
+  console.log(event);
   if (!event.id) {
     event.id = `${slugify(event.title || '', {
       lower: true,
@@ -126,6 +127,19 @@ export function notifyNewEvent(
       break;
   }
 
+  const include_player_ids = friends
+    .filter(
+      ({id, oneSignalId}) =>
+        [EventParticipation.notanswered, EventParticipation.maybe].includes(
+          event.participations[id],
+        ) &&
+        (!limitedUserIds || limitedUserIds.includes(id)) &&
+        oneSignalId,
+    )
+    .map(({oneSignalId}) => oneSignalId);
+  if (include_player_ids.length === 0) {
+    return;
+  }
   const notificationObj = {
     headings: {
       en: `${title} ${dateMessage}`,
@@ -142,16 +156,7 @@ export function notifyNewEvent(
     ],
     android_group: event.id,
     thread_id: event.id,
-    include_player_ids: friends
-      .filter(
-        ({id, oneSignalId}) =>
-          [EventParticipation.notanswered, EventParticipation.maybe].includes(
-            event.participations[id],
-          ) &&
-          (!limitedUserIds || limitedUserIds.includes(id)) &&
-          oneSignalId,
-      )
-      .map(({oneSignalId}) => oneSignalId),
+    include_player_ids,
   };
   console.log(notificationObj);
   const jsonString = JSON.stringify(notificationObj);

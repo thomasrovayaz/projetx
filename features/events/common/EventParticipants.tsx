@@ -16,11 +16,15 @@ import Avatar from '../../../common/Avatar';
 import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../../user/usersSlice';
 import Icon from 'react-native-vector-icons/Feather';
+import Button from '../../../common/Button';
+import {openEvent} from '../eventsSlice';
+import {useAppDispatch} from '../../../app/redux';
 
 const {width} = Dimensions.get('window');
 
 interface ProjetXEventParticipantsProps {
   event: ProjetXEvent;
+  componentId: string;
   withLabel?: boolean;
   hideOnEmpty?: boolean;
   style?: ViewStyle;
@@ -36,6 +40,7 @@ interface Style {
   avatarContainer: ViewStyle;
   avatarStatusIconContainer: ViewStyle;
   avatarStatusIcon: ViewStyle;
+  button: ViewStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -92,6 +97,9 @@ const styles = StyleSheet.create<Style>({
   emptyText: {
     marginLeft: -5,
   },
+  button: {
+    marginBottom: 20,
+  },
 });
 const MAX_SIZE = Math.floor((width - 40) / (40 - 5) - 1);
 
@@ -107,7 +115,9 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
   withLabel,
   hideOnEmpty,
   style,
+  componentId,
 }) => {
+  const dispatch = useAppDispatch();
   const friends = useSelector(selectMyFriends);
   const participants = friends
     ? friends.filter(friend =>
@@ -148,8 +158,8 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
               .slice(0, moreAvatarLength === 1 ? MAX_SIZE + 1 : MAX_SIZE)
               .map(friend => {
                 return (
-                  <View style={styles.avatarContainer}>
-                    <Avatar key={friend.id} friend={friend} />
+                  <View key={friend.id} style={styles.avatarContainer}>
+                    <Avatar friend={friend} />
                     <View style={styles.avatarStatusIconContainer}>
                       <Icon
                         style={styles.avatarStatusIcon}
@@ -171,13 +181,6 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
         </>
       );
     }
-    if (event.isAuthor()) {
-      return (
-        <Text style={styles.emptyText}>
-          {translate('Pas encore de participant, invite tes amis !')}
-        </Text>
-      );
-    }
     return (
       <Text style={styles.emptyText}>
         {translate('Pas encore de participant, soit le premier !')}
@@ -186,6 +189,28 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
   };
   if (hideOnEmpty && participants.length === 0) {
     return null;
+  }
+  if (participants.length === 0 && event.isAuthor()) {
+    return (
+      <Button
+        style={styles.button}
+        title={translate('Inviter des amis')}
+        variant="outlined"
+        onPress={() => {
+          dispatch(openEvent(event));
+          Navigation.push(componentId, {
+            component: {
+              name: 'CreateEventWho',
+              passProps: {
+                onSave: async () => {
+                  await Navigation.pop(componentId);
+                },
+              },
+            },
+          });
+        }}
+      />
+    );
   }
   return (
     <TouchableOpacity

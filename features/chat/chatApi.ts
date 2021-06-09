@@ -50,6 +50,17 @@ function messageNotification(
   ) {
     return;
   }
+  const include_player_ids = Object.keys(event.participations)
+    .filter(
+      userId =>
+        userId !== getMe().uid &&
+        event.participations[userId] === EventParticipation.going &&
+        store.getState().users.list[userId].oneSignalId,
+    )
+    .map(userId => store.getState().users.list[userId].oneSignalId);
+  if (include_player_ids.length === 0) {
+    return;
+  }
   const notificationObj = {
     headings: {
       en: `${pseudo} à ${event.title}`,
@@ -58,14 +69,7 @@ function messageNotification(
       en: message,
     },
     data: {eventId: event.id, type: NotificationType.NEW_MESSAGE},
-    include_player_ids: Object.keys(event.participations)
-      .filter(
-        userId =>
-          userId !== getMe().uid &&
-          event.participations[userId] === EventParticipation.going &&
-          store.getState().users.list[userId].oneSignalId,
-      )
-      .map(userId => store.getState().users.list[userId].oneSignalId),
+    include_player_ids,
     android_group: event.id,
     thread_id: event.id,
   };
