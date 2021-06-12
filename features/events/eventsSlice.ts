@@ -157,11 +157,15 @@ export const selectReminder = (eventId: string) => (state: RootState) =>
   state.events.reminders[eventId];
 export const selectAmIParticipating =
   (eventId: string) => (state: RootState) => {
+    if (!eventId) {
+      return false;
+    }
     const me = getMe().uid;
     const event = state.events.list[eventId];
     return (
-      event.author === me ||
-      event.participations[me] === EventParticipation.going
+      event &&
+      (event.author === me ||
+        event.participations[me] === EventParticipation.going)
     );
   };
 
