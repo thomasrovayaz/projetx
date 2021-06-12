@@ -43,7 +43,7 @@ const PseudoInput: React.FC<PseudoInputProps> = ({label, onRegister}) => {
           onChangeText={setName}
           onEndEditing={register}
           returnKeyType="done"
-          placeholder={translate('BG du 74')}
+          placeholder={translate('Tommy du 74')}
         />
       </View>
       {submitting && (

@@ -21,6 +21,7 @@ import Toast from '../common/Toast';
 import PollSettings from '../features/polls/PollSettings';
 import GroupsScreen from '../features/groups';
 import CreateGroupScreen from '../features/groups/CreateGroup';
+import DetailsGroupScreen from '../features/groups/DetailsGroup';
 
 function registerScreen<P>(name: string, Component: React.ComponentType<P>) {
   Navigation.registerComponent(
@@ -92,6 +93,7 @@ registerScreen('CreateEventWhat', CreateEventWhatScreen);
 registerScreen('CreateEventEnd', CreateEventEndScreen);
 
 registerScreen('CreateGroupScreen', CreateGroupScreen);
+registerScreen('DetailsGroupScreen', DetailsGroupScreen);
 
 Navigation.registerComponent('Toast', () => Toast);
 

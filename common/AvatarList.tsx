@@ -25,6 +25,9 @@ const AvatarList: React.FC<ProjetXAvatarProps> = ({
           users
             .slice(0, moreAvatarLength === 1 ? MAX_SIZE + 1 : MAX_SIZE)
             .map(user => {
+              if (!user) {
+                return null;
+              }
               return (
                 <View key={user.id} style={styles.avatarContainer}>
                   <Avatar friend={user} />

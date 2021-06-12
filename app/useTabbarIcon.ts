@@ -7,7 +7,7 @@ const useTabbarIcon = (componentId: string, iconName: string) => {
     const setupTabBarIcon = async () => {
       Navigation.mergeOptions(componentId, {
         bottomTab: {
-          icon: await Icon.getImageSource(iconName, 30, '#ffffff'),
+          icon: await Icon.getImageSource(iconName, 25, '#ffffff'),
         },
       });
     };

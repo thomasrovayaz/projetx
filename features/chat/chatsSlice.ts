@@ -43,7 +43,7 @@ export const selectChat =
   (state: RootState): IMessage[] =>
     state.chats.list[id];
 export const selectUnreadMessageCount =
-  (id: string) =>
+  (id?: string) =>
   (state: RootState): number => {
     if (!id || !state.chats.list[id]) {
       return 0;

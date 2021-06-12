@@ -10,7 +10,9 @@ import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../../user/usersSlice';
 import {selectCurrentEvent} from '../eventsSlice';
 import _ from 'lodash';
-import SelectableUsersList from '../../../common/SelectableUsersList';
+import SelectableUsersList, {
+  UsersSelection,
+} from '../../../common/SelectableUsersList';
 
 interface CreateEventWhoScreenProps {
   onSave?(newEvent: ProjetXEvent): void;
@@ -19,9 +21,12 @@ interface CreateEventWhoScreenProps {
 const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProps> =
   ({componentId, onSave}) => {
     const event = useSelector(selectCurrentEvent);
-    const [selectedFriends, setSelectedFriends] = useState<string[]>(
-      event?.participations ? Object.keys(event.participations) : [],
-    );
+    const [selectedFriends, setSelectedFriends] = useState<UsersSelection>({
+      usersSelected: event?.participations
+        ? Object.keys(event.participations)
+        : [],
+      groupsSelected: event?.groups ? Object.keys(event.groups) : [],
+    });
     const friends = useSelector(selectMyFriends);
 
     if (!event) {
@@ -30,7 +35,7 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
 
     const next = async () => {
       let participations: {[userId: string]: EventParticipation} = {};
-      for (const selectedFriend of selectedFriends) {
+      for (const selectedFriend of selectedFriends.usersSelected) {
         if (event.participations[selectedFriend] === undefined) {
           participations[selectedFriend] = EventParticipation.notanswered;
         } else {
@@ -41,6 +46,12 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
       if (participations[me.uid] === undefined) {
         participations[me.uid] = EventParticipation.going;
       }
+      event.groups = selectedFriends.groupsSelected.reduce<
+        Record<string, boolean>
+      >((groups, groupId) => {
+        groups[groupId] = true;
+        return groups;
+      }, {});
       if (event.id) {
         const newParticipants = _.difference(
           Object.keys(participations),
@@ -48,7 +59,17 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
         );
         event.participations = participations;
         await saveEvent({...event});
-        notifyNewEvent(event, friends, newParticipants);
+        notifyNewEvent(
+          event,
+          friends.filter(
+            friend =>
+              [
+                EventParticipation.notanswered,
+                EventParticipation.maybe,
+              ].includes(event.participations[friend.id]) &&
+              newParticipants.includes(friend.id),
+          ),
+        );
       } else {
         event.participations = participations;
       }
@@ -68,6 +89,7 @@ const CreateEventWhoScreen: NavigationFunctionComponent<CreateEventWhoScreenProp
         <SelectableUsersList
           selection={selectedFriends}
           onChange={setSelectedFriends}
+          withGroups
         />
         <View style={styles.buttonNext}>
           <Button

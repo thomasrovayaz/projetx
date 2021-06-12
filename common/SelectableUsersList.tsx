@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {FlatList, RefreshControl, StyleSheet, View} from 'react-native';
 import {translate} from '../app/locales';
 import {getUsers} from '../features/user/usersApi';
@@ -9,21 +9,33 @@ import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../features/user/usersSlice';
 import {filterWithFuse} from '../app/fuse';
 import Label from './Label';
+import {selectMyGroups} from '../features/groups/groupsSlice';
+import {ProjetXGroup} from '../features/groups/groupsTypes';
+
+export interface UsersSelection {
+  groupsSelected: string[];
+  usersSelected: string[];
+}
 
 interface SelectableUsersListProps {
-  onChange(newSelection: string[]): void;
-  selection: string[];
+  onChange(selection: UsersSelection): void;
+  selection: UsersSelection;
   label?: string;
+  withGroups?: boolean;
 }
 
 const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
   selection,
   onChange,
   label,
+  withGroups,
 }) => {
-  const [searchText, onChangeSearchText] = useState<string>('');
   const friends = useSelector(selectMyFriends);
-  const [refreshing, setRefreshing] = React.useState(false);
+  const groupsMap = useSelector(selectMyGroups);
+  const [searchText, onChangeSearchText] = useState<string>('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [datas, setDatas] = useState<(ProjetXUser | ProjetXGroup)[]>([]);
+
   const onRefresh = useCallback(() => {
     const fetchUsers = async () => {
       setRefreshing(true);
@@ -32,6 +44,52 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
     };
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    const users = filterWithFuse(friends, ['name'], searchText).filter(
+      ({name}) => name && name !== '',
+    );
+    if (withGroups && groupsMap) {
+      setDatas([
+        ...filterWithFuse(
+          Object.values(groupsMap),
+          ['name'],
+          searchText,
+        ).filter(({name}) => name && name !== ''),
+        ...users,
+      ]);
+    } else {
+      setDatas(users);
+    }
+  }, [withGroups, friends, groupsMap, searchText]);
+
+  const onSelect =
+    (item: ProjetXGroup | ProjetXUser) => (selected: boolean) => {
+      const isGroup = item instanceof ProjetXGroup;
+      const selectionKey = isGroup ? 'groupsSelected' : 'usersSelected';
+      let usersSelected = selection.usersSelected;
+      if (selected) {
+        if (isGroup) {
+          const group = item as ProjetXGroup;
+          usersSelected = [...usersSelected, ...Object.keys(group.users)];
+        }
+        onChange({
+          ...selection,
+          usersSelected,
+          [selectionKey]: [...selection[selectionKey], item.id],
+        });
+      } else {
+        if (isGroup) {
+          const group = item as ProjetXGroup;
+          usersSelected = usersSelected.filter(id => !group.users[id]);
+        }
+        onChange({
+          ...selection,
+          usersSelected,
+          [selectionKey]: selection[selectionKey].filter(id => id !== item.id),
+        });
+      }
+    };
 
   return (
     <>
@@ -46,22 +104,38 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
       <View style={styles.content}>
         <FlatList
           contentContainerStyle={styles.usersList}
-          data={filterWithFuse(friends, ['name'], searchText).filter(
-            ({name}) => name && name !== '',
-          )}
-          renderItem={({item}: {item: ProjetXUser}) => {
+          data={datas}
+          renderItem={({item}: {item: ProjetXUser | ProjetXGroup}) => {
+            const isGroup = item instanceof ProjetXGroup;
+            const group = isGroup && (item as ProjetXGroup);
+            const selectionKey = isGroup ? 'groupsSelected' : 'usersSelected';
+            const isSelectedByGroup: string | undefined | false =
+              !isGroup &&
+              groupsMap &&
+              selection.groupsSelected.find(
+                (groupId: any) =>
+                  groupsMap[groupId] &&
+                  item.id &&
+                  groupsMap[groupId].users[item.id],
+              );
             return (
               <Checkbox
                 key={item.id}
                 label={item.name}
-                selected={selection.some(id => id === item.id)}
-                onSelect={selected => {
-                  if (selected) {
-                    onChange([...selection, item.id]);
-                  } else {
-                    onChange(selection.filter(id => id !== item.id));
-                  }
-                }}
+                selected={selection[selectionKey].some(id => id === item.id)}
+                onSelect={onSelect(item)}
+                disabled={Boolean(isSelectedByGroup)}
+                subLabel={
+                  group
+                    ? translate('membres', {
+                        count: Object.keys(group.users).length || 0,
+                      })
+                    : isSelectedByGroup
+                    ? translate('Inclus dans le groupe ') +
+                      // @ts-ignore
+                      groupsMap[isSelectedByGroup].name
+                    : undefined
+                }
               />
             );
           }}

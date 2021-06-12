@@ -4,12 +4,13 @@ import {LocationValue} from '../events/create/components/LocationPicker';
 import moment from 'moment';
 
 export enum PollType {
-  DATE,
-  LOCATION,
+  DATE = 'DATE',
+  LOCATION = 'LOCATION',
+  OTHER = 'OTHER',
 }
 export enum PollState {
-  RUNNING,
-  FINISHED,
+  RUNNING = 'RUNNING',
+  FINISHED = 'FINISHED',
 }
 
 export class ProjetXPoll<Type = DateValue | LocationValue> {
@@ -63,12 +64,37 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
   }
 }
 
+const convertOldState = (oldState: number): PollState => {
+  switch (oldState) {
+    case 0:
+      return PollState.RUNNING;
+    case 1:
+      return PollState.FINISHED;
+  }
+  return PollState.FINISHED;
+};
+const convertOldType = (oldType: number): PollType => {
+  switch (oldType) {
+    case 0:
+      return PollType.DATE;
+    case 1:
+      return PollType.LOCATION;
+  }
+  return PollType.OTHER;
+};
+
 export const pollConverter = {
   fromFirestore(snapshot: FirebaseDatabaseTypes.DataSnapshot): ProjetXPoll {
     const data = snapshot.val();
     return pollConverter.fromLocalStorage(data);
   },
   fromLocalStorage(data: any): ProjetXPoll {
+    data.type = Number.isInteger(data.type)
+      ? convertOldType(data.type)
+      : data.type;
+    data.state = Number.isInteger(data.state)
+      ? convertOldState(data.state)
+      : data.state;
     data.created = moment(data.created);
     switch (data.type) {
       case PollType.DATE:

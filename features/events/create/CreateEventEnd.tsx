@@ -11,7 +11,7 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Clipboard from '@react-native-community/clipboard';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
-import {ProjetXEvent} from '../eventsTypes';
+import {EventParticipation, ProjetXEvent} from '../eventsTypes';
 import {notifyNewEvent, saveEvent} from '../eventsApi';
 import Title from '../../../common/Title';
 import Logo from '../../../assets/logo.svg';
@@ -33,7 +33,14 @@ const CreateEventEndScreen: NavigationFunctionComponent<CreateEventEndScreenProp
     useEffect(() => {
       const save = async (eventToSave: ProjetXEvent) => {
         eventToSave = await saveEvent(eventToSave);
-        notifyNewEvent(eventToSave, friends);
+        notifyNewEvent(
+          eventToSave,
+          friends.filter(friend =>
+            [EventParticipation.notanswered, EventParticipation.maybe].includes(
+              eventToSave.participations[friend.id],
+            ),
+          ),
+        );
       };
 
       if (friends && event && !event.id) {

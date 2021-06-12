@@ -1,16 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {SafeAreaView, StatusBar, StyleSheet, View, Text} from 'react-native';
+import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
-import Title from '../../../common/Title';
 import {eventTypeTitle} from '../eventsUtils';
 import {useSelector} from 'react-redux';
 import {selectAmIParticipating, selectCurrentEvent} from '../eventsSlice';
 import Tabs, {Tab} from '../../../common/Tabs';
 import {translate} from '../../../app/locales';
 import EventDetails from './EventDetails';
-import EventChat from '../../chat/EventChat';
+import Chat from '../../chat/Chat';
 import {useAppSelector} from '../../../app/redux';
 import {selectUnreadMessageCount} from '../../chat/chatsSlice';
+import DetailHeader from '../../../common/DetailHeader';
+import {EventParticipation} from '../eventsTypes';
+import {NotificationParentType} from '../../../app/onesignal';
 enum EventTab {
   details = 'details',
   sondages = 'sondages',
@@ -59,10 +61,7 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
-      <View style={styles.header}>
-        <Text style={styles.subtitle}>{eventTypeTitle(event.type)}</Text>
-        <Title style={styles.title}>{event.title}</Title>
-      </View>
+      <DetailHeader title={event.title} subtitle={eventTypeTitle(event.type)} />
       {participating ? (
         <View style={styles.tabContainer}>
           <Tabs
@@ -72,12 +71,22 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
           />
         </View>
       ) : null}
-      {tab === EventTab.details && (
+      {tab === EventTab.details ? (
         <EventDetails event={event} componentId={componentId} />
-      )}
-      {tab === EventTab.chat && (
-        <EventChat event={event} componentId={componentId} />
-      )}
+      ) : null}
+      {tab === EventTab.chat ? (
+        <Chat
+          parent={{
+            id: event.id,
+            title: event.title,
+            type: NotificationParentType.EVENT,
+          }}
+          members={Object.keys(event.participations).filter(
+            userId => event.participations[userId] === EventParticipation.going,
+          )}
+          componentId={componentId}
+        />
+      ) : null}
     </SafeAreaView>
   );
 };
@@ -86,22 +95,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-  },
-  header: {
-    backgroundColor: '#473B78',
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-    justifyContent: 'flex-start',
-    borderBottomRightRadius: 20,
-  },
-  subtitle: {
-    color: 'white',
-    fontFamily: 'Inter',
-    fontSize: 14,
-  },
-  title: {
-    color: 'white',
-    textAlign: 'left',
   },
   tabContainer: {
     flexDirection: 'row',

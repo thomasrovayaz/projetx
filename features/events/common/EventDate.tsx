@@ -92,7 +92,7 @@ const EventDate: React.FC<ProjetXEventDateProps> = ({componentId, event}) => {
   return (
     <>
       <Label>{translate('Quand?')}</Label>
-      <Date date={event.date} short style={styles.value} />
+      <Date date={event.date} style={styles.value} />
     </>
   );
 };

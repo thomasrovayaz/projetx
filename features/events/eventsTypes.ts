@@ -19,10 +19,10 @@ export enum EventType {
   other = 'other',
 }
 export enum EventParticipation {
-  going,
-  maybe,
-  notanswered,
-  notgoing,
+  going = 'going',
+  maybe = 'maybe',
+  notanswered = 'notanswered',
+  notgoing = 'notgoing',
 }
 export enum EventDateType {
   poll = 'poll',
@@ -41,6 +41,7 @@ export class ProjetXEvent {
   public time: moment.Moment | undefined;
   public location: LocationValue | undefined;
   public participations: Record<string, EventParticipation> = {};
+  public groups: Record<string, boolean> = {};
   public shareLink: string = '';
 
   constructor({
@@ -55,6 +56,7 @@ export class ProjetXEvent {
     time,
     location,
     participations,
+    groups,
     shareLink,
   }: {
     id: string;
@@ -68,6 +70,7 @@ export class ProjetXEvent {
     time?: moment.Moment | undefined;
     location?: LocationValue | undefined;
     participations?: Record<string, EventParticipation>;
+    groups?: Record<string, boolean>;
     shareLink?: string;
   }) {
     this.id = id;
@@ -81,6 +84,7 @@ export class ProjetXEvent {
     this.time = time;
     this.location = location;
     this.participations = participations || {};
+    this.groups = groups || {};
     this.shareLink = shareLink || '';
   }
   getStartingDate(): moment.Moment | undefined {
@@ -156,12 +160,61 @@ const convertOldType = (oldType: number): EventType => {
   }
   return EventType.other;
 };
+const convertOldParticipation = (
+  oldParticipation: number,
+): EventParticipation => {
+  switch (oldParticipation) {
+    case 0:
+      return EventParticipation.going;
+    case 1:
+      return EventParticipation.maybe;
+    case 2:
+      return EventParticipation.notanswered;
+    case 3:
+      return EventParticipation.notgoing;
+  }
+  return EventParticipation.notanswered;
+};
+const convertOldParticipations = (oldParticipations: {
+  [uid: string]: number | EventParticipation;
+}): Record<string, EventParticipation> => {
+  const participations: Record<string, EventParticipation> = {};
+  if (oldParticipations) {
+    for (const userId in oldParticipations) {
+      if (oldParticipations.hasOwnProperty(userId)) {
+        if (typeof oldParticipations[userId] === 'string') {
+          participations[userId] = oldParticipations[
+            userId
+          ] as EventParticipation;
+        } else {
+          participations[userId] = convertOldParticipation(
+            oldParticipations[userId] as number,
+          );
+        }
+      }
+    }
+  }
+  return participations;
+};
 export const eventConverter = {
   fromFirestore(snapshot: FirebaseDatabaseTypes.DataSnapshot): ProjetXEvent {
     const data = snapshot.val();
+    if (data.participations) {
+      for (const userId in data.participations) {
+        if (
+          data.participations.hasOwnProperty(userId) &&
+          Number.isInteger(data.participations[userId])
+        ) {
+          data.participations[userId] = convertOldParticipation(
+            data.participations[userId],
+          );
+        }
+      }
+    }
     return new ProjetXEvent({
       ...data,
       id: snapshot.key,
+      participations: convertOldParticipations(data.participations),
       type: Number.isInteger(data.type) ? convertOldType(data.type) : data.type,
       date: dateConverter.fromFirestore(data.date),
       time: timeConverter.fromFirestore(data.time),
@@ -170,6 +223,7 @@ export const eventConverter = {
   fromLocalStorage(data: any): ProjetXEvent {
     return new ProjetXEvent({
       ...data,
+      participations: convertOldParticipations(data.participations),
       type: Number.isInteger(data.type) ? convertOldType(data.type) : data.type,
       date: dateConverter.fromFirestore(data.date),
       time: timeConverter.fromFirestore(data.time),

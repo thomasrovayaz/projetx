@@ -5,10 +5,14 @@ import Button from '../../common/Button';
 import {translate} from '../../app/locales';
 import {getMe} from '../user/usersApi';
 import _ from 'lodash';
-import SelectableUsersList from '../../common/SelectableUsersList';
+import SelectableUsersList, {
+  UsersSelection,
+} from '../../common/SelectableUsersList';
 import {ProjetXGroup} from './groupsTypes';
-import {saveGroup} from './groupsApi';
+import {notifyNewGroup, saveGroup} from './groupsApi';
 import TextInput from '../../common/TextInput';
+import {useAppSelector} from '../../app/redux';
+import {selectUsers} from '../user/usersSlice';
 
 interface CreateGroupScreenProps {
   onSave(newGroup: ProjetXGroup): void;
@@ -17,10 +21,13 @@ interface CreateGroupScreenProps {
 
 const CreateGroupScreen: NavigationFunctionComponent<CreateGroupScreenProps> =
   ({onSave, group}) => {
-    const [name, setName] = useState<string>('');
+    const users = useAppSelector(selectUsers);
+    const [name, setName] = useState<string>(group?.name || '');
     const [submitted, setSubmitted] = useState<boolean>(false);
-    const [selectedFriends, setSelectedFriends] = useState<string[]>(
-      group?.users ? Object.keys(group.users) : [],
+    const [selectedFriends, setSelectedFriends] = useState<UsersSelection>(
+      group?.users
+        ? {usersSelected: Object.keys(group.users), groupsSelected: []}
+        : {usersSelected: [], groupsSelected: []},
     );
 
     const next = async () => {
@@ -28,30 +35,37 @@ const CreateGroupScreen: NavigationFunctionComponent<CreateGroupScreenProps> =
         setSubmitted(true);
         return;
       }
-      let users: {[userId: string]: boolean} = {};
-      for (const selectedFriend of selectedFriends) {
+      let members: {[userId: string]: boolean} = {};
+      for (const selectedFriend of selectedFriends.usersSelected) {
         if (group?.users[selectedFriend] === undefined) {
-          users[selectedFriend] = true;
+          members[selectedFriend] = true;
         } else {
-          users[selectedFriend] = group.users[selectedFriend];
+          members[selectedFriend] = group.users[selectedFriend];
         }
       }
       const me = getMe();
-      if (users[me.uid] === undefined) {
-        users[me.uid] = true;
+      let usersToNotify: string[];
+      if (members[me.uid] === undefined) {
+        members[me.uid] = true;
       }
       if (group) {
-        const newUsers = _.difference(
-          Object.keys(users),
+        usersToNotify = _.difference(
+          Object.keys(members),
           Object.keys(group.users),
         );
-        console.log('newUsers', newUsers);
         group.name = name;
-        group.users = users;
+        group.users = members;
       } else {
-        group = {name, users};
+        usersToNotify = Object.keys(members);
+        group = {name, users: members};
       }
-      await saveGroup({...group});
+
+      const updatedGroup = await saveGroup({...group});
+      notifyNewGroup(
+        updatedGroup,
+        Object.values(users).filter(user => usersToNotify.includes(user.id)),
+      );
+
       return onSave(group);
     };
 
@@ -69,7 +83,7 @@ const CreateGroupScreen: NavigationFunctionComponent<CreateGroupScreenProps> =
             value={name}
             onChangeText={setName}
             returnKeyType="done"
-            placeholder={translate('Les jacky tunning')}
+            placeholder={translate('Team foot')}
           />
         </View>
         <SelectableUsersList
@@ -106,7 +120,7 @@ CreateGroupScreen.options = {
   topBar: {
     visible: true,
     title: {
-      text: translate('Groupe'),
+      text: translate('Créé un groupe'),
     },
   },
   bottomTabs: {

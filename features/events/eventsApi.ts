@@ -23,7 +23,11 @@ import {ProjetXUser} from '../user/usersTypes';
 import moment from 'moment';
 import axios from 'axios';
 import Config from 'react-native-config';
-import {NotificationType} from '../../app/onesignal';
+import {
+  NotificationParentType,
+  NotificationType,
+  postNotification,
+} from '../../app/onesignal';
 
 export async function getEvent(id: string): Promise<ProjetXEvent> {
   const eventDb = await database().ref(`events/${id}`).once('value');
@@ -88,15 +92,9 @@ export async function updateParticipation(
 
 export function notifyNewEvent(
   event: ProjetXEvent,
-  friends: ProjetXUser[],
-  limitedUserIds?: string[],
+  usersToNotify: ProjetXUser[],
 ) {
-  if (
-    !friends ||
-    friends.length <= 0 ||
-    !event.participations ||
-    Object.keys(event.participations).length <= 0
-  ) {
+  if (!usersToNotify || usersToNotify.length <= 0) {
     return;
   }
   let message = translate('Souhaites-tu y participer?');
@@ -126,47 +124,23 @@ export function notifyNewEvent(
       break;
   }
 
-  const include_player_ids = friends
-    .filter(
-      ({id, oneSignalId}) =>
-        [EventParticipation.notanswered, EventParticipation.maybe].includes(
-          event.participations[id],
-        ) &&
-        (!limitedUserIds || limitedUserIds.includes(id)) &&
-        oneSignalId,
-    )
+  const include_player_ids = usersToNotify
+    .filter(({oneSignalId}) => oneSignalId)
     .map(({oneSignalId}) => oneSignalId);
-  if (include_player_ids.length === 0) {
-    return;
-  }
-  const notificationObj = {
-    headings: {
-      en: `${title} ${dateMessage}`,
+
+  postNotification(
+    include_player_ids,
+    NotificationType.EVENT_INVITATION,
+    {
+      id: event.id,
+      type: NotificationParentType.EVENT,
     },
-    contents: {
-      en: `${event.title} ${translate('par')} ${
-        getMe()?.displayName
-      }\n${message}`,
-    },
-    data: {eventId: event.id, type: NotificationType.EVENT_INVITATION},
-    buttons: [
+    `${title} ${dateMessage}`,
+    `${event.title} ${translate('par')} ${getMe()?.displayName}\n${message}`,
+    [
       {id: EventParticipation.going, text: translate('Accepter')},
       {id: EventParticipation.notgoing, text: translate('Refuser')},
     ],
-    android_group: event.id,
-    thread_id: event.id,
-    include_player_ids,
-  };
-  console.log(notificationObj);
-  const jsonString = JSON.stringify(notificationObj);
-  OneSignal.postNotification(
-    jsonString,
-    success => {
-      console.log('Success:', success);
-    },
-    error => {
-      console.log('Error:', error);
-    },
   );
 }
 
@@ -194,28 +168,15 @@ export function notifyParticipation(
     default:
       return;
   }
-  const notificationObj = {
-    headings: {
-      en: event.title,
+  postNotification(
+    [oneSignalIdAuthor],
+    NotificationType.PARTICIPATION_UPDATE,
+    {
+      id: event.id,
+      type: NotificationParentType.EVENT,
     },
-    contents: {
-      en: message,
-    },
-    data: {eventId: event.id, type: NotificationType.PARTICIPATION_UPDATE},
-    include_player_ids: [oneSignalIdAuthor],
-    android_group: event.id,
-    thread_id: event.id,
-  };
-  console.log(notificationObj);
-  const jsonString = JSON.stringify(notificationObj);
-  OneSignal.postNotification(
-    jsonString,
-    success => {
-      console.log('Success:', success);
-    },
-    error => {
-      console.log('Error:', error);
-    },
+    event.title,
+    message,
   );
 }
 
