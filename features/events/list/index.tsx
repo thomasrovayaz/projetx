@@ -112,7 +112,7 @@ const HomeScreen: NavigationFunctionComponent = ({
     dynamicLinks().getInitialLink().then(handleDynamicLink);
 
     OneSignal.setNotificationWillShowInForegroundHandler(
-      notificationWillShowInForegroundHandler(onOpenEvent),
+      notificationWillShowInForegroundHandler(componentId),
     );
     OneSignal.setNotificationOpenedHandler(async ({notification, action}) => {
       console.log('OneSignal: notification opened:', notification, action);
