@@ -24,7 +24,7 @@ const styles = StyleSheet.create<Style>({
 
 const EventOwner: React.FC<ProjetXEventOwnerProps> = ({event}) => {
   const author = useAppSelector(selectUser(event.author));
-  if (event.isAuthor()) {
+  if (event.isAuthor() || !author) {
     return null;
   }
   return (
