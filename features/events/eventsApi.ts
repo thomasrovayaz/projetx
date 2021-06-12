@@ -49,13 +49,19 @@ export async function getMyEvents() {
   store.dispatch(fetchEvents(events));
   return events;
 }
+export const slugifyEventId = (title: string) => {
+  return `${slugify(title || '', {
+    lower: true,
+    strict: true,
+    remove: /[*+~.()'"!:@]/g,
+  })}-${nanoid(11)}`;
+};
+
 export async function saveEvent(event: ProjetXEvent): Promise<ProjetXEvent> {
   if (!event.id) {
-    event.id = `${slugify(event.title || '', {
-      lower: true,
-      strict: true,
-      remove: /[*+~.()'"!:@]/g,
-    })}-${nanoid(11)}`;
+    event.id = slugifyEventId(event.title || '');
+  }
+  if (!event.author) {
     event.author = getMe().uid;
   }
   if (!event.shareLink) {

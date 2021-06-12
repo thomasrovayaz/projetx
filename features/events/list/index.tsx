@@ -26,6 +26,7 @@ import {
 } from '../../../app/onesignal';
 import {getMyGroups} from '../../groups/groupsApi';
 import {useSelector} from 'react-redux';
+import CreateEventTonight from '../create/components/CreateEventTonight';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -150,8 +151,13 @@ const HomeScreen: NavigationFunctionComponent = ({
       />
       <View style={styles.buttonCreate}>
         <Button
+          style={[styles.ctaLeft]}
           title={translate('Créer un événement')}
           onPress={() => dispatch(createEvent(componentId))}
+        />
+        <CreateEventTonight
+          style={[styles.ctaRight]}
+          componentId={componentId}
         />
       </View>
     </SafeAreaView>
@@ -170,6 +176,15 @@ const styles = StyleSheet.create({
   buttonCreate: {
     paddingVertical: 10,
     paddingHorizontal: 20,
+    flexDirection: 'row',
+  },
+  ctaLeft: {
+    flex: 1,
+    marginRight: 5,
+  },
+  ctaRight: {
+    flex: 1,
+    marginLeft: 5,
   },
 });
 
