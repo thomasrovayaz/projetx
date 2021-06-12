@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, ViewStyle, View, TouchableOpacity} from 'react-native';
+import {StyleSheet, TouchableOpacity, View, ViewStyle} from 'react-native';
 import {EventParticipation, ProjetXEvent} from '../eventsTypes';
 import {Navigation} from 'react-native-navigation';
 import {translate} from '../../../app/locales';
@@ -18,6 +18,7 @@ interface ProjetXEventParticipantsProps {
   withLabel?: boolean;
   hideOnEmpty?: boolean;
   style?: ViewStyle;
+  disabled?: boolean;
 }
 
 interface Style {
@@ -72,17 +73,28 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
   hideOnEmpty,
   style,
   componentId,
+  disabled,
 }) => {
   const dispatch = useAppDispatch();
   const friends = useSelector(selectMyFriends);
   const participants = friends
-    ? friends.filter(friend =>
-        [
-          EventParticipation.going,
-          EventParticipation.maybe,
-          EventParticipation.notanswered,
-        ].includes(event.participations[friend.id]),
-      )
+    ? friends
+        .filter(friend =>
+          [
+            EventParticipation.going,
+            EventParticipation.maybe,
+            EventParticipation.notanswered,
+          ].includes(event.participations[friend.id]),
+        )
+        .sort((user1, user2) => {
+          if (event.participations[user1.id] === EventParticipation.going) {
+            return -1;
+          }
+          if (event.participations[user2.id] === EventParticipation.going) {
+            return 1;
+          }
+          return 0;
+        })
     : [];
 
   const showModal = () => {
@@ -132,6 +144,7 @@ const EventParticipants: React.FC<ProjetXEventParticipantsProps> = ({
     <TouchableOpacity
       onPress={showModal}
       activeOpacity={0.8}
+      disabled={disabled}
       style={[styles.container, style]}>
       {withLabel && <Label>{translate('Participants')}</Label>}
       <AvatarList

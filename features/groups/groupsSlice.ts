@@ -16,13 +16,17 @@ export const groupsSlice = createSlice({
   reducers: {
     fetchGroups(state, action: PayloadAction<ProjetXGroup[]>) {
       state.list = {};
-      for (const user of action.payload) {
-        state.list[user.id] = user;
+      for (const group of action.payload) {
+        if (group.id) {
+          state.list[group.id] = group;
+        }
       }
     },
     updateGroup(state, action: PayloadAction<ProjetXGroup>) {
-      const user = action.payload;
-      state.list[user.id] = user;
+      const group = action.payload;
+      if (group.id) {
+        state.list[group.id] = group;
+      }
     },
   },
 });
@@ -30,10 +34,10 @@ export const groupsSlice = createSlice({
 export const {fetchGroups, updateGroup} = groupsSlice.actions;
 
 export const selectMyGroups = (state: RootState): ProjetXGroup[] =>
-  state.groups.list && Object.values(state.groups.list);
+  state.groups.list;
 export const selectGroup =
   (id: string | undefined) =>
-  (state: RootState): ProjetXGroup =>
+  (state: RootState): ProjetXGroup | undefined =>
     state.groups.list && id && state.groups.list[id];
 
 export default groupsSlice.reducer;

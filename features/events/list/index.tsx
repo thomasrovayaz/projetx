@@ -13,17 +13,19 @@ import EventsList from './EventsList';
 import {EventParticipation, ProjetXEvent} from '../eventsTypes';
 import {getEvent, updateParticipation} from '../eventsApi';
 import {getMe, getUsers} from '../../user/usersApi';
-import {createEvent, openEvent} from '../eventsSlice';
+import {createEvent, openEvent, selectMyEvents} from '../eventsSlice';
 import {useAppDispatch} from '../../../app/redux';
 import OneSignal from 'react-native-onesignal';
 import {connectChats} from '../../chat/chatApi';
 import {showToast} from '../../../common/Toast';
 import {
   AdditionalData,
+  NotificationParentType,
   NotificationType,
   notificationWillShowInForegroundHandler,
 } from '../../../app/onesignal';
 import {getMyGroups} from '../../groups/groupsApi';
+import {useSelector} from 'react-redux';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -33,6 +35,7 @@ const HomeScreen: NavigationFunctionComponent = ({
   event?: ProjetXEvent;
 }) => {
   const dispatch = useAppDispatch();
+  const events = useSelector(selectMyEvents);
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   useTabbarIcon(componentId, 'home');
 
@@ -54,10 +57,10 @@ const HomeScreen: NavigationFunctionComponent = ({
   };
 
   const handleOpenEvent = async (
-    {eventId, chat, type}: AdditionalData,
+    {eventId, parentId, type}: AdditionalData,
     participation?: EventParticipation,
   ) => {
-    const eventLoaded = await getEvent(eventId);
+    const eventLoaded = await getEvent(eventId || parentId);
     if (participation !== undefined && Number.isInteger(participation)) {
       await updateParticipation(eventLoaded, participation);
       await showToast({message: translate('Réponse envoyé 👍')});
@@ -69,7 +72,7 @@ const HomeScreen: NavigationFunctionComponent = ({
     }
     onOpenEvent(
       eventLoaded,
-      (chat || type === NotificationType.NEW_MESSAGE) &&
+      type === NotificationType.NEW_MESSAGE &&
         eventLoaded.participations[getMe().uid] === EventParticipation.going,
     );
   };
@@ -85,10 +88,20 @@ const HomeScreen: NavigationFunctionComponent = ({
         const path = matches[3];
         const routes = path.split('/');
         if (routes[0] === 'event') {
-          await handleOpenEvent({eventId: routes[1]});
+          await handleOpenEvent({
+            parentId: routes[1],
+            parentType: NotificationParentType.EVENT,
+            type: NotificationType.EVENT_INVITATION,
+          });
           if (routes[2] === 'poll') {
             //todo open poll routes[3]
           }
+        } else if (routes[0] === 'group') {
+          await handleOpenEvent({
+            parentId: routes[1],
+            parentType: NotificationParentType.GROUP,
+            type: NotificationType.GROUP_INVITATION,
+          });
         }
       }
     }
@@ -130,7 +143,11 @@ const HomeScreen: NavigationFunctionComponent = ({
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <Title style={styles.title}>{translate('Mes événements')}</Title>
-      <EventsList componentId={componentId} onOpenEvent={onOpenEvent} />
+      <EventsList
+        componentId={componentId}
+        events={events}
+        onOpenEvent={onOpenEvent}
+      />
       <View style={styles.buttonCreate}>
         <Button
           title={translate('Créer un événement')}

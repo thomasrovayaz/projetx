@@ -5,35 +5,40 @@ import {getMyEvents} from '../eventsApi';
 import EventItem from './EventItem';
 import Title from '../../../common/Title';
 import {translate} from '../../../app/locales';
-import {getMe} from '../../user/usersApi';
-import {useSelector} from 'react-redux';
-import {selectMyEvents} from '../eventsSlice';
+import {getMe, getUsers} from '../../user/usersApi';
 
 interface EventsListProps {
   componentId: string;
+  emptyText?: string;
+  events: ProjetXEvent[];
   onOpenEvent(event: ProjetXEvent): void;
 }
 
-const EmptyEventsList: React.FC = () => {
+const EmptyEventsList: React.FC<{emptyText?: string}> = ({emptyText}) => {
   return (
     <View style={styles.emptyList}>
       <Title style={styles.emptyText}>
-        {translate(`Salut ${getMe().displayName} 👋\n`)}
-      </Title>
-      <Title style={styles.emptyText}>
-        {translate('Tu peux créer et inviter tes amis à ton premier événement')}
+        {emptyText
+          ? emptyText
+          : `${translate('Salut')} ${getMe().displayName} 👋\n\n${translate(
+              'Tu peux créer et inviter tes amis à ton premier événement',
+            )}`}
       </Title>
     </View>
   );
 };
 
-const EventsList: React.FC<EventsListProps> = ({componentId, onOpenEvent}) => {
-  const events: ProjetXEvent[] = useSelector(selectMyEvents);
+const EventsList: React.FC<EventsListProps> = ({
+  componentId,
+  onOpenEvent,
+  events,
+  emptyText,
+}) => {
   const [refreshing, setRefreshing] = React.useState(false);
 
   const fetchEvents = async () => {
     setRefreshing(true);
-    await getMyEvents();
+    await Promise.all([getMyEvents(), getUsers()]);
     setRefreshing(false);
   };
   const onRefresh = useCallback(() => {
@@ -63,7 +68,7 @@ const EventsList: React.FC<EventsListProps> = ({componentId, onOpenEvent}) => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
       contentContainerStyle={(!events || events.length <= 0) && styles.content}
-      ListEmptyComponent={EmptyEventsList}
+      ListEmptyComponent={<EmptyEventsList emptyText={emptyText} />}
     />
   );
 };

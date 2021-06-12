@@ -1,6 +1,6 @@
 import {StyleSheet, TouchableOpacity, View, Text} from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {translate} from '../app/locales';
 
 interface ProjetXToastProps {
@@ -37,19 +37,23 @@ const Toast: NavigationFunctionComponent<ProjetXToastProps> = ({
   onClose,
   buttons,
 }) => {
-  const open = () => {
+  const open = async () => {
     onOpen && onOpen();
-    Navigation.dismissOverlay(componentId);
+    await Navigation.dismissOverlay(componentId);
   };
-  const dimiss = (hasClick: boolean) => {
-    onClose && onClose(hasClick);
-    Navigation.dismissOverlay(componentId);
-  };
+  const dimiss = useCallback(
+    async (hasClick: boolean) => {
+      onClose && onClose(hasClick);
+      await Navigation.dismissOverlay(componentId);
+    },
+    [onClose, componentId],
+  );
+
   useEffect(() => {
     if (timeout) {
       setTimeout(dimiss, timeout);
     }
-  }, []);
+  }, [dimiss, timeout]);
 
   const DEFAULT_BUTTONS = [
     {

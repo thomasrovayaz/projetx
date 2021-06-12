@@ -1,4 +1,3 @@
-import {ProjetXEvent} from '../events/eventsTypes';
 import React, {useEffect, useState} from 'react';
 import {AvatarProps, Bubble, GiftedChat, Send} from 'react-native-gifted-chat';
 import {IMessage} from 'react-native-gifted-chat/lib/Models';
@@ -13,15 +12,18 @@ import {SendProps} from 'react-native-gifted-chat/lib/Send';
 import {StyleSheet, Text, View} from 'react-native';
 import Avatar from '../../common/Avatar';
 import {chatRead, selectChat} from './chatsSlice';
+import {NotificationParentType} from '../../app/onesignal';
 
-interface EventDetailsProps {
-  event: ProjetXEvent;
+interface ChatProps {
+  parent: {id: string; title: string; type: NotificationParentType};
+  members: string[];
   componentId: string;
 }
-const EventChat: React.FC<EventDetailsProps> = ({event}) => {
+
+const Chat: React.FC<ChatProps> = ({parent, members}) => {
   const dispatch = useAppDispatch();
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const chat = useAppSelector(selectChat(event.id));
+  const chat = useAppSelector(selectChat(parent.id));
   const users = useAppSelector(selectUsers);
 
   useEffect(() => {
@@ -41,12 +43,12 @@ const EventChat: React.FC<EventDetailsProps> = ({event}) => {
           })
         : [],
     );
-    dispatch(chatRead(event.id));
-  }, [users, chat, event.id, dispatch]);
+    dispatch(chatRead(parent.id));
+  }, [users, chat, parent.id, dispatch]);
 
   async function handleSend(newMessage: IMessage[] = []) {
     for (const message of newMessage) {
-      await addMessage(message, event);
+      await addMessage(message, parent, members);
     }
   }
 
@@ -139,4 +141,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EventChat;
+export default Chat;

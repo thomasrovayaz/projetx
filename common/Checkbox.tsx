@@ -5,21 +5,27 @@ import {
   ViewStyle,
   Text,
   View,
+  TextStyle,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
 interface ProjetXCheckboxProps {
   label: string;
+  subLabel?: string;
   onSelect(selected: boolean): void;
   selected?: boolean;
+  disabled?: boolean;
   style?: ViewStyle;
 }
 
 interface Style {
   container: ViewStyle;
-  label: ViewStyle;
+  label: TextStyle;
+  sublabel: TextStyle;
   checkbox: ViewStyle;
   checkboxSelected: ViewStyle;
+  checkboxDisabled: ViewStyle;
+  textContainer: ViewStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -33,6 +39,11 @@ const styles = StyleSheet.create<Style>({
   label: {
     fontSize: 14,
     fontWeight: 'bold',
+    textAlign: 'left',
+    fontFamily: 'Inter',
+  },
+  sublabel: {
+    fontSize: 12,
     textAlign: 'left',
     fontFamily: 'Inter',
   },
@@ -50,36 +61,37 @@ const styles = StyleSheet.create<Style>({
   checkboxSelected: {
     backgroundColor: '#473B78',
   },
+  checkboxDisabled: {opacity: 0.5},
+  textContainer: {
+    flex: 1,
+  },
 });
 
 const Checkbox: React.FC<ProjetXCheckboxProps> = ({
   label,
+  subLabel,
   style,
   selected,
+  disabled,
   onSelect,
 }) => {
   return (
     <TouchableOpacity
-      onPress={() => onSelect(!selected)}
+      onPress={() => !disabled && onSelect(!selected)}
       activeOpacity={0.8}
-      style={{
-        ...styles.container,
-        // @ts-ignore
-        ...style,
-      }}>
-      <View
-        style={{
-          ...styles.checkbox,
-          ...(selected ? styles.checkboxSelected : {}),
-        }}>
+      disabled={disabled}
+      style={[
+        styles.container,
+        style,
+        disabled ? styles.checkboxDisabled : {},
+      ]}>
+      <View style={[styles.checkbox, selected ? styles.checkboxSelected : {}]}>
         {selected && <Icon name="check" color="white" size={15} />}
       </View>
-      <Text
-        style={{
-          ...styles.label,
-        }}>
-        {label}
-      </Text>
+      <View style={styles.textContainer}>
+        <Text style={[styles.label]}>{label}</Text>
+        {subLabel ? <Text style={[styles.sublabel]}>{subLabel}</Text> : null}
+      </View>
     </TouchableOpacity>
   );
 };

@@ -47,6 +47,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({event, componentId}) => {
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
   label: {
     fontFamily: 'Inter',

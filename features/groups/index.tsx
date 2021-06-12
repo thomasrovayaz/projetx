@@ -1,10 +1,11 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   FlatList,
   RefreshControl,
   SafeAreaView,
   StatusBar,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
@@ -19,6 +20,7 @@ import {ProjetXGroup} from './groupsTypes';
 import Button from '../../common/Button';
 import AvatarList from '../../common/AvatarList';
 import {selectUsers} from '../user/usersSlice';
+import {useAppSelector} from '../../app/redux';
 
 const EmptyGroupsList: React.FC = () => {
   return (
@@ -37,9 +39,10 @@ const EmptyGroupsList: React.FC = () => {
 
 const GroupsScreen: NavigationFunctionComponent = ({componentId}) => {
   useTabbarIcon(componentId, 'users');
-  const friends = useSelector(selectUsers);
-  const groups: ProjetXGroup[] = useSelector(selectMyGroups);
+  const friends = useAppSelector(selectUsers);
+  const groupsMap = useAppSelector(selectMyGroups);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [groups, setGroups] = useState<ProjetXGroup[]>([]);
 
   const fetchGroups = async () => {
     setRefreshing(true);
@@ -53,15 +56,31 @@ const GroupsScreen: NavigationFunctionComponent = ({componentId}) => {
   useEffect(() => {
     fetchGroups();
   }, []);
+  useEffect(() => {
+    setGroups(groupsMap ? Object.values(groupsMap) : []);
+  }, [groupsMap]);
 
   const renderItem = ({item}: {item: ProjetXGroup}) => (
-    <View style={styles.item} key={item.id}>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        Navigation.push(componentId, {
+          component: {
+            name: 'DetailsGroupScreen',
+            passProps: {
+              groupId: item.id,
+            },
+          },
+        })
+      }
+      style={styles.item}
+      key={item.id}>
       <Title style={styles.groupTitle}>{item.name}</Title>
       <AvatarList
         users={Object.keys(item.users).map(userId => friends[userId])}
         emptyLabel={translate('Pas encore de membres !')}
       />
-    </View>
+    </TouchableOpacity>
   );
 
   return (

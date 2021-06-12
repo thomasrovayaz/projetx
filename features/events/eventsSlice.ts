@@ -124,24 +124,32 @@ export const {
   remindEvent,
 } = eventsSlice.actions;
 
-export const selectMyEvents = (state: RootState): ProjetXEvent[] =>
-  Object.values<ProjetXEvent>(state.events.list).sort((eventA, eventB) => {
-    const startingDateA = eventA.getStartingDate();
-    const startingDateB = eventB.getStartingDate();
-    if (!startingDateB) {
-      return 1;
-    }
-    if (!startingDateA) {
+const sortEvents = (eventA: ProjetXEvent, eventB: ProjetXEvent) => {
+  const startingDateA = eventA.getStartingDate();
+  const startingDateB = eventB.getStartingDate();
+  if (!startingDateB) {
+    return 1;
+  }
+  if (!startingDateA) {
+    return -1;
+  }
+  if (startingDateA.isAfter(moment())) {
+    if (startingDateB.isBefore(moment())) {
       return -1;
     }
-    if (startingDateA.isAfter(moment())) {
-      if (startingDateB.isBefore(moment())) {
-        return -1;
-      }
-      return startingDateA.valueOf() - startingDateB.valueOf();
-    }
-    return startingDateB.valueOf() - startingDateA.valueOf();
-  });
+    return startingDateA.valueOf() - startingDateB.valueOf();
+  }
+  return startingDateB.valueOf() - startingDateA.valueOf();
+};
+
+export const selectMyEvents = (state: RootState): ProjetXEvent[] =>
+  Object.values<ProjetXEvent>(state.events.list).sort(sortEvents);
+export const selectGroupEvents =
+  (groupId: string) =>
+  (state: RootState): ProjetXEvent[] =>
+    Object.values<ProjetXEvent>(state.events.list)
+      .filter(event => event.groups && event.groups[groupId])
+      .sort(sortEvents);
 export const selectCurrentEvent = (state: RootState) => state.events.current;
 export const selectEvent = (eventId: string) => (state: RootState) =>
   state.events.list[eventId];

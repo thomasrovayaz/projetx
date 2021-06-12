@@ -8,6 +8,7 @@ interface ProjetXDateProps extends TextProps {
   short?: boolean;
 }
 const format = 'ddd DD MMM YYYY';
+const formatWithHour = 'ddd DD MMM YYYY HH:mm';
 
 const Date: React.FC<ProjetXDateProps> = ({date, short, ...props}) => {
   if (!date) {
@@ -16,7 +17,7 @@ const Date: React.FC<ProjetXDateProps> = ({date, short, ...props}) => {
   if (date.date) {
     return (
       <Text {...props}>
-        {short ? date.date.fromNow() : date.date.format(format)}
+        {short ? date.date.fromNow() : date.date.format(formatWithHour)}
       </Text>
     );
   }

@@ -9,7 +9,7 @@ interface ProjetXAvatarProps {
 const Avatar: React.FC<ProjetXAvatarProps> = ({friend}) => {
   return (
     <View style={styles.avatarContainer}>
-      {friend ? (
+      {friend && friend.name ? (
         <Text style={styles.avatar}>{friend.name.slice(0, 2)}</Text>
       ) : null}
     </View>

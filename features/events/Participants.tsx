@@ -12,7 +12,6 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {EventParticipation} from './eventsTypes';
 import {translate} from '../../app/locales';
 import Icon from 'react-native-vector-icons/Feather';
-import Avatar from '../../common/Avatar';
 import TextInput from '../../common/TextInput';
 import Button from '../../common/Button';
 import {ProjetXUser} from '../user/usersTypes';
@@ -21,6 +20,7 @@ import {getEvent} from './eventsApi';
 import {filterWithFuse} from '../../app/fuse';
 import {openEvent, selectEvent} from './eventsSlice';
 import {useAppDispatch, useAppSelector} from '../../app/redux';
+import User from '../../common/User';
 
 interface ProjetXEventParticipantsProps {
   eventId: string;
@@ -99,13 +99,6 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
       });
     };
 
-    const Item = ({friend}: {friend: ProjetXUser}) => (
-      <View style={styles.item}>
-        <Avatar key={friend.id} friend={friend} />
-        <Text style={styles.title}>{friend.name}</Text>
-      </View>
-    );
-
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
@@ -120,7 +113,7 @@ const ParticipantsModal: NavigationFunctionComponent<ProjetXEventParticipantsPro
           <SectionList
             sections={participants}
             keyExtractor={(item, index) => item.id + index}
-            renderItem={({item}) => <Item friend={item} />}
+            renderItem={({item}) => <User friend={item} />}
             renderSectionHeader={({section: {title, icon, data}}) =>
               data.length > 0 ? (
                 <View style={styles.header}>
@@ -166,12 +159,6 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     justifyContent: 'center',
   },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: 5,
-    paddingVertical: 5,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -186,11 +173,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#000',
-  },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 12,
-    marginLeft: 5,
   },
   buttons: {
     marginTop: 10,

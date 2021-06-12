@@ -6,6 +6,25 @@ import {getMe} from '../user/usersApi';
 import slugify from 'slugify';
 import {nanoid} from 'nanoid';
 import {buildLink} from './groupsUtils';
+import {
+  EventParticipation,
+  EventType,
+  ProjetXEvent,
+} from '../events/eventsTypes';
+import {translate} from '../../app/locales';
+import {
+  NotificationParentType,
+  NotificationType,
+  postNotification,
+} from '../../app/onesignal';
+import {ProjetXUser} from '../user/usersTypes';
+
+export async function getGroup(id: string): Promise<ProjetXGroup> {
+  const groupDb = await database().ref(`groups/${id}`).once('value');
+  const group = groupConverter.fromFirestore(groupDb);
+  store.dispatch(updateGroup(group));
+  return group;
+}
 
 export async function getMyGroups() {
   const groupsDb = await database()
@@ -39,4 +58,27 @@ export async function saveGroup(group: ProjetXGroup): Promise<ProjetXGroup> {
   );
   store.dispatch(updateGroup(updatedGroup));
   return updatedGroup;
+}
+
+export function notifyNewGroup(
+  group: ProjetXGroup,
+  usersToNotify: ProjetXUser[],
+) {
+  if (!group.id || !usersToNotify || usersToNotify.length <= 0) {
+    return;
+  }
+
+  const include_player_ids = usersToNotify
+    .filter(({oneSignalId}) => oneSignalId)
+    .map(({oneSignalId}) => oneSignalId);
+  postNotification(
+    include_player_ids,
+    NotificationType.GROUP_INVITATION,
+    {
+      id: group.id,
+      type: NotificationParentType.GROUP,
+    },
+    `${group.name}`,
+    `${getMe().displayName} ${translate("t'as ajouté au groupe")}`,
+  );
 }

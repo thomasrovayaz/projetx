@@ -1,4 +1,4 @@
-import {pollConverter, PollType, ProjetXPoll} from './pollsTypes';
+import {pollConverter, PollState, PollType, ProjetXPoll} from './pollsTypes';
 import database from '@react-native-firebase/database';
 import {store} from '../../app/store';
 import {updateAnswers, updatePoll} from './pollsSlice';
@@ -38,6 +38,7 @@ export function createPoll(type: PollType, parentEventId: string): ProjetXPoll {
     parentEventId,
     created: moment(),
     type,
+    state: PollState.RUNNING,
   };
   switch (data.type) {
     case PollType.DATE:

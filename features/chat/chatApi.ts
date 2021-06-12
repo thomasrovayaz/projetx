@@ -1,11 +1,13 @@
 import database from '@react-native-firebase/database';
 import {IMessage} from 'react-native-gifted-chat/lib/Models';
-import {EventParticipation, ProjetXEvent} from '../events/eventsTypes';
 import {store} from '../../app/store';
-import OneSignal from 'react-native-onesignal';
 import {getMe} from '../user/usersApi';
 import {chatsUpdated} from './chatsSlice';
-import {NotificationType} from '../../app/onesignal';
+import {
+  NotificationParentType,
+  NotificationType,
+  postNotification,
+} from '../../app/onesignal';
 
 export async function connectChats() {
   return database()
@@ -15,9 +17,9 @@ export async function connectChats() {
       const chats: {
         [uid: string]: IMessage[];
       } = {};
-      for (const eventId in dbChats) {
-        if (dbChats.hasOwnProperty(eventId)) {
-          chats[eventId] = Object.values<IMessage>(dbChats[eventId]).sort(
+      for (const parentId in dbChats) {
+        if (dbChats.hasOwnProperty(parentId)) {
+          chats[parentId] = Object.values<IMessage>(dbChats[parentId]).sort(
             function (a, b) {
               return (
                 new Date(b.createdAt).getTime() -
@@ -31,57 +33,41 @@ export async function connectChats() {
     });
 }
 
-export async function addMessage(message: IMessage, event: ProjetXEvent) {
+export async function addMessage(
+  message: IMessage,
+  parent: {id: string; title: string; type: NotificationParentType},
+  members: string[],
+) {
   await database()
-    .ref(`chats/${event.id}`)
+    .ref(`chats/${parent.id}`)
     .push({...message, createdAt: new Date().getTime()});
-  messageNotification(event, getMe().displayName, message.text);
+  messageNotification(members, parent, getMe().displayName, message.text);
 }
 
 function messageNotification(
-  event: ProjetXEvent,
+  members: string[],
+  parent: {id: string; title: string; type: NotificationParentType},
   pseudo: string | null,
   message: string,
 ) {
-  if (
-    !pseudo ||
-    !event.participations ||
-    Object.keys(event.participations).length <= 0
-  ) {
+  if (!pseudo || !members || members.length <= 0) {
     return;
   }
-  const include_player_ids = Object.keys(event.participations)
+  const include_player_ids = members
     .filter(
       userId =>
         userId !== getMe().uid &&
-        event.participations[userId] === EventParticipation.going &&
         store.getState().users.list[userId].oneSignalId,
     )
     .map(userId => store.getState().users.list[userId].oneSignalId);
-  if (include_player_ids.length === 0) {
-    return;
-  }
-  const notificationObj = {
-    headings: {
-      en: `${pseudo} à ${event.title}`,
-    },
-    contents: {
-      en: message,
-    },
-    data: {eventId: event.id, type: NotificationType.NEW_MESSAGE},
+  postNotification(
     include_player_ids,
-    android_group: event.id,
-    thread_id: event.id,
-  };
-  console.log(notificationObj);
-  const jsonString = JSON.stringify(notificationObj);
-  OneSignal.postNotification(
-    jsonString,
-    success => {
-      console.log('Success:', success);
+    NotificationType.NEW_MESSAGE,
+    {
+      id: parent.id,
+      type: parent.type,
     },
-    error => {
-      console.log('Error:', error);
-    },
+    `${pseudo} à ${parent.title}`,
+    message,
   );
 }
