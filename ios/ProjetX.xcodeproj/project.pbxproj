@@ -21,11 +21,10 @@
 		CC6E0CA893304BB585F911C9 /* Inter-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C4C890592B624BF5BE288085 /* Inter-Light.ttf */; };
 		D1304CA465CC4CA095C99B68 /* Inter-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 088DB27DE515454683A52662 /* Inter-ExtraLight.ttf */; };
 		D6E2AF9CADCA8B16CC86114A /* libPods-ProjetX-ProjetXTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF491FD6DDAE8DC8680A678 /* libPods-ProjetX-ProjetXTests.a */; };
-		E934D7C7264F12D4004DE149 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E934D7C6264F12D4004DE149 /* GoogleService-Info.plist */; };
-		E934D7C8264F12D4004DE149 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E934D7C6264F12D4004DE149 /* GoogleService-Info.plist */; };
 		E960A2F2265F52E6009CF91C /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E960A2F1265F52E6009CF91C /* NotificationService.swift */; };
 		E960A2F6265F52E6009CF91C /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E960A2EF265F52E6009CF91C /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E9841C4FD71742B5896C24A4 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1556EB3E6FE477FA972D4B5 /* Inter-Regular.ttf */; };
+		E9B5343C267626D7005A760E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E9B5343B267626D7005A760E /* GoogleService-Info.plist */; };
 		E9F635C6265055EC006A5475 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E9F635C4265055EC006A5475 /* Feather.ttf */; };
 		F0D181375A7E4579B6A6A7BA /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E0575A4A331F4FF388DB2304 /* Inter-SemiBold.ttf */; };
 		F5DA42674E3D43569363896E /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7ADBB8EFE5BD45E08F8A218C /* Inter-Bold.ttf */; };
@@ -103,13 +102,13 @@
 		E327BDE9E44944AD96D6B3DE /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
 		E62EEC2EB9E14FB0BA8468D7 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
 		E89B911775C9F73B716A7581 /* Pods-ProjetX.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ProjetX.release.xcconfig"; path = "Target Support Files/Pods-ProjetX/Pods-ProjetX.release.xcconfig"; sourceTree = "<group>"; };
-		E934D7C6264F12D4004DE149 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E960A2EA265F5258009CF91C /* ProjetX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ProjetX.entitlements; path = ProjetX/ProjetX.entitlements; sourceTree = "<group>"; };
 		E960A2EF265F52E6009CF91C /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E960A2F1265F52E6009CF91C /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		E960A2F3265F52E6009CF91C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E9A6AAF8265F56F800729053 /* libPods-OneSignalNotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libPods-OneSignalNotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9A6AAFA265F570800729053 /* libPods-OneSignalNotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libPods-OneSignalNotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9B5343B267626D7005A760E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E9BF1A05265F53F40038EF3F /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		E9F635C4265055EC006A5475 /* Feather.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		ECA45E7C202E4AAE948FA553 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
@@ -171,7 +170,7 @@
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				E9F635C4265055EC006A5475 /* Feather.ttf */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
-				E934D7C6264F12D4004DE149 /* GoogleService-Info.plist */,
+				E9B5343B267626D7005A760E /* GoogleService-Info.plist */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
@@ -394,7 +393,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E9F635C6265055EC006A5475 /* Feather.ttf in Resources */,
-				E934D7C8264F12D4004DE149 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -403,11 +401,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
-				E934D7C7264F12D4004DE149 /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				A2442ED6D23A4CC8B501A6ED /* Inter-Black.ttf in Resources */,
 				F5DA42674E3D43569363896E /* Inter-Bold.ttf in Resources */,
 				7FEDDABCFFCB4CB4A9FADC63 /* Inter-ExtraBold.ttf in Resources */,
+				E9B5343C267626D7005A760E /* GoogleService-Info.plist in Resources */,
 				D1304CA465CC4CA095C99B68 /* Inter-ExtraLight.ttf in Resources */,
 				CC6E0CA893304BB585F911C9 /* Inter-Light.ttf in Resources */,
 				B3667769D90A497E95145C8E /* Inter-Medium.ttf in Resources */,

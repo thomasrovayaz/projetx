@@ -25,7 +25,6 @@ export async function updateMyName(name: string) {
   await me.updateProfile({displayName: name});
 }
 export async function updateOneSignalId(oneSignalId: string, userId: string) {
-  console.log('updateOneSignalId', oneSignalId, userId);
   if (!oneSignalId || oneSignalId === '') {
     return;
   }

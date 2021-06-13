@@ -42,7 +42,6 @@ export const setupOneSignal = async () => {
   });
   const deviceState = await OneSignal.getDeviceState();
   const currentUser = auth().currentUser;
-  console.log('deviceState', deviceState, currentUser);
   if (currentUser) {
     OneSignal.setExternalUserId(currentUser.uid);
     await updateOneSignalId(deviceState.userId, currentUser.uid);

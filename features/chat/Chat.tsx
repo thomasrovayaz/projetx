@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {AvatarProps, Bubble, GiftedChat, Send} from 'react-native-gifted-chat';
+import {
+  AvatarProps,
+  Bubble,
+  Composer,
+  ComposerProps,
+  GiftedChat,
+  Send,
+} from 'react-native-gifted-chat';
 import {IMessage} from 'react-native-gifted-chat/lib/Models';
 import {getMe} from '../user/usersApi';
 import {addMessage} from './chatApi';
@@ -13,12 +20,17 @@ import {StyleSheet, Text, View} from 'react-native';
 import Avatar from '../../common/Avatar';
 import {chatRead, selectChat} from './chatsSlice';
 import {NotificationParentType} from '../../app/onesignal';
+import {nanoid} from 'nanoid';
+import ImageModal from 'react-native-image-modal/src/index';
+import MessageImage from 'react-native-gifted-chat/lib/MessageImage';
+import FastImage from 'react-native-fast-image';
 
 interface ChatProps {
   parent: {id: string; title: string; type: NotificationParentType};
   members: string[];
   componentId: string;
 }
+type OnImageChangeCallback = (event: {nativeEvent: {linkUri: string}}) => void;
 
 const Chat: React.FC<ChatProps> = ({parent, members}) => {
   const dispatch = useAppDispatch();
@@ -47,6 +59,7 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
   }, [users, chat, parent.id, dispatch]);
 
   async function handleSend(newMessage: IMessage[] = []) {
+    console.log(newMessage);
     for (const message of newMessage) {
       await addMessage(message, parent, members);
     }
@@ -79,8 +92,11 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
             },
           }}
           wrapperStyle={{
-            left: {},
+            left: {
+              overflow: 'hidden',
+            },
             right: {
+              overflow: 'hidden',
               backgroundColor: '#473B78',
             },
           }}
@@ -104,6 +120,43 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
     } = currentMessage;
     return <Avatar friend={users[_id]} />;
   };
+  const onImageChange: OnImageChangeCallback = async ({nativeEvent}) => {
+    const {linkUri} = nativeEvent;
+    if (linkUri) {
+      const message: IMessage = {
+        _id: nanoid(),
+        createdAt: new Date(),
+        text: '',
+        user: {
+          _id: getMe().uid,
+        },
+        image: linkUri,
+      };
+      await handleSend([message]);
+    }
+  };
+  const renderMessageImage = ({
+    currentMessage,
+  }: MessageImage<IMessage>['props']) => {
+    if (!currentMessage) {
+      return null;
+    }
+    return (
+      <View>
+        <ImageModal
+          resizeMode={FastImage.resizeMode.cover}
+          swipeToDismiss
+          modalImageResizeMode={FastImage.resizeMode.contain}
+          style={styles.image}
+          source={{uri: currentMessage.image}}
+        />
+      </View>
+    );
+  };
+  const renderComposer = (props: ComposerProps) => (
+    // @ts-ignore
+    <Composer {...props} textInputProps={{onImageChange}} />
+  );
 
   return (
     <GiftedChat
@@ -119,6 +172,8 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
       renderBubble={renderBubble}
       renderSend={renderSend}
       renderAvatar={renderAvatar}
+      renderComposer={renderComposer}
+      renderMessageImage={renderMessageImage}
       user={{
         _id: getMe().uid,
       }}
@@ -139,6 +194,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginBottom: 2,
   },
+  image: {width: 150, height: 100, marginBottom: 3},
 });
 
 export default Chat;
