@@ -69,7 +69,7 @@ export function notifyNewGroup(
   }
 
   const include_player_ids = usersToNotify
-    .filter(({oneSignalId}) => oneSignalId)
+    .filter(({oneSignalId, id}) => oneSignalId && id !== getMe().uid)
     .map(({oneSignalId}) => oneSignalId);
   postNotification(
     include_player_ids,

@@ -7,7 +7,6 @@ import {
   GiftedChat,
   Send,
 } from 'react-native-gifted-chat';
-import {IMessage} from 'react-native-gifted-chat/lib/Models';
 import {getMe} from '../user/usersApi';
 import {addMessage} from './chatApi';
 import {useAppDispatch, useAppSelector} from '../../app/redux';
@@ -24,17 +23,20 @@ import {nanoid} from 'nanoid';
 import ImageModal from 'react-native-image-modal/src/index';
 import MessageImage from 'react-native-gifted-chat/lib/MessageImage';
 import FastImage from 'react-native-fast-image';
+import {ProjetXMessage} from './chatsTypes';
 
 interface ChatProps {
   parent: {id: string; title: string; type: NotificationParentType};
   members: string[];
   componentId: string;
 }
-type OnImageChangeCallback = (event: {nativeEvent: {linkUri: string}}) => void;
+type OnImageChangeCallback = (event: {
+  nativeEvent: {linkUri: string; mime: string};
+}) => void;
 
 const Chat: React.FC<ChatProps> = ({parent, members}) => {
   const dispatch = useAppDispatch();
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messages, setMessages] = useState<ProjetXMessage[]>([]);
   const chat = useAppSelector(selectChat(parent.id));
   const users = useAppSelector(selectUsers);
 
@@ -58,14 +60,14 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
     dispatch(chatRead(parent.id));
   }, [users, chat, parent.id, dispatch]);
 
-  async function handleSend(newMessage: IMessage[] = []) {
+  async function handleSend(newMessage: ProjetXMessage[] = []) {
     console.log(newMessage);
     for (const message of newMessage) {
       await addMessage(message, parent, members);
     }
   }
 
-  const renderBubble = (props: BubbleProps<IMessage>) => {
+  const renderBubble = (props: BubbleProps<ProjetXMessage>) => {
     const {currentMessage, previousMessage} = props;
     if (!currentMessage) {
       return null;
@@ -104,14 +106,14 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
       </View>
     );
   };
-  const renderSend = (props: SendProps<IMessage>) => {
+  const renderSend = (props: SendProps<ProjetXMessage>) => {
     return (
       <Send {...props} containerStyle={styles.sendContainer}>
         <Icon name="send" size={24} color="#473B78" />
       </Send>
     );
   };
-  const renderAvatar = ({currentMessage}: AvatarProps<IMessage>) => {
+  const renderAvatar = ({currentMessage}: AvatarProps<ProjetXMessage>) => {
     if (!currentMessage) {
       return null;
     }
@@ -121,9 +123,9 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
     return <Avatar friend={users[_id]} />;
   };
   const onImageChange: OnImageChangeCallback = async ({nativeEvent}) => {
-    const {linkUri} = nativeEvent;
+    const {linkUri, mime} = nativeEvent;
     if (linkUri) {
-      const message: IMessage = {
+      const message: ProjetXMessage = {
         _id: nanoid(),
         createdAt: new Date(),
         text: '',
@@ -131,13 +133,14 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
           _id: getMe().uid,
         },
         image: linkUri,
+        mime,
       };
       await handleSend([message]);
     }
   };
   const renderMessageImage = ({
     currentMessage,
-  }: MessageImage<IMessage>['props']) => {
+  }: MessageImage<ProjetXMessage>['props']) => {
     if (!currentMessage) {
       return null;
     }
@@ -174,6 +177,10 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
       renderAvatar={renderAvatar}
       renderComposer={renderComposer}
       renderMessageImage={renderMessageImage}
+      scrollToBottomComponent={() => (
+        <Icon name="arrow-down" size={20} color="#E6941B" />
+      )}
+      scrollToBottomStyle={styles.scrollToBottomStyle}
       user={{
         _id: getMe().uid,
       }}
@@ -195,6 +202,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   image: {width: 150, height: 100, marginBottom: 3},
+  scrollToBottomStyle: {borderRadius: 15, opacity: 1},
 });
 
 export default Chat;

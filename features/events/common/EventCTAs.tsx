@@ -94,10 +94,6 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
     }
   }, [event]);
 
-  if (startingDate?.isBefore(moment())) {
-    return null;
-  }
-
   const accept = async () => {
     await updateParticipation(event, EventParticipation.going);
     await showToast({message: translate('Que serait une soirée sans toi 😍')});

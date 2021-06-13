@@ -48,7 +48,7 @@ const CreateEventTonight: React.FC<CreateEventTonightProps> = ({
     });
   };
   const createEvent = async () => {
-    const title = translate('Un verre ce soir');
+    const title = translate('On sort ce soir 🔥');
     const event: ProjetXEvent = new ProjetXEvent({
       type: EventType.party,
       dateType: EventDateType.fixed,
@@ -85,7 +85,7 @@ const CreateEventTonight: React.FC<CreateEventTonightProps> = ({
     <Button
       style={style}
       variant="outlined"
-      title={translate('Un verre ce soir')}
+      title={translate('On sort ce soir 🔥')}
       onPress={createEvent}
     />
   );

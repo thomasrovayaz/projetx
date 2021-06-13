@@ -10,23 +10,22 @@ import Button from '../../../common/Button';
 import Title from '../../../common/Title';
 import useTabbarIcon from '../../../app/useTabbarIcon';
 import EventsList from './EventsList';
-import {EventParticipation, ProjetXEvent} from '../eventsTypes';
-import {getEvent, updateParticipation} from '../eventsApi';
-import {getMe, getUsers} from '../../user/usersApi';
+import {ProjetXEvent} from '../eventsTypes';
+import {getUsers} from '../../user/usersApi';
 import {createEvent, openEvent, selectMyEvents} from '../eventsSlice';
-import {useAppDispatch} from '../../../app/redux';
+import {useAppDispatch, useAppSelector} from '../../../app/redux';
 import OneSignal from 'react-native-onesignal';
 import {connectChats} from '../../chat/chatApi';
-import {showToast} from '../../../common/Toast';
 import {
   AdditionalData,
+  handleOpenNotification,
   NotificationParentType,
   NotificationType,
   notificationWillShowInForegroundHandler,
 } from '../../../app/onesignal';
 import {getMyGroups} from '../../groups/groupsApi';
-import {useSelector} from 'react-redux';
 import CreateEventTonight from '../create/components/CreateEventTonight';
+import {selectTotalEventUnreadMessageCount} from '../../chat/chatsSlice';
 
 const HomeScreen: NavigationFunctionComponent = ({
   componentId,
@@ -36,9 +35,14 @@ const HomeScreen: NavigationFunctionComponent = ({
   event?: ProjetXEvent;
 }) => {
   const dispatch = useAppDispatch();
-  const events = useSelector(selectMyEvents);
+  const events = useAppSelector(selectMyEvents);
+  const totalUnread = useAppSelector(selectTotalEventUnreadMessageCount);
   const [, forceUpdate] = useReducer(x => x + 1, 0);
-  useTabbarIcon(componentId, 'home');
+  useTabbarIcon(
+    componentId,
+    'home',
+    totalUnread ? totalUnread + '' : undefined,
+  );
 
   const handleLocalizationChange = () => {
     setI18nConfig();
@@ -57,27 +61,6 @@ const HomeScreen: NavigationFunctionComponent = ({
     });
   };
 
-  const handleOpenEvent = async (
-    {eventId, parentId, type}: AdditionalData,
-    participation?: EventParticipation,
-  ) => {
-    const eventLoaded = await getEvent(eventId || parentId);
-    if (participation !== undefined && Number.isInteger(participation)) {
-      await updateParticipation(eventLoaded, participation);
-      await showToast({message: translate('Réponse envoyé 👍')});
-    } else if (
-      !eventLoaded.participations[getMe().uid] &&
-      eventLoaded.participations[getMe().uid] !== EventParticipation.going
-    ) {
-      await updateParticipation(eventLoaded, EventParticipation.notanswered);
-    }
-    onOpenEvent(
-      eventLoaded,
-      type === NotificationType.NEW_MESSAGE &&
-        eventLoaded.participations[getMe().uid] === EventParticipation.going,
-    );
-  };
-
   const handleDynamicLink = async (
     link: FirebaseDynamicLinksTypes.DynamicLink | null,
   ) => {
@@ -89,19 +72,21 @@ const HomeScreen: NavigationFunctionComponent = ({
         const path = matches[3];
         const routes = path.split('/');
         if (routes[0] === 'event') {
-          await handleOpenEvent({
+          await handleOpenNotification(componentId, {
+            type: NotificationType.EVENT_INVITATION,
+            eventId: routes[1],
             parentId: routes[1],
             parentType: NotificationParentType.EVENT,
-            type: NotificationType.EVENT_INVITATION,
           });
           if (routes[2] === 'poll') {
             //todo open poll routes[3]
           }
         } else if (routes[0] === 'group') {
-          await handleOpenEvent({
+          await handleOpenNotification(componentId, {
+            type: NotificationType.GROUP_INVITATION,
+            eventId: routes[1],
             parentId: routes[1],
             parentType: NotificationParentType.GROUP,
-            type: NotificationType.GROUP_INVITATION,
           });
         }
       }
@@ -117,11 +102,11 @@ const HomeScreen: NavigationFunctionComponent = ({
     );
     OneSignal.setNotificationOpenedHandler(async ({notification, action}) => {
       console.log('OneSignal: notification opened:', notification, action);
-      await handleOpenEvent(
+      await handleOpenNotification(
+        componentId,
+        notification.additionalData as AdditionalData,
         // @ts-ignore
-        notification.additionalData,
-        // @ts-ignore
-        Number.parseInt(action.actionId, 10),
+        action.actionId,
       );
     });
     const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
