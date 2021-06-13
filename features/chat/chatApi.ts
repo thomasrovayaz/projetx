@@ -1,5 +1,4 @@
 import database from '@react-native-firebase/database';
-import {IMessage} from 'react-native-gifted-chat/lib/Models';
 import {store} from '../../app/store';
 import {getMe} from '../user/usersApi';
 import {chatsUpdated} from './chatsSlice';
@@ -8,6 +7,8 @@ import {
   NotificationType,
   postNotification,
 } from '../../app/onesignal';
+import {ProjetXMessage} from './chatsTypes';
+import {translate} from '../../app/locales';
 
 export async function connectChats() {
   return database()
@@ -15,18 +16,17 @@ export async function connectChats() {
     .on('value', (snapshot: any) => {
       const dbChats = snapshot.val();
       const chats: {
-        [uid: string]: IMessage[];
+        [uid: string]: ProjetXMessage[];
       } = {};
       for (const parentId in dbChats) {
         if (dbChats.hasOwnProperty(parentId)) {
-          chats[parentId] = Object.values<IMessage>(dbChats[parentId]).sort(
-            function (a, b) {
-              return (
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
-              );
-            },
-          );
+          chats[parentId] = Object.values<ProjetXMessage>(
+            dbChats[parentId],
+          ).sort(function (a, b) {
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          });
         }
       }
       store.dispatch(chatsUpdated(chats));
@@ -34,14 +34,22 @@ export async function connectChats() {
 }
 
 export async function addMessage(
-  message: IMessage,
+  message: ProjetXMessage,
   parent: {id: string; title: string; type: NotificationParentType},
   members: string[],
 ) {
   await database()
     .ref(`chats/${parent.id}`)
     .push({...message, createdAt: new Date().getTime()});
-  messageNotification(members, parent, getMe().displayName, message.text);
+  let content = message.text;
+  if (message.image) {
+    if (message.mime === 'image/gif') {
+      content = translate('A envoyé un GIF');
+    } else {
+      content = translate('A envoyé une image');
+    }
+  }
+  messageNotification(members, parent, getMe().displayName, content);
 }
 
 function messageNotification(

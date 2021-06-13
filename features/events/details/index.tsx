@@ -35,7 +35,7 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
   const participating = useAppSelector(selectAmIParticipating(event?.id));
   const tabs: Tab[] = [
     {id: EventTab.details, title: translate('Détails')},
-    {id: EventTab.sondages, title: translate('Sondages')},
+    //{id: EventTab.sondages, title: translate('Sondages')},
     {id: EventTab.chat, title: translate('Messages'), badge: unreadMessages},
   ];
 

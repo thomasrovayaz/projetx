@@ -1,6 +1,6 @@
 import OneSignal, {NotificationReceivedEvent} from 'react-native-onesignal';
 import Config from 'react-native-config';
-import {updateOneSignalId} from '../features/user/usersApi';
+import {getMe, updateOneSignalId} from '../features/user/usersApi';
 import auth from '@react-native-firebase/auth';
 import {getEvent, updateParticipation} from '../features/events/eventsApi';
 import {translate} from './locales';
@@ -74,6 +74,7 @@ const onOpenEvent = (
   });
 };
 const onOpenGroup = (componentId: string, groupId: string, chat?: boolean) => {
+  console.log('onOpenGroup', groupId);
   Navigation.push(componentId, {
     component: {
       name: 'DetailsGroupScreen',
@@ -83,6 +84,50 @@ const onOpenGroup = (componentId: string, groupId: string, chat?: boolean) => {
       },
     },
   });
+};
+
+export const handleOpenNotification = async (
+  componentId: string,
+  data: AdditionalData,
+  participation?: EventParticipation,
+) => {
+  const {eventId, type, parentType} = data;
+  const parentId = data.parentId || eventId;
+  let parentLoaded: ProjetXEvent | ProjetXGroup | undefined;
+  if (parentId) {
+    switch (parentType) {
+      case NotificationParentType.EVENT:
+        parentLoaded = await getEvent(parentId);
+        break;
+      case NotificationParentType.GROUP:
+        parentLoaded = await getGroup(parentId);
+        break;
+    }
+  }
+  console.log('parentLoaded', parentLoaded);
+  if (
+    type === NotificationType.EVENT_INVITATION &&
+    parentLoaded instanceof ProjetXEvent
+  ) {
+    if (participation !== undefined) {
+      await updateParticipation(parentLoaded, participation);
+      await showToast({message: translate('Réponse envoyé 👍')});
+    } else if (
+      !parentLoaded.participations[getMe().uid] &&
+      parentLoaded.participations[getMe().uid] !== EventParticipation.going
+    ) {
+      await updateParticipation(parentLoaded, EventParticipation.notanswered);
+    }
+  }
+  if (parentLoaded instanceof ProjetXEvent) {
+    onOpenEvent(
+      componentId,
+      parentLoaded,
+      type === NotificationType.NEW_MESSAGE,
+    );
+  } else if (parentLoaded instanceof ProjetXGroup && parentId) {
+    onOpenGroup(componentId, parentId, type === NotificationType.NEW_MESSAGE);
+  }
 };
 
 export const notificationWillShowInForegroundHandler =
@@ -147,20 +192,9 @@ export const notificationWillShowInForegroundHandler =
         timeout: type === NotificationType.EVENT_INVITATION ? 0 : 5000,
         buttons,
         onOpen: () => {
+          console.log('onOpen', data);
           notificationReceivedEvent.complete();
-          if (parentLoaded instanceof ProjetXEvent) {
-            onOpenEvent(
-              componentId,
-              parentLoaded,
-              type === NotificationType.NEW_MESSAGE,
-            );
-          } else if (parentLoaded instanceof ProjetXGroup && parentId) {
-            onOpenGroup(
-              componentId,
-              parentId,
-              type === NotificationType.NEW_MESSAGE,
-            );
-          }
+          handleOpenNotification(componentId, data);
         },
         onClose: hasClick => {
           if (!hasClick) {

@@ -1,10 +1,11 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../../app/store';
-import {IMessage} from 'react-native-gifted-chat/lib/Models';
+import {ProjetXMessage} from './chatsTypes';
+import {selectAmIParticipating} from '../events/eventsSlice';
 
 interface ChatsState {
   list: {
-    [uid: string]: IMessage[];
+    [uid: string]: ProjetXMessage[];
   };
   read: {
     [uid: string]: number;
@@ -20,7 +21,7 @@ export const chatsSlice = createSlice({
     chatsUpdated(
       state,
       action: PayloadAction<{
-        [uid: string]: IMessage[];
+        [uid: string]: ProjetXMessage[];
       }>,
     ) {
       state.list = action.payload;
@@ -40,7 +41,7 @@ export const {chatsUpdated, chatRead} = chatsSlice.actions;
 
 export const selectChat =
   (id: string) =>
-  (state: RootState): IMessage[] =>
+  (state: RootState): ProjetXMessage[] =>
     state.chats.list[id];
 export const selectUnreadMessageCount =
   (id?: string) =>
@@ -53,5 +54,24 @@ export const selectUnreadMessageCount =
     }
     return state.chats.list[id].length - state.chats.read[id];
   };
+export const selectTotalEventUnreadMessageCount = (
+  state: RootState,
+): number => {
+  const eventIds = Object.keys(state.events.list);
+  return eventIds.reduce<number>((totalCount, eventId) => {
+    if (!selectAmIParticipating(eventId)(state)) {
+      return totalCount;
+    }
+    return totalCount + selectUnreadMessageCount(eventId)(state);
+  }, 0);
+};
+export const selectTotalGroupUnreadMessageCount = (
+  state: RootState,
+): number => {
+  const groupIds = Object.keys(state.groups.list);
+  return groupIds.reduce<number>((totalCount, groupId) => {
+    return totalCount + selectUnreadMessageCount(groupId)(state);
+  }, 0);
+};
 
 export default chatsSlice.reducer;

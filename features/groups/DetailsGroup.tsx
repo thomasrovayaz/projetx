@@ -15,6 +15,7 @@ import {NotificationParentType} from '../../app/onesignal';
 
 interface CreateGroupScreenProps {
   groupId: string;
+  chat?: boolean;
 }
 enum GroupTab {
   chat = 'chat',
@@ -23,8 +24,10 @@ enum GroupTab {
 }
 
 const DetailsGroupScreen: NavigationFunctionComponent<CreateGroupScreenProps> =
-  ({groupId, componentId}) => {
-    const [tab, setTab] = useState<GroupTab>(GroupTab.events);
+  ({groupId, componentId, chat}) => {
+    const [tab, setTab] = useState<GroupTab>(
+      chat ? GroupTab.chat : GroupTab.events,
+    );
     const group = useAppSelector(selectGroup(groupId));
     useTopbarButton(
       componentId,

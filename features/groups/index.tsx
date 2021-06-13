@@ -12,7 +12,6 @@ import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import Title from '../../common/Title';
 import {translate} from '../../app/locales';
 import useTabbarIcon from '../../app/useTabbarIcon';
-import {useSelector} from 'react-redux';
 import {getMe} from '../user/usersApi';
 import {selectMyGroups} from './groupsSlice';
 import {getMyGroups} from './groupsApi';
@@ -21,6 +20,11 @@ import Button from '../../common/Button';
 import AvatarList from '../../common/AvatarList';
 import {selectUsers} from '../user/usersSlice';
 import {useAppSelector} from '../../app/redux';
+import {
+  selectTotalGroupUnreadMessageCount,
+  selectUnreadMessageCount,
+} from '../chat/chatsSlice';
+import Badge from '../../common/Badge';
 
 const EmptyGroupsList: React.FC = () => {
   return (
@@ -37,9 +41,45 @@ const EmptyGroupsList: React.FC = () => {
   );
 };
 
+const GroupItem: React.FC<{group: ProjetXGroup; componentId: string}> = ({
+  group,
+  componentId,
+}) => {
+  const users = useAppSelector(selectUsers);
+  const unreadMessages = useAppSelector(selectUnreadMessageCount(group.id));
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        Navigation.push(componentId, {
+          component: {
+            name: 'DetailsGroupScreen',
+            passProps: {
+              groupId: group.id,
+            },
+          },
+        })
+      }
+      style={styles.item}
+      key={group.id}>
+      <View style={styles.titleContainer}>
+        <Badge count={unreadMessages} style={styles.badge} />
+        <Title style={styles.groupTitle}>{group.name}</Title>
+      </View>
+      <AvatarList
+        users={Object.keys(group.users).map(userId => users[userId])}
+        emptyLabel={translate('Pas encore de membres !')}
+      />
+    </TouchableOpacity>
+  );
+};
 const GroupsScreen: NavigationFunctionComponent = ({componentId}) => {
-  useTabbarIcon(componentId, 'users');
-  const friends = useAppSelector(selectUsers);
+  const totalUnread = useAppSelector(selectTotalGroupUnreadMessageCount);
+  useTabbarIcon(
+    componentId,
+    'users',
+    totalUnread ? totalUnread + '' : undefined,
+  );
   const groupsMap = useAppSelector(selectMyGroups);
   const [refreshing, setRefreshing] = React.useState(false);
   const [groups, setGroups] = useState<ProjetXGroup[]>([]);
@@ -61,26 +101,7 @@ const GroupsScreen: NavigationFunctionComponent = ({componentId}) => {
   }, [groupsMap]);
 
   const renderItem = ({item}: {item: ProjetXGroup}) => (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      onPress={() =>
-        Navigation.push(componentId, {
-          component: {
-            name: 'DetailsGroupScreen',
-            passProps: {
-              groupId: item.id,
-            },
-          },
-        })
-      }
-      style={styles.item}
-      key={item.id}>
-      <Title style={styles.groupTitle}>{item.name}</Title>
-      <AvatarList
-        users={Object.keys(item.users).map(userId => friends[userId])}
-        emptyLabel={translate('Pas encore de membres !')}
-      />
-    </TouchableOpacity>
+    <GroupItem group={item} componentId={componentId} />
   );
 
   return (
@@ -128,9 +149,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginVertical: 10,
   },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
   groupTitle: {
     fontSize: 18,
     textAlign: 'left',
+  },
+  badge: {
+    marginRight: 5,
   },
   emptyList: {
     flex: 1,
