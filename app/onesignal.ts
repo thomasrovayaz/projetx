@@ -74,7 +74,6 @@ const onOpenEvent = (
   });
 };
 const onOpenGroup = (componentId: string, groupId: string, chat?: boolean) => {
-  console.log('onOpenGroup', groupId);
   Navigation.push(componentId, {
     component: {
       name: 'DetailsGroupScreen',
@@ -104,7 +103,6 @@ export const handleOpenNotification = async (
         break;
     }
   }
-  console.log('parentLoaded', parentLoaded);
   if (
     type === NotificationType.EVENT_INVITATION &&
     parentLoaded instanceof ProjetXEvent
@@ -192,7 +190,6 @@ export const notificationWillShowInForegroundHandler =
         timeout: type === NotificationType.EVENT_INVITATION ? 0 : 5000,
         buttons,
         onOpen: () => {
-          console.log('onOpen', data);
           notificationReceivedEvent.complete();
           handleOpenNotification(componentId, data);
         },

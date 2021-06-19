@@ -1,54 +1,17 @@
-import {Platform} from 'react-native';
-import Share from 'react-native-share';
 import dynamicLinks, {firebase} from '@react-native-firebase/dynamic-links';
-import {ProjetXPoll} from './pollsTypes';
+import {PollType, ProjetXPoll} from './pollsTypes';
+import {translate} from '../../app/locales';
+import {ShareUrl} from '../../app/share';
+import {PollTypes} from './CreatePollType';
+
+export const pollTypes: PollTypes[] = [
+  {id: PollType.DATE, title: translate('Sondage de date')},
+  {id: PollType.LOCATION, title: translate('Sondage de localisation')},
+  {id: PollType.OTHER, title: translate('Autre 🤔')},
+];
 
 export const SharePoll = async (poll: ProjetXPoll) => {
-  const url = poll.shareLink;
-  const title = '';
-  const message = '';
-  const icon = 'data:<data_type>/<file_extension>;base64,<base64_data>';
-  const options = Platform.select({
-    ios: {
-      activityItemSources: [
-        {
-          placeholderItem: {type: 'url', content: url},
-          item: {
-            default: {type: 'url', content: url},
-          },
-          subject: {
-            default: title,
-          },
-          linkMetadata: {originalUrl: url, url, title},
-        },
-        {
-          // For using custom icon instead of default text icon at share preview when sharing with message.
-          placeholderItem: {
-            type: 'url',
-            content: icon,
-          },
-          item: {
-            default: {
-              type: 'text',
-              content: `${message} ${url}`,
-            },
-          },
-          linkMetadata: {
-            title: message,
-            icon: icon,
-          },
-        },
-      ],
-    },
-    default: {
-      title,
-      subject: title,
-      message: `${title} ${url}`,
-      failOnCancel: false,
-    },
-  });
-  // @ts-ignore
-  await Share.open(options);
+  return ShareUrl('', '', poll.shareLink);
 };
 
 export async function buildLink(poll: ProjetXPoll) {

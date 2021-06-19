@@ -21,6 +21,7 @@ import {editEvent, selectReminder} from '../eventsSlice';
 import moment from 'moment';
 import IconButton from '../../../common/IconButton';
 import {showToast} from '../../../common/Toast';
+import {Navigation} from 'react-native-navigation';
 
 interface ProjetXEventCTAsProps {
   event: ProjetXEvent;
@@ -36,6 +37,7 @@ interface Style {
   ctaRight: ViewStyle;
   ctaMiddle: ViewStyle;
   ctaCancel: ViewStyle;
+  qrcodeButton: ViewStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -67,6 +69,15 @@ const styles = StyleSheet.create<Style>({
   },
   message: {
     fontSize: 14,
+  },
+  qrcodeButton: {
+    borderWidth: 1,
+    borderRadius: 15,
+    borderColor: '#E6941B',
+    height: 50,
+    width: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
@@ -131,6 +142,15 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
     ]);
   };
   const share = async () => ShareEvent(event);
+  const qrCode = async () =>
+    Navigation.showModal({
+      component: {
+        name: 'QRCode',
+        passProps: {
+          link: event.shareLink,
+        },
+      },
+    });
 
   const renderCtas = () => {
     switch (step) {
@@ -175,6 +195,12 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
               title={translate('Partager')}
               onPress={share}
             />
+            <IconButton
+              style={styles.qrcodeButton}
+              name="maximize"
+              onPress={qrCode}
+              size={20}
+            />
             <Button
               style={[styles.cta, styles.ctaRight]}
               variant="outlined"
@@ -194,6 +220,12 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
               title={translate('Partager')}
               onPress={share}
             />
+            <IconButton
+              style={styles.qrcodeButton}
+              name="maximize"
+              onPress={qrCode}
+              size={20}
+            />
             <Button
               style={[styles.cta, styles.ctaRight]}
               variant="outlined"
@@ -212,6 +244,12 @@ const EventCTAs: React.FC<TouchableOpacityProps & ProjetXEventCTAsProps> = ({
               style={[styles.cta, styles.ctaLeft]}
               title={translate('Partager')}
               onPress={share}
+            />
+            <IconButton
+              style={styles.qrcodeButton}
+              name="maximize"
+              onPress={qrCode}
+              size={20}
             />
             <Button
               style={[styles.cta, styles.ctaMiddle]}

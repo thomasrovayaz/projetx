@@ -6,11 +6,6 @@ import {getMe} from '../user/usersApi';
 import slugify from 'slugify';
 import {nanoid} from 'nanoid';
 import {buildLink} from './groupsUtils';
-import {
-  EventParticipation,
-  EventType,
-  ProjetXEvent,
-} from '../events/eventsTypes';
 import {translate} from '../../app/locales';
 import {
   NotificationParentType,

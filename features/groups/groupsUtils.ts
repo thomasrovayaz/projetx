@@ -1,6 +1,15 @@
 import dynamicLinks, {firebase} from '@react-native-firebase/dynamic-links';
 import {ProjetXGroup} from './groupsTypes';
 import {translate} from '../../app/locales';
+import {ShareUrl} from '../../app/share';
+
+export const ShareGroup = async (group: ProjetXGroup) => {
+  return ShareUrl(
+    group.name || '',
+    translate('Rejoins le groupe'),
+    group.shareLink || '',
+  );
+};
 
 export async function buildLink(group: ProjetXGroup) {
   return await dynamicLinks().buildShortLink(

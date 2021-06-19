@@ -10,6 +10,7 @@ import {translate} from '../../app/locales';
 import {PollState} from './pollsTypes';
 import Poll from './Poll';
 import {EventDateType, ProjetXEvent} from '../events/eventsTypes';
+import Title from '../../common/Title';
 
 interface ProjetXPollProps {
   pollId: string;
@@ -33,7 +34,7 @@ const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
       setMyAnswers(myNewAnswers);
       setHasAnswered(myNewAnswers.length > 0);
     }
-  }, [poll]);
+  }, [me, myAnswers, poll]);
   if (!poll) {
     return null;
   }
@@ -120,10 +121,19 @@ const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
     }
   };
 
+  const showResult = poll.state === PollState.FINISHED || hasAnswered;
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
       <View style={styles.content}>
+        <Title style={styles.title}>
+          {showResult
+            ? translate('Voici les résultats')
+            : isMultiplePoll
+            ? translate('Quel sont tes choix ?')
+            : translate('Quel est ton choix ?')}
+        </Title>
         <Poll
           poll={poll}
           myAnswers={myAnswers}
@@ -145,36 +155,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  choicesList: {},
-  itemContainer: {
-    width: '100%',
-    height: 50,
-    borderRadius: 15,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    flexDirection: 'row',
-    backgroundColor: 'rgba(71,59,120,0.05)',
-    borderColor: '#473B78',
-    borderWidth: 1,
-    padding: 10,
+  title: {
     marginBottom: 10,
   },
-  itemContainerSelected: {
-    backgroundColor: '#473B78',
-  },
-  itemIcon: {
-    color: '#473B78',
-    marginRight: 5,
-  },
-  item: {
-    color: '#473B78',
-    fontWeight: '700',
-  },
-  itemSelected: {
-    color: 'white',
-  },
   buttons: {
-    marginTop: 10,
+    marginTop: 20,
     flexDirection: 'row',
   },
   cta: {

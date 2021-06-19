@@ -15,7 +15,7 @@ import {translate} from '../../app/locales';
 import {BubbleProps} from 'react-native-gifted-chat/lib/Bubble';
 import Icon from 'react-native-vector-icons/Feather';
 import {SendProps} from 'react-native-gifted-chat/lib/Send';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, Dimensions} from 'react-native';
 import Avatar from '../../common/Avatar';
 import {chatRead, selectChat} from './chatsSlice';
 import {NotificationParentType} from '../../app/onesignal';
@@ -24,6 +24,9 @@ import ImageModal from 'react-native-image-modal/src/index';
 import MessageImage from 'react-native-gifted-chat/lib/MessageImage';
 import FastImage from 'react-native-fast-image';
 import {ProjetXMessage} from './chatsTypes';
+import PollPreview from '../polls/PollPreview';
+
+const {width} = Dimensions.get('window');
 
 interface ChatProps {
   parent: {id: string; title: string; type: NotificationParentType};
@@ -33,6 +36,13 @@ interface ChatProps {
 type OnImageChangeCallback = (event: {
   nativeEvent: {linkUri: string; mime: string};
 }) => void;
+
+const QuickRepliesPoll: React.FC<{message: ProjetXMessage}> = ({message}) => {
+  if (!message.pollId) {
+    return null;
+  }
+  return <PollPreview pollId={message.pollId} style={styles.pollContainer} />;
+};
 
 const Chat: React.FC<ChatProps> = ({parent, members}) => {
   const dispatch = useAppDispatch();
@@ -61,7 +71,6 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
   }, [users, chat, parent.id, dispatch]);
 
   async function handleSend(newMessage: ProjetXMessage[] = []) {
-    console.log(newMessage);
     for (const message of newMessage) {
       await addMessage(message, parent, members);
     }
@@ -161,6 +170,17 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
     <Composer {...props} textInputProps={{onImageChange}} />
   );
 
+  const renderQuickReplies = ({
+    currentMessage,
+  }: {
+    currentMessage: ProjetXMessage;
+  }) => {
+    if (currentMessage.pollId) {
+      return <QuickRepliesPoll message={currentMessage} />;
+    }
+    return null;
+  };
+
   return (
     <GiftedChat
       // @ts-ignore
@@ -169,6 +189,7 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
       timeFormat="HH:mm"
       dateFormat="DD/MM/YYYY"
       scrollToBottom
+      renderQuickReplies={renderQuickReplies}
       messages={messages}
       placeholder={translate('Écris ton message')}
       onSend={newMessage => handleSend(newMessage)}
@@ -203,6 +224,9 @@ const styles = StyleSheet.create({
   },
   image: {width: 150, height: 100, marginBottom: 3},
   scrollToBottomStyle: {borderRadius: 15, opacity: 1},
+  pollContainer: {
+    maxWidth: width - 40 - 8 - 20,
+  },
 });
 
 export default Chat;

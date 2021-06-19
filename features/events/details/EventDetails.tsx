@@ -1,4 +1,3 @@
-import {ProjetXEvent} from '../eventsTypes';
 import React, {useCallback} from 'react';
 import {getEvent} from '../eventsApi';
 import {RefreshControl, ScrollView, StyleSheet, View} from 'react-native';
@@ -8,21 +7,29 @@ import EventLocation from '../common/EventLocation';
 import EventParticipants from '../common/EventParticipants';
 import EventCTAs from '../common/EventCTAs';
 import EventOwner from '../common/EventOwner';
+import {useAppSelector} from '../../../app/redux';
+import {selectEvent} from '../eventsSlice';
+import {getUsers} from '../../user/usersApi';
 
 interface EventDetailsProps {
-  event: ProjetXEvent;
+  eventId: string;
   componentId: string;
 }
-const EventDetails: React.FC<EventDetailsProps> = ({event, componentId}) => {
+const EventDetails: React.FC<EventDetailsProps> = ({eventId, componentId}) => {
+  const event = useAppSelector(selectEvent(eventId));
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = useCallback(() => {
     const fetchEvent = async () => {
       setRefreshing(true);
-      await getEvent(event.id);
+      await Promise.all([getUsers(), getEvent(eventId)]);
       setRefreshing(false);
     };
     fetchEvent();
-  }, [event]);
+  }, [eventId]);
+
+  if (!event) {
+    return null;
+  }
 
   return (
     <>

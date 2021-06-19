@@ -18,8 +18,12 @@ export async function getPoll(id: string): Promise<ProjetXPoll> {
 export async function savePoll(poll: ProjetXPoll): Promise<ProjetXPoll> {
   if (!poll.id) {
     poll.id = nanoid();
-    poll.author = getMe().uid;
+  }
+  if (!poll.created) {
     poll.created = moment();
+  }
+  if (!poll.author) {
+    poll.author = getMe().uid;
   }
   if (!poll.shareLink) {
     poll.shareLink = await buildLink(poll);

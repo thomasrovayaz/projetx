@@ -9,6 +9,7 @@ import CreateEventWhenAddOptionScreen from '../features/events/create/CreateEven
 import CreateEventWhenScreen from '../features/events/create/CreateEventWhen';
 import CreateEventTypeScreen from '../features/events/create/CreateEventType';
 import ParticipantsModal from '../features/events/Participants';
+import QRCodeModal from '../common/QRCode';
 import PollModal from '../features/polls/PollModal';
 import EventScreen from '../features/events/details';
 import SettingsScreen from '../features/user/Settings';
@@ -22,6 +23,8 @@ import PollSettings from '../features/polls/PollSettings';
 import GroupsScreen from '../features/groups';
 import CreateGroupScreen from '../features/groups/CreateGroup';
 import DetailsGroupScreen from '../features/groups/DetailsGroup';
+import CreatePollType from '../features/polls/CreatePollType';
+import CreatePollChoices from '../features/polls/CreatePollChoices';
 
 function registerScreen<P>(name: string, Component: React.ComponentType<P>) {
   Navigation.registerComponent(
@@ -79,6 +82,7 @@ registerScreen('Event', EventScreen);
 registerScreen('Poll', PollModal);
 registerScreen('PollSettings', PollSettings);
 registerScreen('Participants', ParticipantsModal);
+registerScreen('QRCode', QRCodeModal);
 
 registerScreen('CreateEventType', CreateEventTypeScreen);
 registerScreen('CreateEventWhen', CreateEventWhenScreen);
@@ -94,6 +98,9 @@ registerScreen('CreateEventEnd', CreateEventEndScreen);
 
 registerScreen('CreateGroupScreen', CreateGroupScreen);
 registerScreen('DetailsGroupScreen', DetailsGroupScreen);
+
+registerScreen('CreatePollType', CreatePollType);
+registerScreen('CreatePollChoices', CreatePollChoices);
 
 Navigation.registerComponent('Toast', () => Toast);
 

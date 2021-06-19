@@ -13,11 +13,13 @@ export enum PollState {
   FINISHED = 'FINISHED',
 }
 
-export class ProjetXPoll<Type = DateValue | LocationValue> {
+export class ProjetXPoll<Type = DateValue | LocationValue | string> {
   public id: string;
-  public parentEventId: string;
+  public parentId?: string;
+  public parentEventId?: string;
   public created: moment.Moment = moment();
-  public author: string | undefined;
+  public author?: string;
+  public title?: string;
   public type: PollType;
   public state: PollState = PollState.RUNNING;
   public choices: {id: string; value: Type | undefined}[] = [];
@@ -30,8 +32,10 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
 
   constructor({
     id,
+    parentId,
     parentEventId,
     created,
+    title,
     author,
     type,
     state,
@@ -41,8 +45,10 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
     shareLink,
   }: {
     id: string;
-    parentEventId: string;
-    created: moment.Moment;
+    parentId?: string;
+    parentEventId?: string;
+    created?: moment.Moment;
+    title?: string;
     author?: string;
     type: PollType;
     state: PollState;
@@ -52,8 +58,9 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
     shareLink?: string;
   }) {
     this.id = id;
+    this.parentId = parentId;
     this.parentEventId = parentEventId;
-    this.created = created;
+    this.created = created || moment();
     this.type = type;
     this.state = state;
     this.choices = choices || [];
@@ -61,6 +68,7 @@ export class ProjetXPoll<Type = DateValue | LocationValue> {
     this.settings = settings || {multiple: true, custom: false};
     this.shareLink = shareLink || '';
     this.author = author;
+    this.title = title;
   }
 }
 
@@ -109,6 +117,8 @@ export const pollConverter = {
         });
       case PollType.LOCATION:
         return new ProjetXPoll<LocationValue>(data);
+      case PollType.OTHER:
+        return new ProjetXPoll<string>(data);
       default:
         throw new Error('Unknown type');
     }
@@ -128,6 +138,7 @@ export const pollConverter = {
             value: dateConverter.toFirestore(dateValue),
           };
         }
+        return choice;
       }),
     };
   },

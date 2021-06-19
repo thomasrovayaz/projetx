@@ -13,6 +13,7 @@ import {selectUnreadMessageCount} from '../../chat/chatsSlice';
 import DetailHeader from '../../../common/DetailHeader';
 import {EventParticipation} from '../eventsTypes';
 import {NotificationParentType} from '../../../app/onesignal';
+import EventPolls from './EventPolls';
 enum EventTab {
   details = 'details',
   sondages = 'sondages',
@@ -35,7 +36,7 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
   const participating = useAppSelector(selectAmIParticipating(event?.id));
   const tabs: Tab[] = [
     {id: EventTab.details, title: translate('Détails')},
-    //{id: EventTab.sondages, title: translate('Sondages')},
+    {id: EventTab.sondages, title: translate('Sondages')},
     {id: EventTab.chat, title: translate('Messages'), badge: unreadMessages},
   ];
 
@@ -72,7 +73,10 @@ const EventScreen: NavigationFunctionComponent<EventScreenProps> = ({
         </View>
       ) : null}
       {tab === EventTab.details ? (
-        <EventDetails event={event} componentId={componentId} />
+        <EventDetails eventId={event.id} componentId={componentId} />
+      ) : null}
+      {tab === EventTab.sondages ? (
+        <EventPolls eventId={event.id} componentId={componentId} />
       ) : null}
       {tab === EventTab.chat ? (
         <Chat

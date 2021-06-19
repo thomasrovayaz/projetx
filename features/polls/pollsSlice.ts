@@ -44,8 +44,12 @@ export const pollsSlice = createSlice({
 });
 
 export const {updatePoll, updateAnswers} = pollsSlice.actions;
-export const selectPoll = (pollId: string) => (state: RootState) =>
-  state.polls.list[pollId];
+export const selectPoll = (pollId: string | undefined) => (state: RootState) =>
+  pollId ? state.polls.list[pollId] : undefined;
+export const selectPolls = (parentId: string) => (state: RootState) =>
+  Object.values<ProjetXPoll>(state.polls.list).filter(
+    poll => poll.parentEventId === parentId || poll.parentId === parentId,
+  );
 
 export default pollsSlice.reducer;
 

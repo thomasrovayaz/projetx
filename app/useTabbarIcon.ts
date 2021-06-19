@@ -8,7 +8,6 @@ const useTabbarIcon = (
   badge?: string,
 ) => {
   useEffect(() => {
-    console.log('badge', iconName, badge);
     const setupTabBarIcon = async () => {
       Navigation.mergeOptions(componentId, {
         bottomTab: {

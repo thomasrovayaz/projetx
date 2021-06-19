@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {PollState, PollType, ProjetXPoll} from './pollsTypes';
 import {DateValue} from '../events/eventsTypes';
@@ -11,6 +11,7 @@ import {nanoid} from 'nanoid';
 import Poll from './Poll';
 import {getMe} from '../user/usersApi';
 import {Navigation} from 'react-native-navigation';
+import TextInput from '../../common/TextInput';
 
 interface ProjetXPollProps {
   poll: ProjetXPoll;
@@ -42,7 +43,10 @@ const PollCreator: React.FC<ProjetXPollProps> = ({
       choices: [...poll.choices, {id: nanoid(), value: undefined}],
     });
   };
-  const onChangeChoice = (id: string, value: DateValue | LocationValue) => {
+  const onChangeChoice = (
+    id: string,
+    value: DateValue | LocationValue | string,
+  ) => {
     onChange({
       ...poll,
       choices: poll.choices.map(choice => {
@@ -92,6 +96,18 @@ const PollCreator: React.FC<ProjetXPollProps> = ({
                   placeholder={translate('Ajouter une date')}
                 />
               );
+              break;
+            default:
+              input = (
+                <TextInput
+                  style={styles.item}
+                  value={value as string}
+                  onChangeText={newValue => {
+                    onChangeChoice(id, newValue);
+                  }}
+                  placeholder={translate('Ajouter un choix')}
+                />
+              );
           }
           return (
             <View style={styles.itemContainer}>
@@ -135,7 +151,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginTop: 10,
   },
   item: {
     flex: 1,

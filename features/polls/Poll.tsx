@@ -4,8 +4,6 @@ import {DateValue} from '../events/eventsTypes';
 import PollItem from './PollItem';
 import {LocationValue} from '../events/create/components/LocationPicker';
 import {PollState, ProjetXPoll} from './pollsTypes';
-import Title from '../../common/Title';
-import {translate} from '../../app/locales';
 
 interface ProjetXPollProps {
   poll: ProjetXPoll;
@@ -69,7 +67,7 @@ const Poll: React.FC<ProjetXPollProps> = ({
   const renderItem = ({
     item: {id, value},
   }: {
-    item: {id: string; value: DateValue | LocationValue | undefined};
+    item: {id: string; value: DateValue | LocationValue | string | undefined};
   }) => {
     if (!value) {
       return null;
@@ -88,73 +86,11 @@ const Poll: React.FC<ProjetXPollProps> = ({
   };
 
   return (
-    <>
-      <Title style={styles.title}>
-        {showResult
-          ? translate('Voici les résultats')
-          : isMultiplePoll
-          ? translate('Quel sont tes choix ?')
-          : translate('Quel est ton choix ?')}
-      </Title>
-      <FlatList
-        contentContainerStyle={styles.choicesList}
-        data={poll.choices.filter((choice: any) => choice.value !== undefined)}
-        renderItem={renderItem}
-      />
-    </>
+    <FlatList
+      data={poll.choices.filter((choice: any) => choice.value !== undefined)}
+      renderItem={renderItem}
+    />
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    marginBottom: 20,
-  },
-  choicesList: {},
-  itemContainer: {
-    width: '100%',
-    height: 50,
-    borderRadius: 15,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    flexDirection: 'row',
-    backgroundColor: 'rgba(71,59,120,0.05)',
-    borderColor: '#473B78',
-    borderWidth: 1,
-    padding: 10,
-    marginBottom: 10,
-  },
-  itemContainerSelected: {
-    backgroundColor: '#473B78',
-  },
-  itemIcon: {
-    color: '#473B78',
-    marginRight: 5,
-  },
-  item: {
-    color: '#473B78',
-    fontWeight: '700',
-  },
-  itemSelected: {
-    color: 'white',
-  },
-  buttons: {
-    marginTop: 10,
-    flexDirection: 'row',
-  },
-  cta: {
-    flex: 1,
-  },
-  ctaLeft: {
-    marginRight: 10,
-  },
-});
 
 export default Poll;

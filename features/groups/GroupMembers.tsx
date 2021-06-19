@@ -17,6 +17,10 @@ import User from '../../common/User';
 import {selectGroup} from './groupsSlice';
 import {selectUsers} from '../user/usersSlice';
 import {getGroup} from './groupsApi';
+import Button from '../../common/Button';
+import IconButton from '../../common/IconButton';
+import {Navigation} from 'react-native-navigation';
+import {ShareGroup} from './groupsUtils';
 
 interface ProjetXEventParticipantsProps {
   groupId: string;
@@ -50,6 +54,20 @@ const GroupMembers: React.FC<ProjetXEventParticipantsProps> = ({groupId}) => {
     );
   }, [users, group, searchText]);
 
+  if (!group) {
+    return null;
+  }
+  const share = async () => ShareGroup(group);
+  const qrCode = async () =>
+    Navigation.showModal({
+      component: {
+        name: 'QRCode',
+        passProps: {
+          link: group.shareLink,
+        },
+      },
+    });
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
@@ -69,6 +87,19 @@ const GroupMembers: React.FC<ProjetXEventParticipantsProps> = ({groupId}) => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         />
+        <View style={styles.ctas}>
+          <Button
+            style={[styles.cta, styles.ctaLeft]}
+            title={translate('Partager')}
+            onPress={share}
+          />
+          <IconButton
+            style={styles.qrcodeButton}
+            name="maximize"
+            onPress={qrCode}
+            size={20}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -85,6 +116,37 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     paddingBottom: 0,
+    justifyContent: 'center',
+  },
+  ctas: {
+    paddingVertical: 10,
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cta: {
+    flex: 1,
+  },
+  ctaLeft: {
+    flex: 1,
+    marginRight: 5,
+  },
+  ctaRight: {
+    flex: 1,
+    marginLeft: 5,
+  },
+  ctaMiddle: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  qrcodeButton: {
+    borderWidth: 1,
+    borderRadius: 15,
+    borderColor: '#E6941B',
+    height: 50,
+    width: 50,
+    alignItems: 'center',
     justifyContent: 'center',
   },
 });

@@ -13,7 +13,7 @@ interface ProjetXPollItemProps {
   selected?: boolean;
   showResult?: boolean;
   type: PollType;
-  value: DateValue | LocationValue;
+  value: DateValue | LocationValue | string;
   count: number;
   totalVote: number;
 }
@@ -37,6 +37,9 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
           style={[styles.item, selected ? styles.itemSelected : {}]}
         />
       );
+      break;
+    default:
+      input = <Text>{value}</Text>;
   }
   const percent = showResult ? `${(count / totalVote) * 100}%` : 0;
   return (
@@ -88,12 +91,12 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 50,
+    minHeight: 50,
     borderRadius: 15,
     backgroundColor: 'rgba(71,59,120,0.05)',
     borderColor: '#473B78',
     borderWidth: 1,
-    marginBottom: 10,
+    marginTop: 10,
     overflow: 'hidden',
   },
   itemContainer: {

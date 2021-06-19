@@ -33,7 +33,7 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   main: {
     width: '100%',
-    height: 50,
+    minHeight: 50,
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
