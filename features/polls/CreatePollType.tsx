@@ -31,7 +31,7 @@ const CreatePollTypeScreen: NavigationFunctionComponent<CreatePollTypeScreenProp
         component: {
           name: 'CreatePollChoices',
           passProps: {
-            type: selection,
+            type: option.id,
             parentId,
           },
         },
