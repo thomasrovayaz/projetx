@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
   pollContainer: {
     flex: 1,
     width: '100%',
-    flexDirection: 'column',
   },
   pollButton: {
     marginTop: 10,

@@ -9,6 +9,13 @@ import {Navigation} from 'react-native-navigation';
 import Title from '../../../common/Title';
 import {ProjetXPoll} from '../../polls/pollsTypes';
 import PollPreview from '../../polls/PollPreview';
+import {addMessage} from '../../chat/chatApi';
+import {nanoid} from 'nanoid';
+import {getMe} from '../../user/usersApi';
+import {selectEvent} from '../eventsSlice';
+import {NotificationParentType} from '../../../app/onesignal';
+import {EventParticipation} from '../eventsTypes';
+import {Reply} from 'react-native-gifted-chat';
 
 interface EventDetailsProps {
   eventId: string;
@@ -28,6 +35,7 @@ const EmptyPollsList: React.FC = () => {
 
 const EventPolls: React.FC<EventDetailsProps> = ({eventId, componentId}) => {
   const polls = useAppSelector(selectPolls(eventId));
+  const event = useAppSelector(selectEvent(eventId));
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = useCallback(() => {
     const fetchEvent = async () => {
@@ -44,6 +52,39 @@ const EventPolls: React.FC<EventDetailsProps> = ({eventId, componentId}) => {
         <Title style={styles.pollTitle}>{item.title}</Title>
         <PollPreview pollId={item.id} />
       </View>
+    );
+  };
+
+  const onCreatePoll = async (poll: ProjetXPoll) => {
+    await addMessage(
+      {
+        _id: nanoid(),
+        createdAt: new Date(),
+        user: {
+          _id: getMe().uid,
+        },
+        quickReplies: {
+          type: poll.settings.multiple ? 'checkbox' : 'radio',
+          values: [
+            {
+              value: 'wrong',
+              title: translate(
+                'Mets à jour ton appli pour voir le sondage dans le chat 😉',
+              ),
+            },
+          ],
+        },
+        pollId: poll.id,
+        text: poll.title || '',
+      },
+      {
+        id: eventId,
+        type: NotificationParentType.EVENT,
+        title: event.title,
+      },
+      Object.keys(event.participations).filter(
+        userId => event.participations[userId] === EventParticipation.going,
+      ),
     );
   };
 
@@ -71,6 +112,7 @@ const EventPolls: React.FC<EventDetailsProps> = ({eventId, componentId}) => {
                       name: 'CreatePollType',
                       passProps: {
                         parentId: eventId,
+                        onCreate: onCreatePoll,
                       },
                     },
                   },

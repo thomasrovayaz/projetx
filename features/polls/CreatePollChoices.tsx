@@ -14,10 +14,11 @@ interface CreatePollTypeScreenProps {
   type?: PollType;
   poll?: ProjetXPoll;
   parentId?: string;
+  onCreate?(poll: ProjetXPoll): void;
 }
 
 const CreatePollChoicesScreen: NavigationFunctionComponent<CreatePollTypeScreenProps> =
-  ({componentId, type = PollType.OTHER, parentId, poll}) => {
+  ({componentId, type = PollType.OTHER, parentId, onCreate, poll}) => {
     const [currentPoll, setCurrentPoll] = useState<ProjetXPoll>(
       poll ||
         new ProjetXPoll({
@@ -34,7 +35,10 @@ const CreatePollChoicesScreen: NavigationFunctionComponent<CreatePollTypeScreenP
         setSubmitted(true);
         return;
       }
-      await savePoll(currentPoll);
+      const newPoll = await savePoll(currentPoll);
+      if (!poll && onCreate) {
+        await onCreate(newPoll);
+      }
       await Navigation.dismissModal(componentId);
     };
     const cancel = async () => Navigation.dismissModal(componentId);

@@ -6,7 +6,7 @@ import {PollTypes} from './CreatePollType';
 
 export const pollTypes: PollTypes[] = [
   {id: PollType.DATE, title: translate('Sondage de date')},
-  {id: PollType.LOCATION, title: translate('Sondage de localisation')},
+  //{id: PollType.LOCATION, title: translate('Sondage de localisation')},
   {id: PollType.OTHER, title: translate('Autre 🤔')},
 ];
 

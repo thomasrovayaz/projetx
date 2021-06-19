@@ -88,7 +88,11 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
         !previousMessage.user ||
         currentMessage.user._id !== previousMessage.user._id);
     return (
-      <View>
+      <View
+        style={[
+          styles.messageContainer,
+          currentMessage.pollId ? styles.pollMessageContainer : {},
+        ]}>
         {renderUsername ? (
           <Text style={styles.username}>{currentMessage.user.name}</Text>
         ) : null}
@@ -210,6 +214,13 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
 };
 
 const styles = StyleSheet.create({
+  messageContainer: {
+    width: '100%',
+    flex: 1,
+  },
+  pollMessageContainer: {
+    marginTop: 20,
+  },
   sendContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -225,7 +236,7 @@ const styles = StyleSheet.create({
   image: {width: 150, height: 100, marginBottom: 3},
   scrollToBottomStyle: {borderRadius: 15, opacity: 1},
   pollContainer: {
-    maxWidth: width - 40 - 8 - 20,
+    maxWidth: width - 20,
   },
 });
 

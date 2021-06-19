@@ -34,6 +34,7 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
       input = (
         <Date
           date={dateValue}
+          onlyDate
           style={[styles.item, selected ? styles.itemSelected : {}]}
         />
       );

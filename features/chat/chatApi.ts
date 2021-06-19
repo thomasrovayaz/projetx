@@ -42,7 +42,9 @@ export async function addMessage(
     .ref(`chats/${parent.id}`)
     .push({...message, createdAt: new Date().getTime()});
   let content = message.text;
-  if (message.image) {
+  if (message.pollId) {
+    content = translate('A proposé un sondage');
+  } else if (message.image) {
     if (message.mime === 'image/gif') {
       content = translate('A envoyé un GIF');
     } else {

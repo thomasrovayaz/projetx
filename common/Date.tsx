@@ -6,18 +6,26 @@ import {translate} from '../app/locales';
 interface ProjetXDateProps extends TextProps {
   date?: DateValue;
   short?: boolean;
+  onlyDate?: boolean;
 }
 const format = 'ddd DD MMM YYYY';
 const formatWithHour = 'ddd DD MMM YYYY HH:mm';
 
-const Date: React.FC<ProjetXDateProps> = ({date, short, ...props}) => {
+const Date: React.FC<ProjetXDateProps> = ({
+  date,
+  short,
+  onlyDate,
+  ...props
+}) => {
   if (!date) {
     return null;
   }
   if (date.date) {
     return (
       <Text {...props}>
-        {short ? date.date.fromNow() : date.date.format(formatWithHour)}
+        {short
+          ? date.date.fromNow()
+          : date.date.format(onlyDate ? format : formatWithHour)}
       </Text>
     );
   }

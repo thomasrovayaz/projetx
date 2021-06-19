@@ -9,7 +9,7 @@ import {
 import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {translate} from '../../app/locales';
 import Button from '../../common/Button';
-import {PollType} from './pollsTypes';
+import {PollType, ProjetXPoll} from './pollsTypes';
 import {pollTypes} from './pollsUtils';
 import Title from '../../common/Title';
 
@@ -20,10 +20,11 @@ export interface PollTypes {
 
 interface CreatePollTypeScreenProps {
   parentId: string;
+  onCreate?(poll: ProjetXPoll): void;
 }
 
 const CreatePollTypeScreen: NavigationFunctionComponent<CreatePollTypeScreenProps> =
-  ({componentId, parentId}) => {
+  ({componentId, parentId, onCreate}) => {
     const [selection, setSelection] = useState<PollType>();
     const next = async (option: PollTypes) => {
       setSelection(option.id);
@@ -33,6 +34,7 @@ const CreatePollTypeScreen: NavigationFunctionComponent<CreatePollTypeScreenProp
           passProps: {
             type: option.id,
             parentId,
+            onCreate,
           },
         },
       });
