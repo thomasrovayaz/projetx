@@ -6,7 +6,7 @@ import {getEvent, updateParticipation} from '../features/events/eventsApi';
 import {translate} from './locales';
 import {EventParticipation, ProjetXEvent} from '../features/events/eventsTypes';
 import {showToast} from '../common/Toast';
-import {getGroup} from '../features/groups/groupsApi';
+import {addMember, getGroup} from '../features/groups/groupsApi';
 import {ProjetXGroup} from '../features/groups/groupsTypes';
 import {openEvent} from '../features/events/eventsSlice';
 import {Navigation} from 'react-native-navigation';
@@ -116,6 +116,12 @@ export const handleOpenNotification = async (
     ) {
       await updateParticipation(parentLoaded, EventParticipation.notanswered);
     }
+  }
+  if (
+    type === NotificationType.GROUP_INVITATION &&
+    parentLoaded instanceof ProjetXGroup
+  ) {
+    await addMember(parentLoaded);
   }
   if (parentLoaded instanceof ProjetXEvent) {
     onOpenEvent(

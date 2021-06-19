@@ -13,6 +13,9 @@ import {
   postNotification,
 } from '../../app/onesignal';
 import {ProjetXUser} from '../user/usersTypes';
+import {EventParticipation, ProjetXEvent} from '../events/eventsTypes';
+import {participationUpdated} from '../events/eventsSlice';
+import {notifyParticipation} from '../events/eventsApi';
 
 export async function getGroup(id: string): Promise<ProjetXGroup> {
   const groupDb = await database().ref(`groups/${id}`).once('value');
@@ -48,6 +51,18 @@ export async function saveGroup(group: ProjetXGroup): Promise<ProjetXGroup> {
     group.shareLink = await buildLink(group);
   }
   await database().ref(`groups/${group.id}`).set(group);
+  const updatedGroup = groupConverter.fromFirestore(
+    await database().ref(`groups/${group.id}`).once('value'),
+  );
+  store.dispatch(updateGroup(updatedGroup));
+  return updatedGroup;
+}
+
+export async function addMember(group: ProjetXGroup) {
+  if (!group.id) {
+    return;
+  }
+  await database().ref(`groups/${group.id}/users/${getMe().uid}`).set(true);
   const updatedGroup = groupConverter.fromFirestore(
     await database().ref(`groups/${group.id}`).once('value'),
   );

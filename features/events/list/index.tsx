@@ -84,7 +84,6 @@ const HomeScreen: NavigationFunctionComponent = ({
         } else if (routes[0] === 'group') {
           await handleOpenNotification(componentId, {
             type: NotificationType.GROUP_INVITATION,
-            eventId: routes[1],
             parentId: routes[1],
             parentType: NotificationParentType.GROUP,
           });
