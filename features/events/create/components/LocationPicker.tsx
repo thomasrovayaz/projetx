@@ -3,11 +3,12 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {StyleSheet, View, Platform, PermissionsAndroid} from 'react-native';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {translate} from '../../../../app/locales';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 import Config from 'react-native-config';
 import Geolocation from '@react-native-community/geolocation';
 import IconButton from '../../../../common/IconButton';
+import {DARK_BLUE} from '../../../../app/colors';
 
 export interface LocationValue {
   url: string;
@@ -169,9 +170,9 @@ const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
       />
       <Icon
         style={styles.markerIcon}
-        name="map-pin"
+        name="place"
         size={50}
-        color="#473B78"
+        color={DARK_BLUE}
       />
       <GooglePlacesAutocomplete
         styles={{

@@ -28,10 +28,17 @@ export const groupsSlice = createSlice({
         state.list[group.id] = group;
       }
     },
+    groupRemoved(state, action: PayloadAction<ProjetXGroup>) {
+      const group = action.payload;
+      if (!group.id) {
+        return;
+      }
+      delete state.list[group.id];
+    },
   },
 });
 
-export const {fetchGroups, updateGroup} = groupsSlice.actions;
+export const {fetchGroups, updateGroup, groupRemoved} = groupsSlice.actions;
 
 export const selectMyGroups = (state: RootState): ProjetXGroup[] =>
   state.groups.list;

@@ -3,13 +3,14 @@ import {
   StyleSheet,
   TouchableOpacityProps,
   ViewStyle,
-  Text,
   TouchableOpacity,
 } from 'react-native';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/Feather';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {translate} from '../app/locales';
+import Text from './Text';
+import {BORDER_COLOR, DARK_BLUE} from '../app/colors';
 
 interface ProjetXDateInputProps {
   placeholder?: string;
@@ -33,16 +34,14 @@ const styles = StyleSheet.create<Style>({
     paddingHorizontal: 15,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(71,59,120,0.05)',
-    borderColor: '#473B78',
+    borderColor: BORDER_COLOR,
     borderWidth: 1,
   },
   mainText: {
     fontSize: 14,
     fontWeight: '500',
     textAlign: 'center',
-    fontFamily: 'Inter',
-    color: '#473B78',
+    color: DARK_BLUE,
   },
   placeholder: {
     opacity: 0.5,
@@ -100,7 +99,7 @@ const TimeInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
           ...props.style,
         }}>
         {renderValue()}
-        <Icon name="clock" color={'#473B78'} size={24} />
+        <Icon name="clock" color={DARK_BLUE} size={24} />
       </TouchableOpacity>
       <DateTimePickerModal
         isVisible={openDialog}

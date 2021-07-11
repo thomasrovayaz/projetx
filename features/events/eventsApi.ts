@@ -1,5 +1,5 @@
 import database from '@react-native-firebase/database';
-import {getMe} from '../user/usersApi';
+import {getMe, getMyId} from '../user/usersApi';
 import slugify from 'slugify';
 import {nanoid} from 'nanoid';
 import {
@@ -28,6 +28,32 @@ import {
   NotificationType,
   postNotification,
 } from '../../app/onesignal';
+import {showToast} from '../../common/Toast';
+
+export const joinEvent = async (event: ProjetXEvent) => {
+  await updateParticipation(event, EventParticipation.going);
+  await showToast({message: translate('Que serait une soirée sans toi 😍')});
+};
+export const refuseEvent = async (event: ProjetXEvent) => {
+  await updateParticipation(event, EventParticipation.notgoing);
+  await showToast({message: translate('Dommage 😢')});
+};
+
+export const remindMeEvent = async (event: ProjetXEvent) => {
+  await updateParticipation(event, EventParticipation.maybe);
+  await addReminder(event, moment().add({day: 1}));
+};
+const addReminder = async (event: ProjetXEvent, date: moment.Moment) => {
+  try {
+    await addEventAnswerReminder(event, date);
+    await showToast({message: translate('Rappel enregistré 👌')});
+  } catch (e) {
+    console.error(e);
+    await showToast({
+      message: translate("Erreur lors de l'ajout du rappel 😕"),
+    });
+  }
+};
 
 export async function getEvent(id: string): Promise<ProjetXEvent> {
   const eventDb = await database().ref(`events/${id}`).once('value');
@@ -38,7 +64,7 @@ export async function getEvent(id: string): Promise<ProjetXEvent> {
 export async function getMyEvents() {
   const eventsDb = await database()
     .ref('events')
-    .orderByChild('participations/' + getMe().uid)
+    .orderByChild('participations/' + getMyId())
     .startAt(0)
     .once('value');
   const events: ProjetXEvent[] = [];
@@ -62,7 +88,7 @@ export async function saveEvent(event: ProjetXEvent): Promise<ProjetXEvent> {
     event.id = slugifyEventId(event.title || '');
   }
   if (!event.author) {
-    event.author = getMe().uid;
+    event.author = getMyId();
   }
   if (!event.shareLink) {
     event.shareLink = await buildLink(event);
@@ -89,10 +115,10 @@ export async function updateParticipation(
     return;
   }
   await database()
-    .ref(`events/${event.id}/participations/${getMe().uid}`)
+    .ref(`events/${event.id}/participations/${getMyId()}`)
     .set(type);
   store.dispatch(
-    participationUpdated({eventId: event.id, userId: getMe().uid, type}),
+    participationUpdated({eventId: event.id, userId: getMyId(), type}),
   );
   notifyParticipation(event, getMe().displayName, type);
 }
@@ -191,7 +217,7 @@ export async function addEventAnswerReminder(
   event: ProjetXEvent,
   date: moment.Moment,
 ) {
-  const oneSignalId = store.getState().users.list[getMe().uid].oneSignalId;
+  const oneSignalId = store.getState().users.list[getMyId()].oneSignalId;
   if (!oneSignalId) {
     throw new Error(translate('Tu ne peux pas envoyer de notification'));
   }

@@ -3,6 +3,7 @@ import {translate} from '../../../app/locales';
 import TextInput from '../../../common/TextInput';
 import {getMe, isRegistered, updateMyName} from '../usersApi';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
+import {DARK_BLUE} from '../../../app/colors';
 
 interface PseudoInputProps {
   label?: string;
@@ -50,7 +51,7 @@ const PseudoInput: React.FC<PseudoInputProps> = ({label, onRegister}) => {
         <ActivityIndicator
           style={[styles.loader, label ? styles.loaderWithLabel : {}]}
           size="large"
-          color="#473B78"
+          color={DARK_BLUE}
         />
       )}
     </View>

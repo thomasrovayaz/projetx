@@ -1,24 +1,15 @@
 import React from 'react';
-import {Text, TextStyle, TextProps} from 'react-native';
+import {TextStyle, TextProps} from 'react-native';
+import Text from './Text';
 
 const style: TextStyle = {
   fontSize: 24,
   fontWeight: 'bold',
-  textAlign: 'center',
-  fontFamily: 'Inter',
+  textAlign: 'left',
 };
 
 const Title: React.FC<TextProps> = ({children, ...props}) => {
-  return (
-    <Text
-      style={{
-        ...style,
-        // @ts-ignore
-        ...props.style,
-      }}>
-      {children}
-    </Text>
-  );
+  return <Text style={[style, props.style]}>{children}</Text>;
 };
 
 export default Title;

@@ -1,39 +1,42 @@
 import React, {useCallback} from 'react';
 import {getEvent} from '../eventsApi';
-import {FlatList, RefreshControl, StyleSheet, View} from 'react-native';
+import {FlatList, Image, RefreshControl, StyleSheet, View} from 'react-native';
 import Button from '../../../common/Button';
 import {translate} from '../../../app/locales';
 import {useAppSelector} from '../../../app/redux';
 import {selectPolls} from '../../polls/pollsSlice';
-import {Navigation} from 'react-native-navigation';
 import Title from '../../../common/Title';
+import Text from '../../../common/Text';
 import {ProjetXPoll} from '../../polls/pollsTypes';
 import PollPreview from '../../polls/PollPreview';
-import {addMessage} from '../../chat/chatApi';
-import {nanoid} from 'nanoid';
-import {getMe} from '../../user/usersApi';
 import {selectEvent} from '../eventsSlice';
-import {NotificationParentType} from '../../../app/onesignal';
 import {EventParticipation} from '../eventsTypes';
-import {Reply} from 'react-native-gifted-chat';
+import {useNavigation} from '@react-navigation/native';
 
 interface EventDetailsProps {
   eventId: string;
-  componentId: string;
 }
 const EmptyPollsList: React.FC = () => {
   return (
     <View style={styles.emptyList}>
+      <Image
+        style={styles.emptyGif}
+        source={require('../../../assets/empty.gif')}
+      />
       <Title style={styles.emptyText}>
-        {`${translate('Pas encore de sondage')}\n\n${translate(
-          'Tu peux en créer un simplement',
-        )}`}
+        {translate('Pas encore de sondage 🤷‍♂️')}
       </Title>
+      <Text>
+        {translate(
+          'Tu peux faire un sondage pour choisir une date, un lieu ou lancer un débat sur la chocolatine 💣',
+        )}
+      </Text>
     </View>
   );
 };
 
-const EventPolls: React.FC<EventDetailsProps> = ({eventId, componentId}) => {
+const EventPolls: React.FC<EventDetailsProps> = ({eventId}) => {
+  const navigation = useNavigation();
   const polls = useAppSelector(selectPolls(eventId));
   const event = useAppSelector(selectEvent(eventId));
   const [refreshing, setRefreshing] = React.useState(false);
@@ -55,39 +58,6 @@ const EventPolls: React.FC<EventDetailsProps> = ({eventId, componentId}) => {
     );
   };
 
-  const onCreatePoll = async (poll: ProjetXPoll) => {
-    await addMessage(
-      {
-        _id: nanoid(),
-        createdAt: new Date(),
-        user: {
-          _id: getMe().uid,
-        },
-        quickReplies: {
-          type: poll.settings.multiple ? 'checkbox' : 'radio',
-          values: [
-            {
-              value: 'wrong',
-              title: translate(
-                'Mets à jour ton appli pour voir le sondage dans le chat 😉',
-              ),
-            },
-          ],
-        },
-        pollId: poll.id,
-        text: poll.title || '',
-      },
-      {
-        id: eventId,
-        type: NotificationParentType.EVENT,
-        title: event.title,
-      },
-      Object.keys(event.participations).filter(
-        userId => event.participations[userId] === EventParticipation.going,
-      ),
-    );
-  };
-
   return (
     <>
       <FlatList
@@ -102,22 +72,16 @@ const EventPolls: React.FC<EventDetailsProps> = ({eventId, componentId}) => {
       />
       <View style={styles.buttonCreate}>
         <Button
+          variant={'outlined'}
           title={translate('Créer un sondage')}
           onPress={() => {
-            Navigation.showModal({
-              stack: {
-                children: [
-                  {
-                    component: {
-                      name: 'CreatePollType',
-                      passProps: {
-                        parentId: eventId,
-                        onCreate: onCreatePoll,
-                      },
-                    },
-                  },
-                ],
-              },
+            navigation.navigate('CreatePoll', {
+              parentId: eventId,
+              parentTitle: event.title,
+              usersToNotify: Object.keys(event.participations).filter(
+                userId =>
+                  event.participations[userId] === EventParticipation.going,
+              ),
             });
           }}
         />
@@ -137,12 +101,15 @@ const styles = StyleSheet.create({
   emptyList: {
     flex: 1,
     padding: 20,
-    justifyContent: 'center',
     alignItems: 'flex-start',
   },
+  emptyGif: {
+    width: '100%',
+    maxHeight: '50%',
+    marginBottom: 20,
+  },
   emptyText: {
-    textAlign: 'left',
-    fontSize: 18,
+    marginBottom: 10,
   },
   pollContainer: {
     padding: 20,

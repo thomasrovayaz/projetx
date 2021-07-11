@@ -2,7 +2,7 @@ import {pollConverter, PollState, PollType, ProjetXPoll} from './pollsTypes';
 import database from '@react-native-firebase/database';
 import {store} from '../../app/store';
 import {updateAnswers, updatePoll} from './pollsSlice';
-import {getMe} from '../user/usersApi';
+import {getMyId} from '../user/usersApi';
 import {nanoid} from 'nanoid';
 import {buildLink} from './pollsUtils';
 import moment from 'moment';
@@ -23,7 +23,7 @@ export async function savePoll(poll: ProjetXPoll): Promise<ProjetXPoll> {
     poll.created = moment();
   }
   if (!poll.author) {
-    poll.author = getMe().uid;
+    poll.author = getMyId();
   }
   if (!poll.shareLink) {
     poll.shareLink = await buildLink(poll);
@@ -38,11 +38,15 @@ export async function savePoll(poll: ProjetXPoll): Promise<ProjetXPoll> {
 export function createPoll(type: PollType, parentEventId: string): ProjetXPoll {
   const data = {
     id: nanoid(),
-    author: getMe().uid,
+    author: getMyId(),
     parentEventId,
     created: moment(),
     type,
     state: PollState.RUNNING,
+    choices: [
+      {id: nanoid(), value: undefined},
+      {id: nanoid(), value: undefined},
+    ],
   };
   switch (data.type) {
     case PollType.DATE:
@@ -57,6 +61,6 @@ export async function updatePollAnswers(
   poll: ProjetXPoll,
   answers: string[],
 ): Promise<void> {
-  await database().ref(`polls/${poll.id}/answers/${getMe().uid}`).set(answers);
+  await database().ref(`polls/${poll.id}/answers/${getMyId()}`).set(answers);
   store.dispatch(updateAnswers({pollId: poll.id, answers}));
 }

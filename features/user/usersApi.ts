@@ -11,6 +11,9 @@ export const getMe = (): FirebaseAuthTypes.User => {
   }
   return me;
 };
+export const getMyId = (): string => {
+  return getMe().uid;
+};
 export const isRegistered = () => {
   const me = auth().currentUser;
   return Boolean(me && me.displayName);

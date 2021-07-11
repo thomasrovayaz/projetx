@@ -1,10 +1,18 @@
-import {StyleSheet, TouchableOpacity, View, Text} from 'react-native';
-import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Text,
+  Dimensions,
+} from 'react-native';
+import RNToast from 'react-native-toast-message';
 import React, {useCallback, useEffect} from 'react';
 import {translate} from '../app/locales';
+import {DARK_BLUE, LIGHT_BLUE} from '../app/colors';
+
+const {width} = Dimensions.get('window');
 
 interface ProjetXToastProps {
-  componentId: string;
   message: string;
   title?: string;
   timeout: number;
@@ -20,33 +28,53 @@ export const showToast = (props: {
   onOpen?(): void;
   onClose?(hasClick?: boolean): void;
   buttons?: {text: string; onPress(): void}[];
-}) =>
-  Navigation.showOverlay({
-    component: {
-      name: 'Toast',
-      passProps: props,
-    },
+}) => {
+  RNToast.show({
+    type: 'custom',
+    autoHide: true,
+    text1: props.title,
+    text2: props.message,
+    visibilityTime: props.timeout || 500000,
+    onPress: props.onOpen,
+    onHide: props.onClose,
+    props: {buttons: props.buttons},
   });
+};
 
-const Toast: NavigationFunctionComponent<ProjetXToastProps> = ({
-  componentId,
+export const toastConfig = {
+  //@ts-ignore
+  custom: ({text1, text2, visibilityTime, onPress, onHide, props}) => (
+    <Toast
+      title={text1}
+      message={text2}
+      timeout={visibilityTime}
+      onOpen={onPress}
+      onClose={onHide}
+      buttons={props.buttons}
+    />
+  ),
+};
+
+const Toast: React.FC<ProjetXToastProps> = ({
   message,
   title,
-  timeout = 5000,
+  timeout,
   onOpen,
   onClose,
   buttons,
 }) => {
+  console.log(timeout);
   const open = async () => {
     onOpen && onOpen();
-    await Navigation.dismissOverlay(componentId);
+    RNToast.hide();
+    console.log('hide');
   };
   const dimiss = useCallback(
     async (hasClick: boolean) => {
       onClose && onClose(hasClick);
-      await Navigation.dismissOverlay(componentId);
+      RNToast.hide();
     },
-    [onClose, componentId],
+    [onClose],
   );
 
   useEffect(() => {
@@ -70,7 +98,7 @@ const Toast: NavigationFunctionComponent<ProjetXToastProps> = ({
             activeOpacity={0.8}
             style={styles.button}
             onPress={() => {
-              Navigation.dismissOverlay(componentId);
+              RNToast.hide();
               onPress && onPress();
             }}>
             <Text style={styles.buttonText}>{text}</Text>
@@ -80,10 +108,7 @@ const Toast: NavigationFunctionComponent<ProjetXToastProps> = ({
     );
   };
   return (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={open}
-      style={[styles.toast, styles.longToast]}>
+    <TouchableOpacity activeOpacity={0.9} onPress={open} style={[styles.toast]}>
       <View style={styles.textContainer}>
         {title ? <Text style={styles.title}>{title}</Text> : null}
         <Text style={styles.text}>{message}</Text>
@@ -95,48 +120,39 @@ const Toast: NavigationFunctionComponent<ProjetXToastProps> = ({
 
 const styles = StyleSheet.create({
   toast: {
-    flexDirection: 'row',
-    shadowColor: '#000',
+    shadowColor: DARK_BLUE,
     shadowOffset: {
       width: 0,
-      height: 12,
+      height: 0,
     },
     shadowOpacity: 0.58,
-    shadowRadius: 16.0,
-    elevation: 24,
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    right: 20,
+    elevation: 2,
     borderRadius: 15,
+    marginHorizontal: 20,
+    marginTop: 20,
+    flex: 1,
     backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  longToast: {
     alignItems: 'flex-start',
-    flexDirection: 'column',
     justifyContent: 'flex-start',
   },
   textContainer: {
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
-    backgroundColor: '#fafafa',
     paddingVertical: 10,
     flex: 1,
-    width: '100%',
+    width: width - 40,
     flexDirection: 'column',
     alignItems: 'flex-start',
   },
   title: {
     paddingHorizontal: 20,
-    color: 'black',
+    color: DARK_BLUE,
     fontSize: 16,
     fontWeight: '700',
   },
   text: {
     paddingHorizontal: 20,
-    color: 'black',
+    color: DARK_BLUE,
     fontSize: 16,
   },
   buttons: {
@@ -149,21 +165,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    paddingTop: 5,
-    paddingBottom: 10,
-    color: '#E6941B',
+    paddingVertical: 10,
+    color: DARK_BLUE,
     fontSize: 16,
     fontWeight: 'bold',
   },
 });
-
-Toast.options = {
-  layout: {
-    componentBackgroundColor: 'transparent',
-  },
-  overlay: {
-    interceptTouchOutside: false,
-  },
-};
-
-export default Toast;

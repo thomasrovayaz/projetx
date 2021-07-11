@@ -1,13 +1,8 @@
 import React from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  ViewStyle,
-  Text,
-  View,
-  TextStyle,
-} from 'react-native';
+import {StyleSheet, TouchableOpacity, ViewStyle, View} from 'react-native';
 import Badge from './Badge';
+import Text from './Text';
+import {DARK_BLUE} from '../app/colors';
 
 export interface Tab {
   id: string;
@@ -33,13 +28,13 @@ const styles = StyleSheet.create<Style>({
   tabs: {
     flex: 1,
     flexDirection: 'row',
-    height: 50,
+    minHeight: 50,
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#473B78',
-    backgroundColor: 'rgba(71,59,120,0.05)',
+    borderColor: 'rgba(25,34,72,0.3)',
+    padding: 5,
   },
   tab: {
     flex: 1,
@@ -49,15 +44,14 @@ const styles = StyleSheet.create<Style>({
     alignItems: 'center',
   },
   tabSelected: {
-    borderRadius: 15,
-    backgroundColor: '#473B78',
+    borderRadius: 12,
+    backgroundColor: DARK_BLUE,
   },
   tabTitle: {
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
-    fontFamily: 'Inter',
-    color: '#473B78',
+    color: DARK_BLUE,
   },
   tabTitleSelected: {
     color: 'white',

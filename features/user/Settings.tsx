@@ -6,23 +6,23 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {NavigationFunctionComponent} from 'react-native-navigation';
 import Title from '../../common/Title';
 import {translate} from '../../app/locales';
-import useTabbarIcon from '../../app/useTabbarIcon';
 import PseudoInput from './common/PseudoInput';
+import BackButton from '../../common/BackButton';
 
-const SettingsScreen: NavigationFunctionComponent = ({componentId}) => {
-  useTabbarIcon(componentId, 'settings');
-
+const SettingsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'dark-content'} backgroundColor="white" />
+      <View style={styles.header}>
+        <BackButton />
+      </View>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={styles.container}>
         <View style={styles.content}>
-          <Title>{translate('Mes préférences')}</Title>
+          <Title style={styles.title}>{translate('Mes préférences')}</Title>
           <View style={styles.input}>
             <PseudoInput label={translate('Pseudo')} />
           </View>
@@ -37,20 +37,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
   content: {
     marginHorizontal: 20,
     marginVertical: 10,
     alignItems: 'stretch',
   },
+  title: {
+    textAlign: 'left',
+  },
   input: {
     marginVertical: 20,
   },
 });
-
-SettingsScreen.options = {
-  topBar: {
-    visible: false,
-  },
-};
 
 export default SettingsScreen;

@@ -1,6 +1,6 @@
 import OneSignal, {NotificationReceivedEvent} from 'react-native-onesignal';
 import Config from 'react-native-config';
-import {getMe, updateOneSignalId} from '../features/user/usersApi';
+import {getMyId, updateOneSignalId} from '../features/user/usersApi';
 import auth from '@react-native-firebase/auth';
 import {getEvent, updateParticipation} from '../features/events/eventsApi';
 import {translate} from './locales';
@@ -8,9 +8,9 @@ import {EventParticipation, ProjetXEvent} from '../features/events/eventsTypes';
 import {showToast} from '../common/Toast';
 import {addMember, getGroup} from '../features/groups/groupsApi';
 import {ProjetXGroup} from '../features/groups/groupsTypes';
-import {openEvent} from '../features/events/eventsSlice';
-import {Navigation} from 'react-native-navigation';
-import {store} from './store';
+import {ParamListBase} from '@react-navigation/routers';
+import {NavigationProp} from '@react-navigation/core/lib/typescript/src/types';
+import {Platform} from 'react-native';
 
 export enum NotificationType {
   EVENT_INVITATION = 'EVENT_INVITATION',
@@ -56,37 +56,29 @@ export const setupOneSignal = async () => {
       }
     });
   }
+  console.log(deviceState);
+  if (Platform.OS === 'ios' && !deviceState.isSubscribed) {
+    OneSignal.promptForPushNotificationsWithUserResponse(console.log);
+  }
 };
 
 const onOpenEvent = (
-  componentId: string,
-  eventToOpen: ProjetXEvent,
+  navigation: NavigationProp<ParamListBase>,
+  eventId: string,
   chat?: boolean,
 ) => {
-  store.dispatch(openEvent(eventToOpen));
-  Navigation.push(componentId, {
-    component: {
-      name: 'Event',
-      passProps: {
-        chat,
-      },
-    },
-  });
+  navigation.navigate('Event', {eventId, chat});
 };
-const onOpenGroup = (componentId: string, groupId: string, chat?: boolean) => {
-  Navigation.push(componentId, {
-    component: {
-      name: 'DetailsGroupScreen',
-      passProps: {
-        groupId,
-        chat,
-      },
-    },
-  });
+const onOpenGroup = (
+  navigation: NavigationProp<ParamListBase>,
+  groupId: string,
+  chat?: boolean,
+) => {
+  navigation.navigate('DetailsGroupScreen', {groupId, chat});
 };
 
 export const handleOpenNotification = async (
-  componentId: string,
+  navigation: NavigationProp<ParamListBase>,
   data: AdditionalData,
   participation?: EventParticipation,
 ) => {
@@ -111,8 +103,8 @@ export const handleOpenNotification = async (
       await updateParticipation(parentLoaded, participation);
       await showToast({message: translate('Réponse envoyé 👍')});
     } else if (
-      !parentLoaded.participations[getMe().uid] &&
-      parentLoaded.participations[getMe().uid] !== EventParticipation.going
+      !parentLoaded.participations[getMyId()] &&
+      parentLoaded.participations[getMyId()] !== EventParticipation.going
     ) {
       await updateParticipation(parentLoaded, EventParticipation.notanswered);
     }
@@ -123,19 +115,15 @@ export const handleOpenNotification = async (
   ) {
     await addMember(parentLoaded);
   }
-  if (parentLoaded instanceof ProjetXEvent) {
-    onOpenEvent(
-      componentId,
-      parentLoaded,
-      type === NotificationType.NEW_MESSAGE,
-    );
+  if (parentLoaded instanceof ProjetXEvent && parentId) {
+    onOpenEvent(navigation, parentId, type === NotificationType.NEW_MESSAGE);
   } else if (parentLoaded instanceof ProjetXGroup && parentId) {
-    onOpenGroup(componentId, parentId, type === NotificationType.NEW_MESSAGE);
+    onOpenGroup(navigation, parentId, type === NotificationType.NEW_MESSAGE);
   }
 };
 
 export const notificationWillShowInForegroundHandler =
-  (componentId: string) =>
+  (navigation: NavigationProp<ParamListBase>) =>
   async (notificationReceivedEvent: NotificationReceivedEvent) => {
     console.log(
       'OneSignal: notification will show in foreground:',
@@ -146,46 +134,36 @@ export const notificationWillShowInForegroundHandler =
     const data = notification.additionalData as AdditionalData;
     const type = data.type as NotificationType;
     const parentId = data.parentId || data.eventId;
-    let parentLoaded: ProjetXEvent | ProjetXGroup | undefined;
-    if (parentId) {
-      switch (data.parentType) {
-        case NotificationParentType.EVENT:
-          parentLoaded = await getEvent(parentId);
-          break;
-        case NotificationParentType.GROUP:
-          parentLoaded = await getGroup(parentId);
-          break;
-      }
-    }
     console.log('additionalData: ', data);
     if (type) {
       let buttons;
-      if (
-        type === NotificationType.EVENT_INVITATION &&
-        parentLoaded instanceof ProjetXEvent
-      ) {
+      if (type === NotificationType.EVENT_INVITATION) {
         notificationReceivedEvent.complete();
         buttons = [
           {
             text: translate('Accepter'),
             onPress: async () => {
-              await updateParticipation(
-                parentLoaded as ProjetXEvent,
-                EventParticipation.going,
-              );
-              await showToast({message: translate('Réponse envoyé 👍')});
-              onOpenEvent(componentId, parentLoaded as ProjetXEvent);
+              if (parentId) {
+                await updateParticipation(
+                  await getEvent(parentId),
+                  EventParticipation.going,
+                );
+                await showToast({message: translate('Réponse envoyé 👍')});
+                onOpenEvent(navigation, parentId);
+              }
             },
           },
           {
             text: translate('Refuser'),
             onPress: async () => {
-              await updateParticipation(
-                parentLoaded as ProjetXEvent,
-                EventParticipation.notgoing,
-              );
-              await showToast({message: translate('Réponse envoyé 👍')});
-              onOpenEvent(componentId, parentLoaded as ProjetXEvent);
+              if (parentId) {
+                await updateParticipation(
+                  await getEvent(parentId),
+                  EventParticipation.notgoing,
+                );
+                await showToast({message: translate('Réponse envoyé 👍')});
+                onOpenEvent(navigation, parentId);
+              }
             },
           },
         ];
@@ -197,7 +175,7 @@ export const notificationWillShowInForegroundHandler =
         buttons,
         onOpen: () => {
           notificationReceivedEvent.complete();
-          handleOpenNotification(componentId, data);
+          handleOpenNotification(navigation, data);
         },
         onClose: hasClick => {
           if (!hasClick) {

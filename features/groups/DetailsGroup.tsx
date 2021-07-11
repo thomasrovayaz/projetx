@@ -1,112 +1,122 @@
 import React, {useEffect, useState} from 'react';
-import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
-import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
+import {Alert, SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import {translate} from '../../app/locales';
 import {useAppSelector} from '../../app/redux';
 import {selectUnreadMessageCount} from '../chat/chatsSlice';
 import Tabs, {Tab} from '../../common/Tabs';
 import DetailHeader from '../../common/DetailHeader';
 import Chat from '../chat/Chat';
-import GroupMembers from './GroupMembers';
-import useTopbarButton from '../../app/useTopbarButton';
 import {selectGroup} from './groupsSlice';
 import GroupEvents from './GroupEvents';
 import {NotificationParentType} from '../../app/onesignal';
+import {BEIGE, DARK_BLUE, RED} from '../../app/colors';
+import {useNavigation} from '@react-navigation/native';
+import {getGroup, removeGroup} from './groupsApi';
+import {getUsers} from '../user/usersApi';
 
 interface CreateGroupScreenProps {
-  groupId: string;
-  chat?: boolean;
+  route: {
+    params: {
+      groupId: string;
+      chat?: boolean;
+    };
+  };
 }
 enum GroupTab {
   chat = 'chat',
   events = 'events',
-  members = 'members',
 }
 
-const DetailsGroupScreen: NavigationFunctionComponent<CreateGroupScreenProps> =
-  ({groupId, componentId, chat}) => {
-    const [tab, setTab] = useState<GroupTab>(
-      chat ? GroupTab.chat : GroupTab.events,
-    );
-    const group = useAppSelector(selectGroup(groupId));
-    useTopbarButton(
-      componentId,
-      'edit',
-      'edit',
-      () => {
-        Navigation.push(componentId, {
-          component: {
-            name: 'CreateGroupScreen',
-            passProps: {
-              group,
-              onSave: () => {
-                Navigation.pop(componentId);
-              },
-            },
-          },
-        });
-      },
-      '#ffffff',
-    );
-    const unreadMessages = useAppSelector(selectUnreadMessageCount(group?.id));
-    const tabs: Tab[] = [
-      {id: GroupTab.events, title: translate('Événements')},
-      {id: GroupTab.chat, title: translate('Messages'), badge: unreadMessages},
-      {id: GroupTab.members, title: translate('Membres')},
-    ];
+const DetailsGroupScreen: React.FC<CreateGroupScreenProps> = ({
+  route: {
+    params: {groupId, chat},
+  },
+}) => {
+  const navigation = useNavigation();
+  const [tab, setTab] = useState<GroupTab>(
+    chat ? GroupTab.chat : GroupTab.events,
+  );
+  const group = useAppSelector(selectGroup(groupId));
 
-    useEffect(() => {
-      if (!group) {
-        return;
-      }
-      Navigation.mergeOptions(componentId, {
-        topBar: {
-          title: {
-            color: 'transparent',
-            text: group.name,
-          },
-        },
-      });
-    }, [group, componentId]);
+  useEffect(() => {
+    getGroup(groupId);
+    getUsers();
+  }, [groupId, tab]);
 
-    if (!group || !group.id) {
-      return null;
+  const openParticipants = () => {
+    if (!group) {
+      return;
     }
-
-    return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
-        <DetailHeader title={group.name} />
-        <View style={styles.tabContainer}>
-          <Tabs
-            tabs={tabs}
-            selectedTab={tab}
-            onChangeTab={tabSelected => setTab(tabSelected as GroupTab)}
-          />
-        </View>
-        {tab === GroupTab.events ? (
-          <GroupEvents componentId={componentId} groupId={groupId} />
-        ) : null}
-        {tab === GroupTab.chat ? (
-          <Chat
-            parent={{
-              id: group.id,
-              title: group.name,
-              type: NotificationParentType.GROUP,
-            }}
-            members={Object.keys(group.users)}
-            componentId={componentId}
-          />
-        ) : null}
-        {tab === GroupTab.members ? <GroupMembers groupId={group.id} /> : null}
-      </SafeAreaView>
-    );
+    navigation.navigate('GroupMembers', {groupId: group.id});
   };
+  const edit = () => {
+    navigation.navigate('CreateGroupScreen', {
+      group,
+    });
+  };
+  const remove = () => {
+    if (!group) {
+      return;
+    }
+    Alert.alert(translate('Supprimer le groupe'), translate('Es-tu sûr?'), [
+      {
+        text: translate('Non'),
+        style: 'cancel',
+      },
+      {text: translate('Oui'), onPress: () => removeGroup(group)},
+    ]);
+  };
+  const unreadMessages = useAppSelector(selectUnreadMessageCount(group?.id));
+  const tabs: Tab[] = [
+    {id: GroupTab.events, title: translate('Événements')},
+    {id: GroupTab.chat, title: translate('Messages'), badge: unreadMessages},
+  ];
+
+  if (!group || !group.id) {
+    return null;
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle={'dark-content'} backgroundColor={BEIGE} />
+      <DetailHeader
+        title={group.name}
+        actions={[
+          {
+            icon: 'users',
+            color: DARK_BLUE,
+            onPress: openParticipants,
+          },
+          {icon: 'edit', color: DARK_BLUE, onPress: edit},
+          {icon: 'trash', color: RED, onPress: remove},
+        ]}
+      />
+      <View style={styles.tabContainer}>
+        <Tabs
+          tabs={tabs}
+          selectedTab={tab}
+          onChangeTab={tabSelected => setTab(tabSelected as GroupTab)}
+        />
+      </View>
+      {tab === GroupTab.events ? <GroupEvents groupId={groupId} /> : null}
+      {tab === GroupTab.chat ? (
+        <Chat
+          parent={{
+            id: group.id,
+            title: group.name,
+            type: NotificationParentType.GROUP,
+          }}
+          members={Object.keys(group.users)}
+        />
+      ) : null}
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: BEIGE,
   },
   tabContainer: {
     flexDirection: 'row',
@@ -114,7 +124,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: 'white',
   },
   input: {
     paddingTop: 20,
@@ -125,20 +134,5 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
-
-DetailsGroupScreen.options = {
-  topBar: {
-    title: {
-      color: 'transparent',
-      text: '',
-    },
-    borderColor: 'transparent',
-    borderHeight: 0,
-    elevation: 0,
-  },
-  bottomTabs: {
-    visible: false,
-  },
-};
 
 export default DetailsGroupScreen;

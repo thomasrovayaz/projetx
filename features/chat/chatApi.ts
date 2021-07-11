@@ -1,6 +1,6 @@
 import database from '@react-native-firebase/database';
 import {store} from '../../app/store';
-import {getMe} from '../user/usersApi';
+import {getMe, getMyId} from '../user/usersApi';
 import {chatsUpdated} from './chatsSlice';
 import {
   NotificationParentType,
@@ -66,10 +66,10 @@ function messageNotification(
   const include_player_ids = members
     .filter(
       userId =>
-        userId !== getMe().uid &&
-        store.getState().users.list[userId].oneSignalId,
+        userId !== getMyId() && store.getState().users.list[userId].oneSignalId,
     )
     .map(userId => store.getState().users.list[userId].oneSignalId);
+
   postNotification(
     include_player_ids,
     NotificationType.NEW_MESSAGE,

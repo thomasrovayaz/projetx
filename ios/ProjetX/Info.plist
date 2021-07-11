@@ -36,7 +36,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSApplicationCategoryType</key>
-	<string></string>
+	<string/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>comgooglemaps</string>
@@ -100,6 +100,24 @@
 		<string>Octicons.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
+		<string>MontserratAlternates-Black.ttf</string>
+		<string>MontserratAlternates-BlackItalic.ttf</string>
+		<string>MontserratAlternates-Bold.ttf</string>
+		<string>MontserratAlternates-BoldItalic.ttf</string>
+		<string>MontserratAlternates-ExtraBold.ttf</string>
+		<string>MontserratAlternates-ExtraBoldItalic.ttf</string>
+		<string>MontserratAlternates-ExtraLight.ttf</string>
+		<string>MontserratAlternates-ExtraLightItalic.ttf</string>
+		<string>MontserratAlternates-Italic.ttf</string>
+		<string>MontserratAlternates-Light.ttf</string>
+		<string>MontserratAlternates-LightItalic.ttf</string>
+		<string>MontserratAlternates-Medium.ttf</string>
+		<string>MontserratAlternates-MediumItalic.ttf</string>
+		<string>MontserratAlternates-Regular.ttf</string>
+		<string>MontserratAlternates-SemiBold.ttf</string>
+		<string>MontserratAlternates-SemiBoldItalic.ttf</string>
+		<string>MontserratAlternates-Thin.ttf</string>
+		<string>MontserratAlternates-ThinItalic.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

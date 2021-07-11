@@ -1,7 +1,9 @@
 import {FirebaseDatabaseTypes} from '@react-native-firebase/database';
 import moment from 'moment';
 import {LocationValue} from './create/components/LocationPicker';
-import {getMe} from '../user/usersApi';
+import {getMe, getMyId} from '../user/usersApi';
+import {useAppSelector} from '../../app/redux';
+import {EventReminder, selectReminder} from './eventsSlice';
 
 export interface DateValue {
   startDate?: moment.Moment;
@@ -99,8 +101,45 @@ export class ProjetXEvent {
     }
     return undefined;
   }
+  getEndingDate(): moment.Moment | undefined {
+    if (this.date) {
+      if (this.date.date) {
+        return this.getStartingDate();
+      } else if (this.date.endDate) {
+        return this.date.endDate;
+      }
+    }
+    return undefined;
+  }
   isAuthor(): Boolean {
-    return getMe().uid === this.author;
+    return getMyId() === this.author;
+  }
+  isFinished(): Boolean {
+    return Boolean(
+      !this.getEndingDate()?.isAfter(moment().set({hours: 0, minutes: 0})),
+    );
+  }
+  isRunning(): Boolean {
+    return (
+      !this.isFinished() && Boolean(this.getStartingDate()?.isBefore(moment()))
+    );
+  }
+  isWaitingForAnswer(): Boolean {
+    return (
+      !this.isFinished() &&
+      [EventParticipation.notanswered, EventParticipation.maybe].includes(
+        this.participations[getMyId()],
+      )
+    );
+  }
+  canReportAnswer(reminder: EventReminder | undefined): Boolean {
+    const startingDate = this.getStartingDate();
+    const isBeforeTommorrow =
+      startingDate &&
+      startingDate.isBefore(moment().add({day: 1}).subtract({hour: 1}));
+    const hasReminder =
+      reminder && reminder.date && moment(reminder.date).isAfter(moment());
+    return Boolean(!hasReminder && !isBeforeTommorrow);
   }
 }
 const timeConverter = {

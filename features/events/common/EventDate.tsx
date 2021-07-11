@@ -2,14 +2,12 @@ import React from 'react';
 import {StyleSheet, ViewStyle} from 'react-native';
 import {EventDateType, ProjetXEvent} from '../eventsTypes';
 import {translate} from '../../../app/locales';
-import Label from '../../../common/Label';
-import {getMe} from '../../user/usersApi';
+import {getMyId} from '../../user/usersApi';
 import Button from '../../../common/Button';
-import {Navigation} from 'react-native-navigation';
 import Date from '../../../common/Date';
+import {useNavigation} from '@react-navigation/native';
 
 interface ProjetXEventDateProps {
-  componentId: string;
   event: ProjetXEvent;
 }
 
@@ -20,38 +18,32 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   button: {
-    marginBottom: 20,
+    marginBottom: 40,
   },
   value: {
-    fontFamily: 'Inter',
     fontSize: 14,
     marginBottom: 20,
     textTransform: 'capitalize',
+    fontWeight: 'bold',
   },
 });
 
-const EventDate: React.FC<ProjetXEventDateProps> = ({componentId, event}) => {
+const EventDate: React.FC<ProjetXEventDateProps> = ({event}) => {
+  const navigation = useNavigation();
+
   if (
     (event.dateType === EventDateType.fixed && !event.date) ||
     (event.dateType === EventDateType.poll && !event.datePoll)
   ) {
-    if (getMe().uid === event.author) {
+    if (getMyId() === event.author) {
       return (
         <Button
           style={styles.button}
           title={translate('Ajouter une date')}
           variant="outlined"
           onPress={() => {
-            Navigation.push(componentId, {
-              component: {
-                name: 'CreateEventWhen',
-                passProps: {
-                  event,
-                  onSave: () => {
-                    Navigation.pop(componentId);
-                  },
-                },
-              },
+            navigation.navigate('CreateEventWhen', {
+              backOnSave: true,
             });
           }}
         />
@@ -61,20 +53,7 @@ const EventDate: React.FC<ProjetXEventDateProps> = ({componentId, event}) => {
   }
 
   const showPollModal = () => {
-    return Navigation.showModal({
-      stack: {
-        children: [
-          {
-            component: {
-              name: 'Poll',
-              passProps: {
-                pollId: event.datePoll,
-              },
-            },
-          },
-        ],
-      },
-    });
+    //todo showModal Poll with pollId: event.datePoll,
   };
 
   if (event.dateType === EventDateType.poll) {
@@ -91,7 +70,6 @@ const EventDate: React.FC<ProjetXEventDateProps> = ({componentId, event}) => {
 
   return (
     <>
-      <Label>{translate('Quand?')}</Label>
       <Date date={event.date} style={styles.value} />
     </>
   );

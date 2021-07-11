@@ -5,9 +5,10 @@ import {
   Composer,
   ComposerProps,
   GiftedChat,
+  InputToolbar,
   Send,
 } from 'react-native-gifted-chat';
-import {getMe} from '../user/usersApi';
+import {getMyId} from '../user/usersApi';
 import {addMessage} from './chatApi';
 import {useAppDispatch, useAppSelector} from '../../app/redux';
 import {selectUsers} from '../user/usersSlice';
@@ -15,8 +16,9 @@ import {translate} from '../../app/locales';
 import {BubbleProps} from 'react-native-gifted-chat/lib/Bubble';
 import Icon from 'react-native-vector-icons/Feather';
 import {SendProps} from 'react-native-gifted-chat/lib/Send';
-import {StyleSheet, Text, View, Dimensions} from 'react-native';
+import {StyleSheet, View, Dimensions} from 'react-native';
 import Avatar from '../../common/Avatar';
+import Text from '../../common/Text';
 import {chatRead, selectChat} from './chatsSlice';
 import {NotificationParentType} from '../../app/onesignal';
 import {nanoid} from 'nanoid';
@@ -25,13 +27,13 @@ import MessageImage from 'react-native-gifted-chat/lib/MessageImage';
 import FastImage from 'react-native-fast-image';
 import {ProjetXMessage} from './chatsTypes';
 import PollPreview from '../polls/PollPreview';
+import {DARK_BLUE} from '../../app/colors';
 
 const {width} = Dimensions.get('window');
 
 interface ChatProps {
   parent: {id: string; title: string; type: NotificationParentType};
   members: string[];
-  componentId: string;
 }
 type OnImageChangeCallback = (event: {
   nativeEvent: {linkUri: string; mime: string};
@@ -83,7 +85,7 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
     }
     const renderUsername =
       currentMessage.user &&
-      currentMessage.user._id !== getMe().uid &&
+      currentMessage.user._id !== getMyId() &&
       (!previousMessage ||
         !previousMessage.user ||
         currentMessage.user._id !== previousMessage.user._id);
@@ -100,19 +102,22 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
           {...props}
           textStyle={{
             left: {
-              fontFamily: 'Inter',
+              fontFamily: 'Montserrat Alternates',
+              color: DARK_BLUE,
             },
             right: {
-              fontFamily: 'Inter',
+              fontFamily: 'Montserrat Alternates',
+              color: 'white',
             },
           }}
           wrapperStyle={{
             left: {
               overflow: 'hidden',
+              backgroundColor: 'white',
             },
             right: {
               overflow: 'hidden',
-              backgroundColor: '#473B78',
+              backgroundColor: DARK_BLUE,
             },
           }}
         />
@@ -122,7 +127,7 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
   const renderSend = (props: SendProps<ProjetXMessage>) => {
     return (
       <Send {...props} containerStyle={styles.sendContainer}>
-        <Icon name="send" size={24} color="#473B78" />
+        <Icon name="send" size={24} color={DARK_BLUE} />
       </Send>
     );
   };
@@ -143,7 +148,7 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
         createdAt: new Date(),
         text: '',
         user: {
-          _id: getMe().uid,
+          _id: getMyId(),
         },
         image: linkUri,
         mime,
@@ -170,9 +175,19 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
     );
   };
   const renderComposer = (props: ComposerProps) => (
-    // @ts-ignore
-    <Composer {...props} textInputProps={{onImageChange}} />
+    <Composer
+      {...props}
+      // @ts-ignore
+      textInputProps={{onImageChange}}
+      textInputStyle={styles.textInputStyle}
+      composerHeight={40}
+    />
   );
+  const renderInputToolbar = (props: InputToolbar['props']) => {
+    return (
+      <InputToolbar {...props} containerStyle={styles.textInputContainer} />
+    );
+  };
 
   const renderQuickReplies = ({
     currentMessage,
@@ -195,19 +210,24 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
       scrollToBottom
       renderQuickReplies={renderQuickReplies}
       messages={messages}
+      containerStyle={styles.containerStyle}
       placeholder={translate('Écris ton message')}
       onSend={newMessage => handleSend(newMessage)}
       renderBubble={renderBubble}
       renderSend={renderSend}
       renderAvatar={renderAvatar}
       renderComposer={renderComposer}
+      maxComposerHeight={70}
+      minComposerHeight={70}
+      minInputToolbarHeight={70}
       renderMessageImage={renderMessageImage}
+      renderInputToolbar={renderInputToolbar}
       scrollToBottomComponent={() => (
-        <Icon name="arrow-down" size={20} color="#E6941B" />
+        <Icon name="arrow-down" size={20} color={DARK_BLUE} />
       )}
       scrollToBottomStyle={styles.scrollToBottomStyle}
       user={{
-        _id: getMe().uid,
+        _id: getMyId(),
       }}
     />
   );
@@ -228,7 +248,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   username: {
-    fontFamily: 'Inter',
     flex: 1,
     fontSize: 10,
     marginBottom: 2,
@@ -237,6 +256,20 @@ const styles = StyleSheet.create({
   scrollToBottomStyle: {borderRadius: 15, opacity: 1},
   pollContainer: {
     maxWidth: width - 20,
+  },
+  containerStyle: {
+    borderTopWidth: 0,
+  },
+  textInputStyle: {
+    fontFamily: 'Montserrat Alternates',
+  },
+  textInputContainer: {
+    borderWidth: 0,
+    marginHorizontal: 10,
+    marginBottom: 10,
+    borderRadius: 15,
+    marginTop: 10,
+    borderTopColor: 'transparent',
   },
 });
 

@@ -1,13 +1,12 @@
 import React from 'react';
-import {StyleSheet, Text, ViewStyle} from 'react-native';
+import {StyleSheet, ViewStyle} from 'react-native';
 import {ProjetXEvent} from '../eventsTypes';
 import {translate} from '../../../app/locales';
-import Label from '../../../common/Label';
 import Button from '../../../common/Button';
-import {Navigation} from 'react-native-navigation';
+import Text from '../../../common/Text';
+import {useNavigation} from '@react-navigation/native';
 
 interface ProjetXEventDescriptionProps {
-  componentId: string;
   event: ProjetXEvent;
 }
 
@@ -18,19 +17,17 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   button: {
-    marginBottom: 20,
+    marginBottom: 40,
   },
   value: {
-    fontFamily: 'Inter',
-    fontSize: 14,
-    marginBottom: 20,
+    fontSize: 18,
+    marginBottom: 40,
   },
 });
 
-const EventDescription: React.FC<ProjetXEventDescriptionProps> = ({
-  componentId,
-  event,
-}) => {
+const EventDescription: React.FC<ProjetXEventDescriptionProps> = ({event}) => {
+  const navigation = useNavigation();
+
   if (!event.description) {
     if (event.isAuthor()) {
       return (
@@ -39,15 +36,8 @@ const EventDescription: React.FC<ProjetXEventDescriptionProps> = ({
           title={translate('Ajouter une description')}
           variant="outlined"
           onPress={() => {
-            Navigation.push(componentId, {
-              component: {
-                name: 'CreateEventWhat',
-                passProps: {
-                  onSave: async () => {
-                    await Navigation.pop(componentId);
-                  },
-                },
-              },
+            navigation.navigate('CreateEventWhat', {
+              backOnSave: true,
             });
           }}
         />
@@ -57,7 +47,6 @@ const EventDescription: React.FC<ProjetXEventDescriptionProps> = ({
   }
   return (
     <>
-      <Label>{translate('Description')}</Label>
       <Text style={styles.value}>{event.description}</Text>
     </>
   );

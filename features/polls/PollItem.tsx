@@ -1,12 +1,14 @@
 import React from 'react';
-import {StyleSheet, TouchableOpacity, Text, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {PollType} from './pollsTypes';
 import {DateValue} from '../events/eventsTypes';
 import Date from '../../common/Date';
+import Text from '../../common/Text';
 import Icon from 'react-native-vector-icons/Feather';
 import {LocationValue} from '../events/create/components/LocationPicker';
 import {translate} from '../../app/locales';
 import MaskedView from '@react-native-community/masked-view';
+import {DARK_BLUE} from '../../app/colors';
 
 interface ProjetXPollItemProps {
   onPress(): void;
@@ -74,7 +76,7 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
             ) : null}
           </View>
         }>
-        <View style={[StyleSheet.absoluteFill, {backgroundColor: '#473B78'}]} />
+        <View style={[StyleSheet.absoluteFill, {backgroundColor: DARK_BLUE}]} />
         <View
           style={[
             StyleSheet.absoluteFill,
@@ -95,7 +97,7 @@ const styles = StyleSheet.create({
     minHeight: 50,
     borderRadius: 15,
     backgroundColor: 'rgba(71,59,120,0.05)',
-    borderColor: '#473B78',
+    borderColor: DARK_BLUE,
     borderWidth: 1,
     marginTop: 10,
     overflow: 'hidden',
@@ -108,14 +110,14 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     borderRadius: 13,
-    backgroundColor: '#473B78',
+    backgroundColor: DARK_BLUE,
   },
   itemIcon: {
-    color: '#473B78',
+    color: DARK_BLUE,
     marginRight: 5,
   },
   item: {
-    color: '#473B78',
+    color: DARK_BLUE,
     fontWeight: '700',
   },
   itemSelected: {

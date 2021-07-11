@@ -2,7 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../../app/store';
 import {ProjetXUser} from './usersTypes';
 import {EventParticipation} from '../events/eventsTypes';
-import {getMe} from './usersApi';
+import {getMe, getMyId} from './usersApi';
 import {selectMyEvents} from '../events/eventsSlice';
 
 interface UsersState {
@@ -35,7 +35,7 @@ export const {fetchUsers, updateUser} = usersSlice.actions;
 export const selectUsers = (state: RootState): {[id: string]: ProjetXUser} =>
   state.users.list;
 export const selectUser =
-  (id: string | undefined) =>
+  (id: string | number | undefined) =>
   (state: RootState): ProjetXUser =>
     state.users.list && id && state.users.list[id];
 export const selectMyFriends = (state: RootState): ProjetXUser[] => {
@@ -64,7 +64,7 @@ export const selectMyFriends = (state: RootState): ProjetXUser[] => {
   }
   const users = Object.values(selectUsers(state));
   return users
-    .filter(({id}) => id !== getMe().uid)
+    .filter(({id}) => id !== getMyId())
     .map(user => ({...user, score: friendsScore[user.id]}))
     .sort((friend1, friend2) => {
       return friend1.score - friend2.score;

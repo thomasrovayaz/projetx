@@ -1,5 +1,6 @@
 import React from 'react';
-import {Text, TextProps} from 'react-native';
+import {TextProps} from 'react-native';
+import Text from './Text';
 import {DateValue} from '../features/events/eventsTypes';
 import {translate} from '../app/locales';
 
@@ -8,8 +9,8 @@ interface ProjetXDateProps extends TextProps {
   short?: boolean;
   onlyDate?: boolean;
 }
-const format = 'ddd DD MMM YYYY';
-const formatWithHour = 'ddd DD MMM YYYY HH:mm';
+export const dateFormat = 'ddd DD MMM YYYY';
+export const dateFormatWithHour = 'ddd DD MMM YYYY HH:mm';
 
 const Date: React.FC<ProjetXDateProps> = ({
   date,
@@ -25,7 +26,7 @@ const Date: React.FC<ProjetXDateProps> = ({
       <Text {...props}>
         {short
           ? date.date.fromNow()
-          : date.date.format(onlyDate ? format : formatWithHour)}
+          : date.date.format(onlyDate ? dateFormat : dateFormatWithHour)}
       </Text>
     );
   }
@@ -33,10 +34,10 @@ const Date: React.FC<ProjetXDateProps> = ({
     return (
       <Text {...props}>
         {date.endDate
-          ? `${date.startDate.format(format)}\n${translate(
+          ? `${date.startDate.format(dateFormat)}\n${translate(
               'au',
-            )} ${date.endDate.format(format)}`
-          : date.startDate.format(format)}
+            )} ${date.endDate.format(dateFormat)}`
+          : date.startDate.format(dateFormat)}
       </Text>
     );
   }

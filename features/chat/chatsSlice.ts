@@ -2,6 +2,9 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../../app/store';
 import {ProjetXMessage} from './chatsTypes';
 import {selectAmIParticipating} from '../events/eventsSlice';
+import {ProjetXEvent} from '../events/eventsTypes';
+import moment from 'moment';
+import {ProjetXGroup} from '../groups/groupsTypes';
 
 interface ChatsState {
   list: {
@@ -72,6 +75,52 @@ export const selectTotalGroupUnreadMessageCount = (
   return groupIds.reduce<number>((totalCount, groupId) => {
     return totalCount + selectUnreadMessageCount(groupId)(state);
   }, 0);
+};
+
+const sortChats = (chatA: ProjetXMessage[], chatB: ProjetXMessage[]) => {
+  if (!chatB.length) {
+    return 1;
+  }
+  if (!chatA.length) {
+    return -1;
+  }
+  const latestAMessage = chatA[0];
+  const latestBMessage = chatB[0];
+  if (moment(latestAMessage.createdAt).isAfter(latestBMessage.createdAt)) {
+    return -1;
+  }
+  return 1;
+};
+
+export interface ProjetXChat {
+  id: string;
+  latestMessage: ProjetXMessage;
+  messages: ProjetXMessage[];
+  event?: ProjetXEvent;
+  group: ProjetXGroup;
+  unreadMessages: number;
+}
+export const selectLatestChats = (state: RootState): ProjetXChat[] => {
+  const chatParentIds = Object.keys(state.chats.list);
+  return chatParentIds
+    .filter(
+      id =>
+        Boolean(state.events.list[id] || state.groups.list[id]) &&
+        state.chats.list[id].length > 0,
+    )
+    .sort((idA, idB) => sortChats(state.chats.list[idA], state.chats.list[idB]))
+    .map(id => {
+      const messages = state.chats.list[id];
+      const latestMessage = messages[0];
+      return {
+        id,
+        event: state.events.list[id],
+        group: state.groups.list[id],
+        latestMessage,
+        messages: state.chats.list[id],
+        unreadMessages: selectUnreadMessageCount(id)(state),
+      };
+    });
 };
 
 export default chatsSlice.reducer;

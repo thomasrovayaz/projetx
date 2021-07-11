@@ -1,8 +1,8 @@
 import React from 'react';
-import {Text, TextStyle, TextProps} from 'react-native';
+import {TextStyle, TextProps} from 'react-native';
+import Text from './Text';
 
 const style: TextStyle = {
-  fontFamily: 'Inter',
   fontSize: 14,
   fontWeight: '700',
   marginBottom: 5,

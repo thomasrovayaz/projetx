@@ -1,58 +1,56 @@
 import React from 'react';
-import {StyleSheet, TouchableOpacity, ViewStyle} from 'react-native';
+import {StyleSheet, TextStyle, TouchableOpacity, ViewStyle} from 'react-native';
 import {ProjetXEvent} from '../eventsTypes';
 import {translate} from '../../../app/locales';
-import Label from '../../../common/Label';
-import {getMe} from '../../user/usersApi';
+import {getMyId} from '../../user/usersApi';
 import Button from '../../../common/Button';
-import {Navigation} from 'react-native-navigation';
 import MapView, {Marker} from 'react-native-maps';
 import {showLocation} from 'react-native-map-link';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import Text from '../../../common/Text';
+import {useNavigation} from '@react-navigation/native';
+import {DARK_BLUE} from '../../../app/colors';
 
 interface ProjetXEventLocationProps {
-  componentId: string;
   event: ProjetXEvent;
 }
 
 interface Style {
   button: ViewStyle;
   map: ViewStyle;
+  label: TextStyle;
 }
 
 const styles = StyleSheet.create<Style>({
   button: {
-    marginBottom: 20,
+    marginBottom: 40,
   },
   map: {
     width: '100%',
     height: 200,
     marginBottom: 20,
+    borderRadius: 15,
+  },
+  label: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 10,
   },
 });
 
-const EventLocation: React.FC<ProjetXEventLocationProps> = ({
-  componentId,
-  event,
-}) => {
+const EventLocation: React.FC<ProjetXEventLocationProps> = ({event}) => {
+  const navigation = useNavigation();
+
   if (!event.location) {
-    if (getMe().uid === event.author) {
+    if (getMyId() === event.author) {
       return (
         <Button
           style={styles.button}
           title={translate('Ajouter un lieu')}
           variant="outlined"
           onPress={() => {
-            Navigation.push(componentId, {
-              component: {
-                name: 'CreateEventWhere',
-                passProps: {
-                  event,
-                  onSave: () => {
-                    Navigation.pop(componentId);
-                  },
-                },
-              },
+            navigation.navigate('CreateEventWhere', {
+              backOnSave: true,
             });
           }}
         />
@@ -76,9 +74,6 @@ const EventLocation: React.FC<ProjetXEventLocationProps> = ({
   };
   return (
     <>
-      <TouchableOpacity onPress={openMap}>
-        <Label>{event.location.formatted_address}</Label>
-      </TouchableOpacity>
       <MapView
         toolbarEnabled={true}
         style={styles.map}
@@ -95,9 +90,12 @@ const EventLocation: React.FC<ProjetXEventLocationProps> = ({
             latitude: event.location.lat,
             longitude: event.location.lng,
           }}>
-          <Icon name="map-pin" size={50} color="#473B78" />
+          <Icon name="place" size={50} color={DARK_BLUE} />
         </Marker>
       </MapView>
+      <TouchableOpacity onPress={openMap}>
+        <Text style={styles.label}>{event.location.formatted_address}</Text>
+      </TouchableOpacity>
     </>
   );
 };

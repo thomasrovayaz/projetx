@@ -4,14 +4,15 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
   ViewStyle,
-  Text,
   TextStyle,
   GestureResponderEvent,
   ActivityIndicator,
 } from 'react-native';
+import Text from './Text';
 import Icon from 'react-native-vector-icons/Feather';
 import {translate} from '../app/locales';
 import {showToast} from './Toast';
+import {BORDER_COLOR, DARK_BLUE} from '../app/colors';
 
 interface ProjetXButtonProps {
   variant?: 'default' | 'outlined';
@@ -40,24 +41,22 @@ const styles = StyleSheet.create<Style>({
     flexDirection: 'row',
   },
   default: {
-    backgroundColor: '#E6941B',
+    backgroundColor: DARK_BLUE,
   },
   outlined: {
-    borderColor: '#E6941B',
+    borderColor: BORDER_COLOR,
     borderWidth: 1,
-    backgroundColor: 'transparent',
   },
   mainText: {
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
-    fontFamily: 'Inter',
   },
   defaultText: {
     color: 'white',
   },
   outlinedText: {
-    color: '#473B78',
+    color: DARK_BLUE,
   },
   icon: {
     marginRight: 5,
@@ -94,7 +93,7 @@ const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
         <ActivityIndicator
           style={styles.icon}
           size="small"
-          color={isOutlined ? '#473B78' : 'white'}
+          color={isOutlined ? DARK_BLUE : 'white'}
         />
       );
     }
@@ -104,7 +103,7 @@ const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
           name={icon}
           style={styles.icon}
           size={20}
-          color={isOutlined ? '#473B78' : 'white'}
+          color={isOutlined ? DARK_BLUE : 'white'}
         />
       );
     }

@@ -3,43 +3,26 @@ import {StyleSheet, View} from 'react-native';
 import {translate} from '../../app/locales';
 import {useAppDispatch, useAppSelector} from '../../app/redux';
 import EventsList from '../events/list/EventsList';
-import {useSelector} from 'react-redux';
-import {createEvent, openEvent, selectGroupEvents} from '../events/eventsSlice';
-import {ProjetXEvent} from '../events/eventsTypes';
-import {Navigation} from 'react-native-navigation';
+import {createEvent, selectGroupEvents} from '../events/eventsSlice';
 import Button from '../../common/Button';
-import CreateEventTonight from '../events/create/components/CreateEventTonight';
-import {selectGroup} from './groupsSlice';
+import {useNavigation} from '@react-navigation/native';
 
 interface ProjetXGroupEventsProps {
   groupId: string;
-  componentId: string;
 }
 
-const GroupEvents: React.FC<ProjetXGroupEventsProps> = ({
-  groupId,
-  componentId,
-}) => {
-  const group = useAppSelector(selectGroup(groupId));
+const GroupEvents: React.FC<ProjetXGroupEventsProps> = ({groupId}) => {
+  const navigation = useNavigation();
   const events = useAppSelector(selectGroupEvents(groupId));
   const dispatch = useAppDispatch();
 
-  const onOpenEvent = (eventToOpen: ProjetXEvent, chat?: boolean) => {
-    dispatch(openEvent(eventToOpen));
-    Navigation.push(componentId, {
-      component: {
-        name: 'Event',
-        passProps: {
-          chat,
-        },
-      },
-    });
+  const onOpenEvent = (eventId: string, chat?: boolean) => {
+    navigation.navigate('Event', {eventId, chat});
   };
 
   return (
     <>
       <EventsList
-        componentId={componentId}
         events={events}
         onOpenEvent={onOpenEvent}
         emptyText={translate(
@@ -49,13 +32,9 @@ const GroupEvents: React.FC<ProjetXGroupEventsProps> = ({
       <View style={styles.buttonCreate}>
         <Button
           style={[styles.ctaLeft]}
-          title={translate('Créer un événement')}
-          onPress={() => dispatch(createEvent(componentId))}
-        />
-        <CreateEventTonight
-          group={group}
-          style={[styles.ctaRight]}
-          componentId={componentId}
+          variant={'outlined'}
+          title={translate('Créer un événement dans ce groupe')}
+          onPress={() => dispatch(createEvent())}
         />
       </View>
     </>

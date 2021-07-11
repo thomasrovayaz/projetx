@@ -6,25 +6,35 @@ import {
   View,
   Dimensions,
 } from 'react-native';
-import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {translate} from '../app/locales';
 import Button from './Button';
 import QRCode from 'react-native-qrcode-svg';
+import Title from './Title';
+import {useNavigation} from '@react-navigation/native';
+import {BEIGE} from '../app/colors';
 
 const {width} = Dimensions.get('window');
 
 interface ProjetXQRCodeProps {
-  link: string;
+  route: {
+    params: {
+      link: string;
+      title?: string;
+    };
+  };
 }
 
-const QRCodeModal: NavigationFunctionComponent<ProjetXQRCodeProps> = ({
-  componentId,
-  link,
+const QRCodeModal: React.FC<ProjetXQRCodeProps> = ({
+  route: {
+    params: {link, title},
+  },
 }) => {
+  const navigation = useNavigation();
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
+      <StatusBar barStyle={'dark-content'} backgroundColor={BEIGE} />
       <View style={styles.content}>
+        {title ? <Title style={styles.title}>{title}</Title> : null}
         <QRCode size={width - 40} value={link} />
       </View>
       <View style={styles.buttons}>
@@ -32,7 +42,7 @@ const QRCodeModal: NavigationFunctionComponent<ProjetXQRCodeProps> = ({
           style={styles.cta}
           variant="outlined"
           title={translate('Fermer')}
-          onPress={() => Navigation.dismissModal(componentId)}
+          onPress={() => navigation.goBack()}
         />
       </View>
     </SafeAreaView>
@@ -42,13 +52,16 @@ const QRCodeModal: NavigationFunctionComponent<ProjetXQRCodeProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: BEIGE,
   },
   content: {
     flex: 1,
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  title: {
+    marginBottom: 40,
   },
   buttons: {
     padding: 20,
@@ -58,13 +71,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-QRCodeModal.options = {
-  topBar: {
-    title: {
-      text: 'QR Code',
-    },
-  },
-};
 
 export default QRCodeModal;

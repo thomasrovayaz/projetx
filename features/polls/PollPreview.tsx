@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {ProjetXMessage} from '../chat/chatsTypes';
-import {getMe} from '../user/usersApi';
+import {getMyId} from '../user/usersApi';
 import {useAppSelector} from '../../app/redux';
 import {selectPoll} from './pollsSlice';
 import {getPoll, updatePollAnswers} from './pollsApi';
@@ -14,7 +13,7 @@ const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
   pollId,
   style,
 }) => {
-  const me = getMe().uid;
+  const me = getMyId();
   const poll = useAppSelector(selectPoll(pollId));
 
   const [myAnswers, setMyAnswers] = useState<string[]>(poll?.answers[me]);

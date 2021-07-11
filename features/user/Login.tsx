@@ -1,15 +1,14 @@
 import React, {useEffect} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {translate} from '../../app/locales';
 import Title from '../../common/Title';
 import auth from '@react-native-firebase/auth';
 import Logo from '../../assets/logo.svg';
 import PseudoInput from './common/PseudoInput';
-import {mainRoot} from '../../app/navigation';
+import {DARK_BLUE} from '../../app/colors';
 
-const LoginScreen: NavigationFunctionComponent = () => {
+const LoginScreen: React.FC<{onRegister(): void}> = ({onRegister}) => {
   useEffect(() => {
     if (!auth().currentUser) {
       auth().signInAnonymously();
@@ -21,14 +20,14 @@ const LoginScreen: NavigationFunctionComponent = () => {
       <StatusBar barStyle={'dark-content'} backgroundColor="white" />
       <KeyboardAwareScrollView contentContainerStyle={styles.content}>
         <View style={styles.logoContainer}>
-          <Logo width={120} height={120} fill="#E6941B" />
+          <Logo width={120} height={120} fill={DARK_BLUE} />
         </View>
         <Title style={styles.title}>{translate('Bienvenue 🙌')}</Title>
-        <Title style={styles.title}>
+        <Title style={styles.label}>
           {translate("Comment dois-je t'appeler?")}
         </Title>
         <View style={styles.input}>
-          <PseudoInput onRegister={() => Navigation.setRoot(mainRoot)} />
+          <PseudoInput onRegister={onRegister} />
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
@@ -48,8 +47,8 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'left',
-    marginBottom: 20,
-    color: '#473B78',
+    marginBottom: 40,
+    color: DARK_BLUE,
   },
   content: {
     padding: 20,
@@ -57,6 +56,12 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'flex-start',
     justifyContent: 'center',
+  },
+  label: {
+    fontSize: 18,
+    textAlign: 'left',
+    marginBottom: 20,
+    color: DARK_BLUE,
   },
   input: {
     width: '100%',
@@ -66,14 +71,5 @@ const styles = StyleSheet.create({
     height: 90,
   },
 });
-
-LoginScreen.options = {
-  topBar: {
-    visible: false,
-    title: {
-      text: 'Home',
-    },
-  },
-};
 
 export default LoginScreen;

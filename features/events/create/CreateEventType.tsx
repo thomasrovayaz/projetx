@@ -1,95 +1,124 @@
 import React, {useState} from 'react';
 import {
-  FlatList,
   SafeAreaView,
+  ScrollView,
   StatusBar,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from 'react-native';
-import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
-import {translate} from '../../../app/locales';
-import Button from '../../../common/Button';
 import {saveEvent} from '../eventsApi';
-import {EventTypes, eventTypes} from '../eventsUtils';
+import {eventTypes} from '../eventsUtils';
 import {useSelector} from 'react-redux';
 import {selectCurrentEvent} from '../eventsSlice';
+import {EventType} from '../eventsTypes';
+import Text from '../../../common/Text';
+import Title from '../../../common/Title';
+import {translate} from '../../../app/locales';
+import BackButton from '../../../common/BackButton';
+import {BEIGE} from '../../../app/colors';
+import {useNavigation} from '@react-navigation/native';
 
 interface CreateEventTypeScreenProps {}
 
-const CreateEventTypeScreen: NavigationFunctionComponent<CreateEventTypeScreenProps> =
-  ({componentId}) => {
-    const event = useSelector(selectCurrentEvent);
-    const [selection, setSelection] = useState(event?.type);
-    if (!event) {
-      return null;
+const CreateEventTypeScreen: React.FC<CreateEventTypeScreenProps> = () => {
+  const navigation = useNavigation();
+  const event = useSelector(selectCurrentEvent);
+  const [selection, setSelection] = useState(event?.type);
+  if (!event) {
+    return null;
+  }
+  const next = async (eventType: EventType) => {
+    setSelection(eventType);
+    event.type = eventType;
+    if (event.id) {
+      await saveEvent(event);
     }
-    const next = async (option: EventTypes) => {
-      setSelection(option.id);
-      event.type = option.id;
-      if (event.id) {
-        await saveEvent(event);
-      }
-      await Navigation.push(componentId, {
-        component: {
-          name: 'CreateEventWhen',
-        },
-      });
-    };
-
-    const renderOption = ({item}: {item: EventTypes}) => {
-      return (
-        <View style={styles.item}>
-          <Button
-            variant={selection === item.id ? 'default' : 'outlined'}
-            title={item.title}
-            onPress={() => next(item)}
-            style={styles.option}
-          />
-        </View>
-      );
-    };
-
-    return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
-        <FlatList
-          contentContainerStyle={styles.content}
-          data={eventTypes}
-          renderItem={renderOption}
-          keyExtractor={item => item.id + ''}
-        />
-      </SafeAreaView>
-    );
+    navigation.navigate('CreateEventWhen');
   };
 
-CreateEventTypeScreen.options = {
-  topBar: {
-    visible: true,
-    title: {
-      text: translate('Quoi ?'),
-    },
-  },
-  bottomTabs: {
-    visible: false,
-  },
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle={'dark-content'} backgroundColor={BEIGE} />
+      <View style={styles.header}>
+        <BackButton />
+      </View>
+      <ScrollView>
+        <Title style={styles.title}>
+          {translate('Quel événement\nsouhaites-tu créer ?')}
+        </Title>
+        <View style={styles.content}>
+          {eventTypes.map(({id, title, emoji, color, bgColor}) => {
+            const isSelected = selection === id;
+            return (
+              <View key={id} style={styles.item}>
+                <TouchableOpacity
+                  onPress={() => next(id)}
+                  style={[
+                    styles.option,
+                    {
+                      backgroundColor: isSelected ? color : bgColor,
+                      borderColor: isSelected ? bgColor : color,
+                      borderWidth: 1,
+                      padding: 16,
+                    },
+                  ]}
+                  activeOpacity={0.8}>
+                  <Text style={styles.optionEmoji}>{emoji}</Text>
+                  <Text
+                    style={[
+                      styles.optionText,
+                      {color: isSelected ? 'white' : color},
+                    ]}>
+                    {title}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: BEIGE,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   },
   content: {
-    paddingVertical: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 10,
+    justifyContent: 'center',
   },
+  title: {
+    marginVertical: 20,
+    paddingHorizontal: 20,
+  },
+  backButton: {},
   item: {
+    width: '50%',
     flexDirection: 'row',
     justifyContent: 'center',
-    padding: 20,
+    padding: 10,
   },
   option: {
-    borderColor: '#473B78',
+    flex: 1,
+    padding: 20,
+    height: 200,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    borderRadius: 15,
   },
+  optionEmoji: {fontSize: 40},
+  optionText: {fontSize: 24, fontWeight: 'bold'},
 });
 
 export default CreateEventTypeScreen;

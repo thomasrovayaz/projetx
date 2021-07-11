@@ -52,7 +52,7 @@ export class ProjetXPoll<Type = DateValue | LocationValue | string> {
     author?: string;
     type: PollType;
     state: PollState;
-    choices?: {id: string; value: Type}[];
+    choices?: {id: string; value: Type | undefined}[];
     answers?: Record<string, string[]>;
     settings?: {multiple: boolean; custom: boolean};
     shareLink?: string;

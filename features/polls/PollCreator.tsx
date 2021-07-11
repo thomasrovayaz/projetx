@@ -9,9 +9,10 @@ import IconButton from '../../common/IconButton';
 import Button from '../../common/Button';
 import {nanoid} from 'nanoid';
 import Poll from './Poll';
-import {getMe} from '../user/usersApi';
-import {Navigation} from 'react-native-navigation';
+import {getMyId} from '../user/usersApi';
 import TextInput from '../../common/TextInput';
+import PollSettingsButton from './PollSettingsButton';
+import {RED} from '../../app/colors';
 
 interface ProjetXPollProps {
   poll: ProjetXPoll;
@@ -24,7 +25,7 @@ const PollCreator: React.FC<ProjetXPollProps> = ({
   onChange,
   isSingleDate,
 }) => {
-  const me = getMe().uid;
+  const me = getMyId();
   if (!poll) {
     return null;
   }
@@ -61,17 +62,6 @@ const PollCreator: React.FC<ProjetXPollProps> = ({
     onChange({
       ...poll,
       choices: poll.choices.filter(choice => choice.id !== id),
-    });
-  };
-  const showSettings = () => {
-    Navigation.showOverlay({
-      component: {
-        name: 'PollSettings',
-        passProps: {
-          poll,
-          onChange,
-        },
-      },
     });
   };
 
@@ -115,6 +105,7 @@ const PollCreator: React.FC<ProjetXPollProps> = ({
               <IconButton
                 name="trash"
                 size={22}
+                color={RED}
                 style={styles.itemAction}
                 onPress={() => removeChoice(id)}
               />
@@ -129,11 +120,10 @@ const PollCreator: React.FC<ProjetXPollProps> = ({
               onPress={addChoice}
               title={translate('+ Ajouter une option')}
             />
-            <IconButton
-              name="settings"
+            <PollSettingsButton
+              poll={poll}
+              onChange={onChange}
               style={styles.itemAction}
-              size={22}
-              onPress={showSettings}
             />
           </View>
         }
@@ -151,7 +141,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginBottom: 10,
   },
   item: {
     flex: 1,

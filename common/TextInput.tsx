@@ -1,11 +1,7 @@
 import React from 'react';
-import {
-  StyleSheet,
-  ViewStyle,
-  TextInput,
-  TextInputProps,
-  Text,
-} from 'react-native';
+import {StyleSheet, ViewStyle, TextInput, TextInputProps} from 'react-native';
+import Text from './Text';
+import {BORDER_COLOR, DARK_BLUE, RED} from '../app/colors';
 
 interface ProjetXTextInputProps {
   label?: string;
@@ -25,18 +21,17 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   label: {
-    fontFamily: 'Inter',
     fontSize: 14,
     fontWeight: '600',
-    color: 'black',
+    color: DARK_BLUE,
     marginBottom: 5,
   },
   input: {
     minHeight: 50,
-    borderColor: '#473B78',
+    fontFamily: 'Montserrat Alternates',
+    borderColor: BORDER_COLOR,
     borderWidth: 1,
     borderRadius: 15,
-    backgroundColor: 'rgba(71,59,120,0.05)',
     paddingTop: 10,
     paddingBottom: 10,
     paddingLeft: 10,
@@ -47,21 +42,19 @@ const styles = StyleSheet.create<Style>({
     maxHeight: 200,
   },
   inputText: {
-    fontFamily: 'Inter',
     fontSize: 14,
     fontWeight: '600',
-    color: '#473B78',
+    color: DARK_BLUE,
   },
   inputError: {
     borderWidth: 2,
-    borderColor: '#c63535',
+    borderColor: RED,
   },
   errorLabel: {
     marginTop: 5,
-    fontFamily: 'Inter',
     fontSize: 14,
     fontWeight: '600',
-    color: '#c63535',
+    color: RED,
   },
 });
 
@@ -83,7 +76,7 @@ const Input: React.FC<TextInputProps & ProjetXTextInputProps> = ({
         </Text>
       )}
       <TextInput
-        placeholderTextColor="#473B787F"
+        placeholderTextColor={'#1922487F'}
         style={[
           styles.input,
           props.multiline ? styles.inputMultine : {},

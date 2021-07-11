@@ -1,26 +1,32 @@
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
-import {Navigation, NavigationFunctionComponent} from 'react-native-navigation';
 import {useAppSelector} from '../../app/redux';
 import {selectPoll} from './pollsSlice';
 import {getPoll, updatePollAnswers} from './pollsApi';
-import {getMe} from '../user/usersApi';
+import {getMyId} from '../user/usersApi';
 import Button from '../../common/Button';
 import {translate} from '../../app/locales';
 import {PollState} from './pollsTypes';
 import Poll from './Poll';
-import {EventDateType, ProjetXEvent} from '../events/eventsTypes';
 import Title from '../../common/Title';
+import {useNavigation} from '@react-navigation/native';
+import {BEIGE} from '../../app/colors';
 
 interface ProjetXPollProps {
-  pollId: string;
+  route: {
+    params: {
+      pollId: string;
+    };
+  };
 }
 
-const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
-  pollId,
-  componentId,
+const PollModal: React.FC<ProjetXPollProps> = ({
+  route: {
+    params: {pollId},
+  },
 }) => {
-  const me = getMe().uid;
+  const navigation = useNavigation();
+  const me = getMyId();
   const poll = useAppSelector(selectPoll(pollId));
   const [myAnswers, setMyAnswers] = useState<string[]>(poll?.answers[me]);
   const [hasAnswered, setHasAnswered] = useState(myAnswers?.length > 0);
@@ -45,20 +51,7 @@ const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
     setHasAnswered(true);
   };
   const edit = () => {
-    Navigation.push(componentId, {
-      component: {
-        name: 'CreateEventWhen',
-        passProps: {
-          onSave: async (event: ProjetXEvent) => {
-            if (event.dateType === EventDateType.fixed) {
-              await Navigation.dismissModal(componentId);
-            } else {
-              await Navigation.pop(componentId);
-            }
-          },
-        },
-      },
-    });
+    navigation.navigate('CreateEventWhen', {backOnSave: true});
   };
 
   const closeButton = (
@@ -66,7 +59,7 @@ const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
       variant="outlined"
       style={styles.cta}
       title={translate('Fermer')}
-      onPress={() => Navigation.dismissModal(componentId)}
+      onPress={() => navigation.goBack()}
     />
   );
   const validMultipleAnswers = (
@@ -84,7 +77,7 @@ const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
     />
   );
   const renderCTAs = () => {
-    if (poll.author === getMe().uid) {
+    if (poll.author === getMyId()) {
       if (hasAnswered || !isMultiplePoll) {
         return (
           <>
@@ -125,7 +118,7 @@ const PollModal: NavigationFunctionComponent<ProjetXPollProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={'light-content'} backgroundColor="#473B78" />
+      <StatusBar barStyle={'dark-content'} backgroundColor={BEIGE} />
       <View style={styles.content}>
         <Title style={styles.title}>
           {showResult
@@ -169,13 +162,5 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 });
-
-PollModal.options = {
-  topBar: {
-    title: {
-      text: translate('Sondage'),
-    },
-  },
-};
 
 export default PollModal;

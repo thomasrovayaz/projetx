@@ -3,11 +3,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ViewStyle,
-  Text,
   View,
   TextStyle,
 } from 'react-native';
+import Text from './Text';
 import Icon from 'react-native-vector-icons/Feather';
+import {DARK_BLUE} from '../app/colors';
 
 interface ProjetXCheckboxProps {
   label: string;
@@ -40,15 +41,13 @@ const styles = StyleSheet.create<Style>({
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'left',
-    fontFamily: 'Inter',
   },
   sublabel: {
     fontSize: 12,
     textAlign: 'left',
-    fontFamily: 'Inter',
   },
   checkbox: {
-    borderColor: '#473B78',
+    borderColor: DARK_BLUE,
     borderWidth: 2,
     width: 20,
     height: 20,
@@ -59,7 +58,7 @@ const styles = StyleSheet.create<Style>({
     alignItems: 'center',
   },
   checkboxSelected: {
-    backgroundColor: '#473B78',
+    backgroundColor: DARK_BLUE,
   },
   checkboxDisabled: {opacity: 0.5},
   textContainer: {

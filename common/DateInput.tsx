@@ -1,17 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
-  Text,
+  TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
   ViewStyle,
 } from 'react-native';
+import Text from './Text';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/Feather';
 // @ts-ignore
 import DateRangePicker from 'react-native-daterange-picker';
 import {DateValue} from '../features/events/eventsTypes';
 import Date from './Date';
+import {BEIGE, BORDER_COLOR, DARK_BLUE} from '../app/colors';
 
 interface DateDialogState extends DateValue {
   displayedDate?: moment.Moment;
@@ -29,7 +31,12 @@ interface Style {
   mainText: ViewStyle;
   placeholder: ViewStyle;
   valueText: ViewStyle;
+  headerTextStyle: TextStyle;
+  dayTextStyle: TextStyle;
+  dayHeaderTextStyle: TextStyle;
+  buttonTextStyle: TextStyle;
   selectedStyle: ViewStyle;
+  selectedTextStyle: TextStyle;
 }
 
 const styles = StyleSheet.create<Style>({
@@ -41,16 +48,14 @@ const styles = StyleSheet.create<Style>({
     paddingHorizontal: 15,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(71,59,120,0.05)',
-    borderColor: '#473B78',
+    borderColor: BORDER_COLOR,
     borderWidth: 1,
   },
   mainText: {
     fontSize: 14,
     fontWeight: '500',
     textAlign: 'left',
-    fontFamily: 'Inter',
-    color: '#473B78',
+    color: DARK_BLUE,
     flex: 1,
   },
   placeholder: {
@@ -59,8 +64,27 @@ const styles = StyleSheet.create<Style>({
   valueText: {
     opacity: 1,
   },
+  headerTextStyle: {
+    fontFamily: 'Montserrat Alternates',
+    color: DARK_BLUE,
+  },
+  dayTextStyle: {
+    fontFamily: 'Montserrat Alternates',
+    color: DARK_BLUE,
+  },
+  dayHeaderTextStyle: {
+    fontFamily: 'Montserrat Alternates',
+    color: DARK_BLUE,
+  },
+  buttonTextStyle: {
+    fontFamily: 'Montserrat Alternates',
+    color: DARK_BLUE,
+  },
   selectedStyle: {
-    backgroundColor: '#E6941B',
+    backgroundColor: BEIGE,
+  },
+  selectedTextStyle: {
+    color: DARK_BLUE,
   },
 });
 
@@ -103,7 +127,9 @@ const DateInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
     if (!value) {
       return placeholderView;
     }
-    return <Date date={value} style={[styles.mainText, styles.valueText]} />;
+    return (
+      <Date date={value} onlyDate style={[styles.mainText, styles.valueText]} />
+    );
   };
 
   return (
@@ -117,7 +143,7 @@ const DateInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
           ...props.style,
         }}>
         {renderValue()}
-        <Icon name="calendar" color={'#473B78'} size={24} />
+        <Icon name="calendar" color={DARK_BLUE} size={24} />
       </TouchableOpacity>
       <DateRangePicker
         open={openDialog}
@@ -125,7 +151,12 @@ const DateInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
         displayedDate={dialogState.displayedDate}
         endDate={dialogState.endDate}
         startDate={dialogState.startDate}
+        headerTextStyle={styles.headerTextStyle}
+        dayHeaderTextStyle={styles.dayHeaderTextStyle}
+        dayTextStyle={styles.dayTextStyle}
+        buttonTextStyle={styles.buttonTextStyle}
         selectedStyle={styles.selectedStyle}
+        selectedTextStyle={styles.selectedTextStyle}
         onChange={(newDialogState: DateDialogState) => {
           if (!range) {
             if (newDialogState.date) {

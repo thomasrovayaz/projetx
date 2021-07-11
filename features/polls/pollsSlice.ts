@@ -2,7 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {pollConverter, ProjetXPoll} from './pollsTypes';
 import {RootState} from '../../app/store';
 import {createTransform} from 'redux-persist';
-import {getMe} from '../user/usersApi';
+import {getMe, getMyId} from '../user/usersApi';
 
 interface PollsState {
   list: {
@@ -30,13 +30,13 @@ export const pollsSlice = createSlice({
     ) {
       const {pollId, answers} = action.payload;
       if (state.current && state.current.id === pollId) {
-        state.current.answers[getMe().uid] = answers;
+        state.current.answers[getMyId()] = answers;
       }
       state.list[pollId] = {
         ...state.list[pollId],
         answers: {
           ...state.list[pollId].answers,
-          [getMe().uid]: answers,
+          [getMyId()]: answers,
         },
       };
     },

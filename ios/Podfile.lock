@@ -439,15 +439,6 @@ PODS:
     - React-cxxreact (= 0.64.0)
     - React-jsi (= 0.64.0)
     - React-perflogger (= 0.64.0)
-  - ReactNativeNavigation (7.14.0):
-    - React-Core
-    - React-RCTImage
-    - React-RCTText
-    - ReactNativeNavigation/Core (= 7.14.0)
-  - ReactNativeNavigation/Core (7.14.0):
-    - React-Core
-    - React-RCTImage
-    - React-RCTText
   - RNCAsyncStorage (1.12.1):
     - React-Core
   - RNCClipboard (1.5.1):
@@ -480,7 +471,7 @@ PODS:
     - React-Core
   - RNLocalize (2.0.3):
     - React-Core
-  - RNReanimated (2.1.0):
+  - RNReanimated (2.2.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -509,8 +500,9 @@ PODS:
     - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.2.0):
+  - RNScreens (3.4.0):
     - React-Core
+    - React-RCTImage
   - RNShare (6.1.0):
     - React-Core
   - RNSVG (12.1.1):
@@ -586,7 +578,6 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - ReactNativeNavigation (from `../node_modules/react-native-navigation`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
@@ -712,8 +703,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/runtimeexecutor"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  ReactNativeNavigation:
-    :path: "../node_modules/react-native-navigation"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
   RNCClipboard:
@@ -814,7 +803,6 @@ SPEC CHECKSUMS:
   React-RCTVibration: 0fd6b21751a33cb72fce1a4a33ab9678416d307a
   React-runtimeexecutor: cad74a1eaa53ee6e7a3620231939d8fe2c6afcf0
   ReactCommon: cfe2b7fd20e0dbd2d1185cd7d8f99633fbc5ff05
-  ReactNativeNavigation: ff4873e683e5f23822af097e4fe643c82469c3d2
   RNCAsyncStorage: b03032fdbdb725bea0bd9e5ec5a7272865ae7398
   RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
   RNCMaskedView: 0e1bc4bfa8365eba5fbbb71e07fbdc0555249489
@@ -826,8 +814,8 @@ SPEC CHECKSUMS:
   RNFBDynamicLinks: 9110076a214ce2eb4f6e5be754b5269046f89e49
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNLocalize: 99e59cad311ca1b6872b1764514009416ccba03d
-  RNReanimated: b8c8004b43446e3c2709fe64b2b41072f87428ad
-  RNScreens: c277bfc4b5bb7c2fe977d19635df6f974f95dfd6
+  RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
+  RNScreens: 21b73c94c9117e1110a79ee0ee80c93ccefed8ce
   RNShare: c93ee0df653c76d913554272d56f6ffd8bdcb3cc
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4

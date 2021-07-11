@@ -1,9 +1,12 @@
 import React from 'react';
-import {Text, View, StyleSheet, ViewStyle} from 'react-native';
+import {View, StyleSheet, ViewStyle, StyleProp, TextStyle} from 'react-native';
+import Text from './Text';
+import {DARK_BLUE} from '../app/colors';
 
 interface ProjetXBadgeProps {
   count: number | undefined;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }
 
 const styles = StyleSheet.create({
@@ -11,7 +14,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#E6941B',
+    backgroundColor: DARK_BLUE,
     borderRadius: 7,
     paddingHorizontal: 5,
     paddingVertical: 2,
@@ -20,19 +23,18 @@ const styles = StyleSheet.create({
   },
   tabBadge: {
     fontWeight: 'bold',
-    fontFamily: 'Inter',
     textAlign: 'center',
     color: 'white',
   },
 });
 
-const Badge: React.FC<ProjetXBadgeProps> = ({count, style}) => {
+const Badge: React.FC<ProjetXBadgeProps> = ({count, style, textStyle}) => {
   if (!count) {
     return null;
   }
   return (
     <View style={[styles.tabBadgeContainer, style]}>
-      <Text style={styles.tabBadge}>{count}</Text>
+      <Text style={[styles.tabBadge, textStyle]}>{count}</Text>
     </View>
   );
 };

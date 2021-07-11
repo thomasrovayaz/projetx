@@ -1,12 +1,23 @@
 import React from 'react';
-import {Text, View, StyleSheet, Dimensions} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import {ProjetXUser} from '../features/user/usersTypes';
 import Avatar from './Avatar';
+import Text from './Text';
+import {BORDER_COLOR, DARK_BLUE} from '../app/colors';
 
 interface ProjetXAvatarProps {
   users: ProjetXUser[];
   emptyLabel: string;
   renderBadge?(user: ProjetXUser): Element;
+  avatarStyle?: StyleProp<ViewStyle>;
+  avatarTextStyle?: StyleProp<TextStyle>;
 }
 const {width} = Dimensions.get('window');
 const MAX_SIZE = Math.floor((width - 40) / (40 - 5) - 1);
@@ -15,6 +26,8 @@ const AvatarList: React.FC<ProjetXAvatarProps> = ({
   users,
   renderBadge,
   emptyLabel,
+  avatarStyle,
+  avatarTextStyle,
 }) => {
   const moreAvatarLength = users.length - MAX_SIZE;
 
@@ -30,7 +43,11 @@ const AvatarList: React.FC<ProjetXAvatarProps> = ({
               }
               return (
                 <View key={user.id} style={styles.avatarContainer}>
-                  <Avatar friend={user} />
+                  <Avatar
+                    friend={user}
+                    style={[styles.avatar, avatarStyle]}
+                    textStyle={avatarTextStyle}
+                  />
                   {renderBadge ? renderBadge(user) : null}
                 </View>
               );
@@ -54,6 +71,9 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   avatarContainer: {},
+  avatar: {
+    borderColor: 'white',
+  },
   moreAvatarContainer: {
     width: 40,
     height: 40,
@@ -61,16 +81,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 15,
     backgroundColor: 'white',
-    borderColor: '#473B78',
+    borderColor: BORDER_COLOR,
     borderWidth: 1,
     marginLeft: -5,
   },
   moreAvatar: {
-    color: '#473B78',
+    color: DARK_BLUE,
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
-    fontFamily: 'Inter',
   },
   emptyText: {},
 });

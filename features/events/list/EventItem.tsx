@@ -1,110 +1,220 @@
 import React from 'react';
 import {
+  Dimensions,
   GestureResponderEvent,
+  StyleProp,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from 'react-native';
 import {ProjetXEvent} from '../eventsTypes';
 import Title from '../../../common/Title';
-import EventCTAs from '../common/EventCTAs';
-import EventParticipants from '../common/EventParticipants';
-import {eventTypeTitle} from '../eventsUtils';
+import Text from '../../../common/Text';
+import {eventTypeInfos} from '../eventsUtils';
 import moment from 'moment';
-import Badge from '../../../common/Badge';
 import {useAppSelector} from '../../../app/redux';
-import {selectUnreadMessageCount} from '../../chat/chatsSlice';
-import {selectAmIParticipating} from '../eventsSlice';
+import {selectUser} from '../../user/usersSlice';
+import {translate} from '../../../app/locales';
+import {dateFormat, dateFormatWithHour} from '../../../common/Date';
 
-interface EventItemProps {
-  componentId: string;
-  event: ProjetXEvent;
-  onPress(event: GestureResponderEvent): void;
+const {width} = Dimensions.get('window');
+
+export enum EventCardVariant {
+  HORIZONTAL = 'HORIZONTAL',
+  VERTICAL = 'VERTICAL',
 }
 
-const EventItem: React.FC<EventItemProps> = ({componentId, event, onPress}) => {
+interface EventItemProps {
+  event: ProjetXEvent;
+  variant?: EventCardVariant;
+  onPress(event: GestureResponderEvent): void;
+  style?: StyleProp<ViewStyle>;
+}
+
+const EventItem: React.FC<EventItemProps> = ({
+  event,
+  onPress,
+  variant,
+  style,
+}) => {
+  const author = useAppSelector(selectUser(event.author));
   const date = event.getStartingDate();
-  const unreadMessages = useAppSelector(selectUnreadMessageCount(event.id));
-  const participating = useAppSelector(selectAmIParticipating(event.id));
+  const waitingForAnswer = event.isWaitingForAnswer();
+
+  const eventInfos = eventTypeInfos(event.type);
+
+  const renderAuthor = () => {
+    if (!author || !waitingForAnswer) {
+      return '';
+    }
+    return `${translate('par')} ${author.name}`;
+  };
 
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={onPress}
-      style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerTitle}>
+      style={[
+        styles.container,
+        variant === EventCardVariant.VERTICAL ? styles.card : styles.listitem,
+        {
+          backgroundColor:
+            variant === EventCardVariant.VERTICAL
+              ? eventInfos?.bgColor
+              : undefined,
+        },
+        waitingForAnswer ? styles.waitingForAnswer : {},
+        style,
+      ]}>
+      <View
+        style={[
+          styles.header,
+          variant === EventCardVariant.VERTICAL
+            ? styles.headerCard
+            : styles.headerListitem,
+        ]}>
+        <Text
+          style={[
+            styles.emoji,
+            variant === EventCardVariant.VERTICAL
+              ? styles.emojiCard
+              : styles.emojiListitem,
+          ]}>
+          {eventInfos?.emoji}
+        </Text>
+        <View
+          style={[
+            styles.headerTitle,
+            variant === EventCardVariant.VERTICAL
+              ? styles.headerTitleCard
+              : styles.headerTitleListitem,
+          ]}>
           <View style={styles.titleContainer}>
-            {participating ? (
-              <Badge count={unreadMessages} style={styles.badge} />
-            ) : null}
-            <Title style={styles.title}>{event.title}</Title>
+            <Title
+              style={[
+                styles.title,
+                variant === EventCardVariant.VERTICAL
+                  ? {
+                      color: eventInfos?.color,
+                    }
+                  : {},
+              ]}>
+              {`${event.title} ${renderAuthor()}`}
+            </Title>
           </View>
-          <Text style={styles.subtitle}>{eventTypeTitle(event.type)}</Text>
+          {date ? (
+            <Text
+              style={[
+                styles.headerDate,
+                date.isBefore(moment()) ? styles.headerDatePassed : {},
+                variant === EventCardVariant.VERTICAL
+                  ? {
+                      color: eventInfos?.color,
+                    }
+                  : {},
+              ]}>
+              {waitingForAnswer
+                ? date.format(event.time ? dateFormatWithHour : dateFormat)
+                : date.fromNow()}
+            </Text>
+          ) : null}
+          {waitingForAnswer ? (
+            <Text
+              numberOfLines={4}
+              style={[
+                styles.description,
+                variant === EventCardVariant.VERTICAL
+                  ? {
+                      color: eventInfos?.color,
+                    }
+                  : {},
+              ]}>
+              {event.description}
+            </Text>
+          ) : null}
         </View>
-        {date ? (
-          <Text
-            style={[
-              styles.headerDate,
-              date.isBefore(moment()) ? styles.headerDatePassed : {},
-            ]}>
-            {date.fromNow()}
-          </Text>
-        ) : null}
       </View>
-      <EventParticipants
-        componentId={componentId}
-        event={event}
-        hideOnEmpty
-        style={styles.participants}
-        disabled
-      />
-      <EventCTAs componentId={componentId} event={event} small />
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     borderRadius: 15,
   },
-  header: {
+  card: {
+    minHeight: 250,
+    width: 200,
+    justifyContent: 'flex-end',
+  },
+  listitem: {
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+  },
+  waitingForAnswer: {
+    width: width - 40,
+  },
+  header: {},
+  headerCard: {
+    flexDirection: 'column',
+    marginBottom: 20,
+  },
+  headerListitem: {
+    flexDirection: 'row',
+    flexShrink: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
   },
   headerTitle: {
+    justifyContent: 'center',
+  },
+  headerTitleCard: {},
+  headerTitleListitem: {
     flex: 1,
   },
+  emoji: {},
+  emojiListitem: {
+    fontSize: 40,
+    marginRight: 10,
+  },
+  emojiCard: {
+    fontSize: 60,
+  },
   headerDate: {
-    paddingTop: 2,
-    marginLeft: 5,
-    fontFamily: 'Inter',
     fontSize: 14,
+    marginTop: 5,
   },
-  headerDatePassed: {
-    color: 'red',
-  },
+  headerDatePassed: {},
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     textAlign: 'left',
   },
+  description: {
+    marginTop: 10,
+  },
   subtitle: {
-    fontFamily: 'Inter',
     fontSize: 14,
     textAlign: 'left',
     marginBottom: 5,
   },
   participants: {
-    marginBottom: 5,
+    marginVertical: 5,
   },
   badge: {
     marginRight: 5,
+  },
+  eventCtas: {
+    width: 'auto',
+    justifyContent: 'flex-start',
   },
 });
 
