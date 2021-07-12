@@ -75,7 +75,7 @@ const EventScreen: React.FC<EventScreenProps> = ({route}) => {
 
   const renderAuthor = () => {
     if (!author) {
-      return null;
+      return '';
     }
     return `${translate('par')} ${author.name}`;
   };

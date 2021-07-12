@@ -119,7 +119,7 @@ const EventItem: React.FC<EventItemProps> = ({
                 : date.fromNow()}
             </Text>
           ) : null}
-          {waitingForAnswer ? (
+          {waitingForAnswer && event.description ? (
             <Text
               numberOfLines={4}
               style={[

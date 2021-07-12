@@ -116,7 +116,8 @@ export class ProjetXEvent {
   }
   isFinished(): Boolean {
     return Boolean(
-      !this.getEndingDate()?.isAfter(moment().set({hours: 0, minutes: 0})),
+      this.getEndingDate() &&
+        !this.getEndingDate()?.isAfter(moment().set({hours: 0, minutes: 0})),
     );
   }
   isRunning(): Boolean {

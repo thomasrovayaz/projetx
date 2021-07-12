@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   emptyGif: {
     width: '100%',
-    maxHeight: '50%',
+    height: 150,
     marginBottom: 20,
   },
   emptyText: {

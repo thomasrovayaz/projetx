@@ -82,10 +82,11 @@ const WaitingForAnswerEvents: React.FC<{style?: StyleProp<ViewStyle>}> = ({
             index + 1 > waitingForAnswerEvents.length ? 0 : index + 1,
           )
         }
+        cardVerticalMargin={20}
         onSwipedLeft={onSwipedLeft}
         onSwipedRight={onSwipedRight}
         onSwipedTop={onSwipedTop}
-        onTapCard={onTapCard}
+        //onTapCard={onTapCard}
         stackSize={waitingForAnswerEvents.length}
         cards={waitingForAnswerEvents}
         cardIndex={cardIndex}
@@ -138,7 +139,6 @@ const WaitingForAnswerEvents: React.FC<{style?: StyleProp<ViewStyle>}> = ({
             style={styles.button}
             variant={'outlined'}
             onPress={() => {
-              console.log('swipe right');
               swiper.current?.swipeRight();
             }}
             title={translate('Rejoindre')}
@@ -166,13 +166,11 @@ const WaitingForAnswerEvents: React.FC<{style?: StyleProp<ViewStyle>}> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: 380,
-    marginBottom: 40,
-    marginTop: 20,
+    height: 350,
+    marginBottom: 20,
   },
   label: {
     paddingHorizontal: 20,
-    paddingTop: 20,
   },
   cardLabel: {
     fontFamily: 'Montserrat Alternates',

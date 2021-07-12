@@ -53,7 +53,6 @@ const CreatePollChoicesScreen: React.FC<CreatePollTypeScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={'dark-content'} backgroundColor={BEIGE} />
       <View style={styles.content}>
         <Title style={styles.title}>
           {translate('Quels sont les options ?')}

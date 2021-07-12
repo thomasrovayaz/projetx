@@ -26,8 +26,7 @@
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
-                        <color key="backgroundColor" red="0.90196078431372551" green="0.58039215686274503" blue="0.10588235294117647" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" red="0.99215686274509807" green="0.94509803921568625" blue="0.88627450980392153" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="IGn-YP-RAi" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="2pZ-p2-TEG"/>
                             <constraint firstItem="IGn-YP-RAi" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="5EN-ch-4OF"/>
@@ -44,6 +43,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="logo" width="820" height="820"/>
+        <image name="logo" width="410" height="410"/>
     </resources>
 </document>

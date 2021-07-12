@@ -8,11 +8,14 @@ import Poll from './Poll';
 import {PollState} from './pollsTypes';
 import Button from '../../common/Button';
 import {translate} from '../../app/locales';
+import {EventParticipation} from '../events/eventsTypes';
+import {useNavigation} from '@react-navigation/native';
 
 const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
   pollId,
   style,
 }) => {
+  const navigation = useNavigation();
   const me = getMyId();
   const poll = useAppSelector(selectPoll(pollId));
 
@@ -47,6 +50,8 @@ const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
     }
   };
 
+  const edit = () => {};
+
   return (
     <View style={[styles.pollContainer, style]}>
       <Poll
@@ -55,13 +60,28 @@ const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
         onChange={onChange}
         showResult={poll.state === PollState.FINISHED || hasAnswered}
       />
-      {isMultiplePoll && hasNewAnswers ? (
-        <Button
-          style={styles.pollButton}
-          title={translate('Valider')}
-          onPress={() => validAnswers(myAnswers)}
-        />
-      ) : null}
+      <View style={styles.pollButtons}>
+        {isMultiplePoll && hasNewAnswers ? (
+          <Button
+            variant={'outlined'}
+            style={[styles.cta, styles.ctaLeft]}
+            title={translate('Valider')}
+            onPress={() => validAnswers(myAnswers)}
+          />
+        ) : (
+          <View style={styles.cta} />
+        )}
+        {poll.author === getMyId() ? (
+          <Button
+            variant={'outlined'}
+            style={[styles.cta, styles.ctaRight]}
+            title={translate('Modifer')}
+            onPress={edit}
+          />
+        ) : (
+          <View style={styles.cta} />
+        )}
+      </View>
     </View>
   );
 };
@@ -71,8 +91,18 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
   },
-  pollButton: {
+  pollButtons: {
     marginTop: 10,
+    flexDirection: 'row',
+  },
+  cta: {
+    flex: 1,
+  },
+  ctaLeft: {
+    marginRight: 5,
+  },
+  ctaRight: {
+    marginLeft: 5,
   },
 });
 

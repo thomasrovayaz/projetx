@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {FlatList, StyleSheet} from 'react-native';
+import {FlatList} from 'react-native';
 import {DateValue} from '../events/eventsTypes';
 import PollItem from './PollItem';
 import {LocationValue} from '../events/create/components/LocationPicker';
@@ -81,6 +81,7 @@ const Poll: React.FC<ProjetXPollProps> = ({
         type={poll.type}
         showResult={showResult}
         selected={myAnswers?.includes(id)}
+        isMultipleChoices={poll.settings.multiple}
       />
     );
   };

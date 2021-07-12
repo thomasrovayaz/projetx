@@ -6,7 +6,7 @@ import Title from '../../common/Title';
 import {translate} from '../../app/locales';
 import Button from '../../common/Button';
 import ProjetXModal from '../../common/Modal';
-import Checkbox from '../../common/Checkbox';
+import CheckboxInput from '../../common/CheckboxInput';
 import {ProjetXPoll} from './pollsTypes';
 
 interface ProjetXPollSettingsButtonProps {
@@ -44,7 +44,7 @@ const PollSettingsButton: React.FC<ProjetXPollSettingsButtonProps> = ({
         onClose={dismiss}>
         <Title>{translate('Paramètres du sondage')}</Title>
         <View style={styles.content}>
-          <Checkbox
+          <CheckboxInput
             label={translate('Choix multiple')}
             selected={settings.multiple}
             onSelect={selected => {
@@ -54,7 +54,7 @@ const PollSettingsButton: React.FC<ProjetXPollSettingsButtonProps> = ({
               });
             }}
           />
-          <Checkbox
+          <CheckboxInput
             label={translate('Choix personnalisé')}
             selected={settings.custom}
             onSelect={selected => {

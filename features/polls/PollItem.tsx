@@ -4,16 +4,16 @@ import {PollType} from './pollsTypes';
 import {DateValue} from '../events/eventsTypes';
 import Date from '../../common/Date';
 import Text from '../../common/Text';
-import Icon from 'react-native-vector-icons/Feather';
 import {LocationValue} from '../events/create/components/LocationPicker';
 import {translate} from '../../app/locales';
-import MaskedView from '@react-native-community/masked-view';
-import {DARK_BLUE} from '../../app/colors';
+import {LIGHT_BLUE} from '../../app/colors';
+import {Checkbox} from '../../common/CheckboxInput';
 
 interface ProjetXPollItemProps {
   onPress(): void;
   selected?: boolean;
   showResult?: boolean;
+  isMultipleChoices?: boolean;
   type: PollType;
   value: DateValue | LocationValue | string;
   count: number;
@@ -23,6 +23,7 @@ interface ProjetXPollItemProps {
 const PollItem: React.FC<ProjetXPollItemProps> = ({
   onPress,
   selected,
+  isMultipleChoices,
   type,
   value,
   showResult,
@@ -42,7 +43,7 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
       );
       break;
     default:
-      input = <Text>{value}</Text>;
+      input = <Text style={selected ? styles.itemSelected : {}}>{value}</Text>;
   }
   const percent = showResult ? `${(count / totalVote) * 100}%` : 0;
   return (
@@ -57,36 +58,15 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
           {width: percent},
         ]}
       />
-      <MaskedView
-        style={[StyleSheet.absoluteFill]}
-        maskElement={
-          <View style={[StyleSheet.absoluteFill, styles.itemContainer]}>
-            {selected ? (
-              <Icon
-                name="check"
-                size={20}
-                style={[styles.itemIcon, selected ? styles.itemSelected : {}]}
-              />
-            ) : null}
-            {input}
-            {showResult ? (
-              <Text style={styles.itemCount}>
-                {translate('votes', {count: count || 0})}
-              </Text>
-            ) : null}
-          </View>
-        }>
-        <View style={[StyleSheet.absoluteFill, {backgroundColor: DARK_BLUE}]} />
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            {
-              width: percent,
-              backgroundColor: '#fff',
-            },
-          ]}
-        />
-      </MaskedView>
+      <View style={[StyleSheet.absoluteFill, styles.itemContainer]}>
+        {isMultipleChoices ? <Checkbox selected={selected} /> : null}
+        {input}
+        {showResult ? (
+          <Text style={styles.itemCount}>
+            {translate('votes', {count: count || 0})}
+          </Text>
+        ) : null}
+      </View>
     </TouchableOpacity>
   );
 };
@@ -96,10 +76,7 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: 50,
     borderRadius: 15,
-    backgroundColor: 'rgba(71,59,120,0.05)',
-    borderColor: DARK_BLUE,
-    borderWidth: 1,
-    marginTop: 10,
+    marginTop: 5,
     overflow: 'hidden',
   },
   itemContainer: {
@@ -110,22 +87,14 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     borderRadius: 13,
-    backgroundColor: DARK_BLUE,
+    backgroundColor: LIGHT_BLUE,
   },
-  itemIcon: {
-    color: DARK_BLUE,
-    marginRight: 5,
-  },
-  item: {
-    color: DARK_BLUE,
-    fontWeight: '700',
-  },
+  item: {},
   itemSelected: {
-    color: 'white',
+    fontWeight: '700',
   },
   itemCount: {
     flex: 1,
-    color: 'white',
     textAlign: 'right',
   },
   buttons: {

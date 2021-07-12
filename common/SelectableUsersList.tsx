@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {FlatList, RefreshControl, StyleSheet, View} from 'react-native';
 import {translate} from '../app/locales';
 import {getUsers} from '../features/user/usersApi';
-import Checkbox from './Checkbox';
+import CheckboxInput from './CheckboxInput';
 import TextInput from './TextInput';
 import {ProjetXUser} from '../features/user/usersTypes';
 import {useSelector} from 'react-redux';
@@ -119,7 +119,7 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
                   groupsMap[groupId].users[item.id],
               );
             return (
-              <Checkbox
+              <CheckboxInput
                 key={item.id}
                 label={item.name}
                 selected={selection[selectionKey].some(id => id === item.id)}

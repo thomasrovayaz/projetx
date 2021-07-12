@@ -61,7 +61,6 @@ const CreatePollTypeScreen: React.FC<CreatePollTypeScreenProps> = () => {
 
   return (
     <View style={[styles.container, {paddingBottom: bottom + 20}]}>
-      <StatusBar barStyle={'light-content'} backgroundColor={'white'} />
       <Title style={styles.title}>
         {translate('Quel est le type de sondage ?')}
       </Title>

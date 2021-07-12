@@ -66,7 +66,17 @@ const styles = StyleSheet.create<Style>({
   },
 });
 
-const Checkbox: React.FC<ProjetXCheckboxProps> = ({
+export const Checkbox: React.FC<{selected: boolean | undefined}> = ({
+  selected,
+}) => {
+  return (
+    <View style={[styles.checkbox, selected ? styles.checkboxSelected : {}]}>
+      {selected && <Icon name="check" color="white" size={15} />}
+    </View>
+  );
+};
+
+const CheckboxInput: React.FC<ProjetXCheckboxProps> = ({
   label,
   subLabel,
   style,
@@ -84,9 +94,7 @@ const Checkbox: React.FC<ProjetXCheckboxProps> = ({
         style,
         disabled ? styles.checkboxDisabled : {},
       ]}>
-      <View style={[styles.checkbox, selected ? styles.checkboxSelected : {}]}>
-        {selected && <Icon name="check" color="white" size={15} />}
-      </View>
+      <Checkbox selected={selected} />
       <View style={styles.textContainer}>
         <Text style={[styles.label]}>{label}</Text>
         {subLabel ? <Text style={[styles.sublabel]}>{subLabel}</Text> : null}
@@ -95,4 +103,4 @@ const Checkbox: React.FC<ProjetXCheckboxProps> = ({
   );
 };
 
-export default Checkbox;
+export default CheckboxInput;
