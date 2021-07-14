@@ -114,10 +114,10 @@ const sortEvents = (eventA: ProjetXEvent, eventB: ProjetXEvent) => {
   const startingDateA = eventA.getStartingDate();
   const startingDateB = eventB.getStartingDate();
   if (!startingDateB) {
-    return 1;
+    return -1;
   }
   if (!startingDateA) {
-    return -1;
+    return 1;
   }
   if (!eventA.isFinished()) {
     if (eventB.isFinished()) {

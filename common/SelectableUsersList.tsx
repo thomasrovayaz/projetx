@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {FlatList, RefreshControl, StyleSheet, View} from 'react-native';
+import {RefreshControl, SectionList, StyleSheet, View} from 'react-native';
 import {translate} from '../app/locales';
 import {getUsers} from '../features/user/usersApi';
 import CheckboxInput from './CheckboxInput';
@@ -11,6 +11,8 @@ import {filterWithFuse} from '../app/fuse';
 import Label from './Label';
 import {selectMyGroups} from '../features/groups/groupsSlice';
 import {ProjetXGroup} from '../features/groups/groupsTypes';
+import Text from './Text';
+import {BEIGE, DARK_BLUE} from '../app/colors';
 
 export interface UsersSelection {
   groupsSelected: string[];
@@ -34,7 +36,12 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
   const groupsMap = useSelector(selectMyGroups);
   const [searchText, onChangeSearchText] = useState<string>('');
   const [refreshing, setRefreshing] = useState(false);
-  const [datas, setDatas] = useState<(ProjetXUser | ProjetXGroup)[]>([]);
+  const [datas, setDatas] = useState<
+    {
+      title: string;
+      data: (ProjetXUser | ProjetXGroup)[];
+    }[]
+  >([]);
 
   const onRefresh = useCallback(() => {
     const fetchUsers = async () => {
@@ -51,15 +58,20 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
     );
     if (withGroups && groupsMap) {
       setDatas([
-        ...filterWithFuse(
-          Object.values(groupsMap),
-          ['name'],
-          searchText,
-        ).filter(({name}) => name && name !== ''),
-        ...users,
+        {
+          title: 'Mes groupes de potes',
+          data: [
+            ...filterWithFuse(
+              Object.values(groupsMap),
+              ['name'],
+              searchText,
+            ).filter(({name}) => name && name !== ''),
+          ],
+        },
+        {title: 'Mes amis', data: users},
       ]);
     } else {
-      setDatas(users);
+      setDatas([{title: 'Mes amis', data: users}]);
     }
   }, [withGroups, friends, groupsMap, searchText]);
 
@@ -91,6 +103,39 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
       }
     };
 
+  const renderItem = ({item}: {item: ProjetXUser | ProjetXGroup}) => {
+    const isGroup = item instanceof ProjetXGroup;
+    const group = isGroup && (item as ProjetXGroup);
+    const selectionKey = isGroup ? 'groupsSelected' : 'usersSelected';
+    const isSelectedByGroup: string | undefined | false =
+      !isGroup &&
+      groupsMap &&
+      selection.groupsSelected.find(
+        (groupId: any) =>
+          groupsMap[groupId] && item.id && groupsMap[groupId].users[item.id],
+      );
+    return (
+      <CheckboxInput
+        key={item.id}
+        label={item.name}
+        selected={selection[selectionKey].some(id => id === item.id)}
+        onSelect={onSelect(item)}
+        disabled={Boolean(isSelectedByGroup)}
+        subLabel={
+          group
+            ? translate('membres', {
+                count: Object.keys(group.users).length || 0,
+              })
+            : isSelectedByGroup
+            ? translate('Inclus dans le groupe ') +
+              // @ts-ignore
+              groupsMap[isSelectedByGroup].name
+            : undefined
+        }
+      />
+    );
+  };
+
   return (
     <>
       <View style={styles.searchInput}>
@@ -102,45 +147,19 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
         />
       </View>
       <View style={styles.content}>
-        <FlatList
+        <SectionList
           contentContainerStyle={styles.usersList}
-          data={datas}
-          renderItem={({item}: {item: ProjetXUser | ProjetXGroup}) => {
-            const isGroup = item instanceof ProjetXGroup;
-            const group = isGroup && (item as ProjetXGroup);
-            const selectionKey = isGroup ? 'groupsSelected' : 'usersSelected';
-            const isSelectedByGroup: string | undefined | false =
-              !isGroup &&
-              groupsMap &&
-              selection.groupsSelected.find(
-                (groupId: any) =>
-                  groupsMap[groupId] &&
-                  item.id &&
-                  groupsMap[groupId].users[item.id],
-              );
-            return (
-              <CheckboxInput
-                key={item.id}
-                label={item.name}
-                selected={selection[selectionKey].some(id => id === item.id)}
-                onSelect={onSelect(item)}
-                disabled={Boolean(isSelectedByGroup)}
-                subLabel={
-                  group
-                    ? translate('membres', {
-                        count: Object.keys(group.users).length || 0,
-                      })
-                    : isSelectedByGroup
-                    ? translate('Inclus dans le groupe ') +
-                      // @ts-ignore
-                      groupsMap[isSelectedByGroup].name
-                    : undefined
-                }
-              />
-            );
-          }}
+          sections={datas}
+          renderItem={renderItem}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          renderSectionHeader={({section: {title, data}}) =>
+            data.length > 0 ? (
+              <View style={styles.header}>
+                <Text style={styles.headerText}>{title}</Text>
+              </View>
+            ) : null
           }
         />
       </View>
@@ -162,6 +181,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   usersList: {paddingTop: 20},
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 15,
+    paddingBottom: 5,
+    backgroundColor: BEIGE,
+  },
+  headerText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: DARK_BLUE,
+  },
 });
 
 export default SelectableUsersList;

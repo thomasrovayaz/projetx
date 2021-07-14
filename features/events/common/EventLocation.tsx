@@ -75,6 +75,7 @@ const EventLocation: React.FC<ProjetXEventLocationProps> = ({event}) => {
   return (
     <>
       <MapView
+        focusable={false}
         toolbarEnabled={true}
         style={styles.map}
         initialRegion={{

@@ -11,9 +11,8 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {ProjetXEvent} from '../eventsTypes';
 import {getMyEvents} from '../eventsApi';
 import EventItem, {EventCardVariant} from './EventItem';
-import Title from '../../../common/Title';
 import {translate} from '../../../app/locales';
-import {getMe, getUsers} from '../../user/usersApi';
+import {getUsers} from '../../user/usersApi';
 import Text from '../../../common/Text';
 import UpcomingEvents from './UpcomingEvents';
 import WaitingForAnswerEvents from './WaitingForAnswerEvents';
@@ -142,10 +141,11 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'left',
     fontSize: 18,
-    marginVertical: 40,
+    marginVertical: 30,
   },
   emptyImage: {
     width: '100%',
+    height: 150,
   },
   emptyButton: {},
   content: {

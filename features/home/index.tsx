@@ -31,10 +31,11 @@ import WaitingForAnswerEvents from '../events/list/WaitingForAnswerEvents';
 import {useNavigation} from '@react-navigation/native';
 import Text from '../../common/Text';
 import Button from '../../common/Button';
-import {createEvent} from '../events/eventsSlice';
-import {useAppDispatch} from '../../app/redux';
+import {createEvent, selectMyEvents} from '../events/eventsSlice';
+import {useAppDispatch, useAppSelector} from '../../app/redux';
 
 const HomeScreen: React.FC = () => {
+  const events = useAppSelector(selectMyEvents);
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const [refreshing, setRefreshing] = useState(false);
@@ -129,6 +130,9 @@ const HomeScreen: React.FC = () => {
         }
         contentContainerStyle={styles.content}
         ListEmptyComponent={() => {
+          if (events && events.length > 0) {
+            return null;
+          }
           return (
             <View style={styles.emptyList}>
               <Text style={styles.emptyText}>

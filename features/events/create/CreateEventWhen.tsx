@@ -137,6 +137,18 @@ const CreateEventWhenScreen: React.FC<CreateEventWhenScreenProps> = ({
     }
     navigation.navigate('CreateEventWhere');
   };
+  const empty = async () => {
+    event.dateType = EventDateType.fixed;
+    event.date = undefined;
+    event.time = undefined;
+    if (event.id) {
+      await saveEvent(event);
+    }
+    if (backOnSave) {
+      return navigation.goBack();
+    }
+    navigation.navigate('CreateEventWhere');
+  };
   const endPoll = async () => {
     event.dateType = EventDateType.fixed;
     const [, newPoll] = await Promise.all([
@@ -186,7 +198,14 @@ const CreateEventWhenScreen: React.FC<CreateEventWhenScreenProps> = ({
             title={translate('Terminer le sondage')}
             onPress={endPoll}
           />
-        ) : null}
+        ) : (
+          <Button
+            style={[styles.cta, styles.ctaRight]}
+            variant="outlined"
+            title={translate('Sans date')}
+            onPress={empty}
+          />
+        )}
       </View>
     </SafeAreaView>
   );

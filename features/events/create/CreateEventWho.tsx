@@ -117,7 +117,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingHorizontal: 10,
   },
   title: {
     paddingHorizontal: 20,

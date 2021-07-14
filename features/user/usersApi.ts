@@ -12,6 +12,7 @@ export const getMe = (): FirebaseAuthTypes.User => {
   return me;
 };
 export const getMyId = (): string => {
+  //return 'hSmg2JgylMXlwLeZ5yPjCnyyaTq1';
   return getMe().uid;
 };
 export const isRegistered = () => {

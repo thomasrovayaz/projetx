@@ -22,21 +22,17 @@ const GroupEvents: React.FC<ProjetXGroupEventsProps> = ({groupId}) => {
 
   return (
     <>
-      <EventsList
-        events={events}
-        onOpenEvent={onOpenEvent}
-        emptyText={translate(
-          'Pas encore d’événement dans ce groupe.\nCréé le premier 😉',
-        )}
-      />
-      <View style={styles.buttonCreate}>
-        <Button
-          style={[styles.ctaLeft]}
-          variant={'outlined'}
-          title={translate('Créer un événement dans ce groupe')}
-          onPress={() => dispatch(createEvent())}
-        />
-      </View>
+      <EventsList events={events} onOpenEvent={onOpenEvent} />
+      {events.length > 0 ? (
+        <View style={styles.buttonCreate}>
+          <Button
+            style={[styles.ctaLeft]}
+            variant={'outlined'}
+            title={translate('Créer un événement dans ce groupe')}
+            onPress={() => dispatch(createEvent())}
+          />
+        </View>
+      ) : null}
     </>
   );
 };

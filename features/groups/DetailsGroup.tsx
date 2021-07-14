@@ -81,6 +81,7 @@ const DetailsGroupScreen: React.FC<CreateGroupScreenProps> = ({
       <StatusBar barStyle={'dark-content'} backgroundColor={BEIGE} />
       <DetailHeader
         title={group.name}
+        small
         actions={[
           {
             icon: 'users',

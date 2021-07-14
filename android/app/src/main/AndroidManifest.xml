@@ -109,7 +109,7 @@
         <meta-data
                 android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version" />
-        <meta-data android:name="com.onesignal.NotificationAccentColor.DEFAULT" android:value="E6941B" />
+        <meta-data android:name="com.onesignal.NotificationAccentColor.DEFAULT" android:value="192248" />
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
         <activity
             android:name=".SplashActivity"

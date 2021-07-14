@@ -1,4 +1,4 @@
-import MapView, {EdgePadding, LatLng} from 'react-native-maps';
+import MapView, {EdgePadding, LatLng, Region} from 'react-native-maps';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {StyleSheet, View, Platform, PermissionsAndroid} from 'react-native';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
@@ -28,12 +28,17 @@ const defaultRegion = {
   latitudeDelta: 0.0922,
   longitudeDelta: 0.0421,
 };
+const defaultDelta = 0.000001;
 const REVRSE_GEO_CODE_URL = 'https://maps.googleapis.com/maps/api/geocode/json';
 
-const isSameLocation = (locationA: LatLng, locationB: LatLng) => {
+const isSameLocation = (
+  locationA: LatLng,
+  locationB: LatLng,
+  delta: number = defaultDelta,
+) => {
   return (
-    Math.abs(locationA.latitude - locationB.latitude) < 0.000001 &&
-    Math.abs(locationA.longitude - locationB.longitude) < 0.000001
+    Math.abs(locationA.latitude - locationB.latitude) < delta &&
+    Math.abs(locationA.longitude - locationB.longitude) < delta
   );
 };
 
@@ -62,12 +67,17 @@ const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
     }
   }, [ref, setMapReady]);
 
-  const fetchAddressForLocation = (coords: LatLng) => {
+  const fetchAddressForLocation = (coords: Region) => {
     const {latitude, longitude} = coords;
+    const delta = coords.latitudeDelta / 100;
     if (
-      isSameLocation(coords, defaultRegion) ||
+      isSameLocation(coords, defaultRegion, delta) ||
       (value &&
-        isSameLocation(coords, {latitude: value.lat, longitude: value.lng}))
+        isSameLocation(
+          coords,
+          {latitude: value.lat, longitude: value.lng},
+          delta,
+        ))
     ) {
       return;
     }
@@ -142,7 +152,11 @@ const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
             ref.current.animateCamera({
               center: coords,
             });
-            fetchAddressForLocation(coords);
+            fetchAddressForLocation({
+              ...coords,
+              latitudeDelta: defaultDelta * 100,
+              longitudeDelta: defaultDelta * 100,
+            });
           }
         });
       }
@@ -248,6 +262,7 @@ const styles = StyleSheet.create({
     top: 20,
     right: 20,
     left: 20,
+    zIndex: 2,
   },
   toolbar: {
     position: 'absolute',
