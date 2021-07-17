@@ -11,23 +11,20 @@ import {
 } from 'react-native';
 import Title from '../../common/Title';
 import {translate} from '../../app/locales';
-import {getMe} from '../user/usersApi';
 import {selectMyGroups} from './groupsSlice';
 import {getMyGroups} from './groupsApi';
 import {ProjetXGroup} from './groupsTypes';
 import AvatarList from '../../common/AvatarList';
 import {selectUsers} from '../user/usersSlice';
-import {useAppDispatch, useAppSelector} from '../../app/redux';
+import {useAppSelector} from '../../app/redux';
 import {selectChat, selectUnreadMessageCount} from '../chat/chatsSlice';
 import {useNavigation} from '@react-navigation/native';
 import UnreadChip from '../../common/UnreadChip';
 import {LatestMessage} from '../chat/LatestMessages';
 import Text from '../../common/Text';
 import Button from '../../common/Button';
-import {createEvent} from '../events/eventsSlice';
 
 const EmptyGroupsList: React.FC = () => {
-  const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
   return (
@@ -44,12 +41,11 @@ const EmptyGroupsList: React.FC = () => {
       </Text>
       <Button
         style={styles.emptyButton}
-        icon={'calendar'}
-        title={translate('Créer un évènement')}
+        icon={'users'}
+        title={translate('Créer un groupe de pote')}
         variant={'outlined'}
         onPress={() => {
-          dispatch(createEvent());
-          navigation.navigate('CreateEventType');
+          navigation.navigate('CreateGroupScreen');
         }}
       />
     </View>

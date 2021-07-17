@@ -60,12 +60,18 @@ function HomeTabs() {
 }
 function MainStackScreen() {
   return (
-    <MainStack.Navigator>
+    <MainStack.Navigator initialRouteName={isRegistered() ? 'Home' : 'Login'}>
+      <MainStack.Screen
+        options={{headerShown: false}}
+        name="Login"
+        component={LoginScreen}
+      />
       <MainStack.Screen
         name="Home"
         options={({navigation}) => ({
           headerTransparent: true,
           headerTitle: '',
+          headerLeft: undefined,
           headerRight: () => (
             <IconButton
               size={25}
@@ -173,51 +179,39 @@ const App = () => {
     SplashScreen.hide();
   }, []);
 
-  const onRegister = () => {
-    console.log('onRegister');
-  };
-
   return (
     <SafeAreaProvider>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <NavigationContainer>
-            {isRegistered() ? (
-              <RootStack.Navigator
-                mode="modal"
-                screenOptions={{
-                  headerShown: false,
-                  gestureEnabled: true,
-                  cardOverlayEnabled: true,
-                  ...TransitionPresets.ModalPresentationIOS,
-                }}>
-                <RootStack.Screen
-                  name="Main"
-                  component={MainStackScreen}
-                  options={{headerShown: false}}
-                />
-                <RootStack.Screen
-                  name="EventParticipants"
-                  component={EventParticipants}
-                />
-                <RootStack.Screen
-                  name="GroupMembers"
-                  component={GroupMembersModal}
-                />
-                <RootStack.Screen name="QRCode" component={QRCodeModal} />
-                <RootStack.Screen name="Poll" component={PollModal} />
-                <RootStack.Screen
-                  name="CreatePoll"
-                  component={CreatePollScreen}
-                />
-              </RootStack.Navigator>
-            ) : (
+            <RootStack.Navigator
+              mode="modal"
+              screenOptions={{
+                headerShown: false,
+                gestureEnabled: true,
+                cardOverlayEnabled: true,
+                ...TransitionPresets.ModalPresentationIOS,
+              }}>
               <RootStack.Screen
-                name="Login"
-                component={LoginScreen}
-                initialParams={{onRegister}}
+                name="Main"
+                component={MainStackScreen}
+                options={{headerShown: false}}
               />
-            )}
+              <RootStack.Screen
+                name="EventParticipants"
+                component={EventParticipants}
+              />
+              <RootStack.Screen
+                name="GroupMembers"
+                component={GroupMembersModal}
+              />
+              <RootStack.Screen name="QRCode" component={QRCodeModal} />
+              <RootStack.Screen name="Poll" component={PollModal} />
+              <RootStack.Screen
+                name="CreatePoll"
+                component={CreatePollScreen}
+              />
+            </RootStack.Navigator>
             <Toast config={toastConfig} ref={ref => Toast.setRef(ref)} />
           </NavigationContainer>
         </PersistGate>

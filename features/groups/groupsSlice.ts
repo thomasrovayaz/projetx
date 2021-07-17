@@ -40,8 +40,10 @@ export const groupsSlice = createSlice({
 
 export const {fetchGroups, updateGroup, groupRemoved} = groupsSlice.actions;
 
-export const selectMyGroups = (state: RootState): ProjetXGroup[] =>
-  state.groups.list;
+export const selectMyGroups = (
+  state: RootState,
+): {[id: string]: ProjetXGroup} => state.groups.list;
+
 export const selectGroup =
   (id: string | undefined) =>
   (state: RootState): ProjetXGroup | undefined =>

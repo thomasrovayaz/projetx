@@ -193,6 +193,8 @@ const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
           container: styles.autocompleteContainer,
           textInput: styles.textInput,
           listView: styles.listView,
+          description: styles.rowText,
+          predefinedPlacesDescription: styles.rowText,
         }}
         placeholder={translate('Rechercher')}
         onPress={(data, details) => {
@@ -212,6 +214,9 @@ const LocationPicker: React.FC<ProjetXLocationPickerProps> = ({
           }
         }}
         fetchDetails={true}
+        textInputProps={{
+          placeholderTextColor: '#1922487F',
+        }}
         query={{
           key: Config.GOOGLE_API_KEY,
           language: 'fr',
@@ -279,11 +284,17 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingHorizontal: 15,
     alignItems: 'center',
+    fontFamily: 'Montserrat Alternates',
+    color: DARK_BLUE,
     height: 50,
   },
   listView: {
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15,
+  },
+  rowText: {
+    fontFamily: 'Montserrat Alternates',
+    color: DARK_BLUE,
   },
   map: {
     ...StyleSheet.absoluteFillObject,

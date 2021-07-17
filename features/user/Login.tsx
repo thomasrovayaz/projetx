@@ -7,8 +7,10 @@ import auth from '@react-native-firebase/auth';
 import Logo from '../../assets/logo.svg';
 import PseudoInput from './common/PseudoInput';
 import {DARK_BLUE} from '../../app/colors';
+import {useNavigation} from '@react-navigation/native';
 
-const LoginScreen: React.FC<{onRegister(): void}> = ({onRegister}) => {
+const LoginScreen: React.FC = () => {
+  const navigation = useNavigation();
   useEffect(() => {
     if (!auth().currentUser) {
       auth().signInAnonymously();
@@ -27,7 +29,14 @@ const LoginScreen: React.FC<{onRegister(): void}> = ({onRegister}) => {
           {translate("Comment dois-je t'appeler?")}
         </Title>
         <View style={styles.input}>
-          <PseudoInput onRegister={onRegister} />
+          <PseudoInput
+            onRegister={() => {
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'Home'}],
+              });
+            }}
+          />
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>

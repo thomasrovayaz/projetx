@@ -2,8 +2,9 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../../app/store';
 import {ProjetXUser} from './usersTypes';
 import {EventParticipation} from '../events/eventsTypes';
-import {getMe, getMyId} from './usersApi';
+import {getMyId} from './usersApi';
 import {selectMyEvents} from '../events/eventsSlice';
+import {selectMyGroups} from '../groups/groupsSlice';
 
 interface UsersState {
   list: {
@@ -40,6 +41,7 @@ export const selectUser =
     state.users.list && id && state.users.list[id];
 export const selectMyFriends = (state: RootState): ProjetXUser[] => {
   const myEvents = selectMyEvents(state);
+  const myGroups = selectMyGroups(state);
   const friendsScore: {[uid: string]: number} = {};
   const treatParticipants = (friendId: string) => {
     if (!friendId && friendId === '') {
@@ -62,6 +64,11 @@ export const selectMyFriends = (state: RootState): ProjetXUser[] => {
         )
         .map(treatParticipants);
   }
+  myGroups &&
+    Object.values(myGroups).map(
+      group => group.users && Object.keys(group.users).map(treatParticipants),
+    );
+
   const users = Object.values(selectUsers(state));
   return users
     .filter(({id}) => id !== getMyId())
