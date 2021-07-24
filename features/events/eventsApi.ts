@@ -158,7 +158,10 @@ export function notifyNewEvent(
   }
 
   const include_player_ids = usersToNotify
-    .filter(({oneSignalId}) => oneSignalId)
+    .filter(
+      ({oneSignalId, id, settings}) =>
+        oneSignalId && id !== getMyId() && settings.eventNotification !== false,
+    )
     .map(({oneSignalId}) => oneSignalId);
 
   postNotification(

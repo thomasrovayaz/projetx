@@ -74,7 +74,11 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
 
   async function handleSend(newMessage: ProjetXMessage[] = []) {
     for (const message of newMessage) {
-      await addMessage(message, parent, members);
+      await addMessage(
+        message,
+        parent,
+        members.map(userId => users[userId]),
+      );
     }
   }
 

@@ -18,7 +18,9 @@ import LoginScreen from '../features/user/Login';
 import GroupsScreen from '../features/groups';
 import BottomTabbar from '../common/BottomTabbar';
 import EventScreen from '../features/events/details';
-import EventParticipants from '../features/events/EventParticipants';
+import EventParticipants, {
+  ProjetXEventParticipantsProps,
+} from '../features/events/EventParticipants';
 import CreateEventTypeScreen from '../features/events/create/CreateEventType';
 import CreateEventWhatScreen from '../features/events/create/CreateEventWhat';
 import CreateEventWhenScreen from '../features/events/create/CreateEventWhen';
@@ -28,15 +30,21 @@ import CreateEventEndScreen from '../features/events/create/CreateEventEnd';
 import DetailsGroupScreen from '../features/groups/DetailsGroup';
 import CreateGroupScreen from '../features/groups/CreateGroup';
 import QRCodeModal from '../common/QRCode';
-import GroupMembersModal from '../features/groups/GroupMembers';
+import GroupMembersModal, {
+  ProjetXGroupMembersProps,
+} from '../features/groups/GroupMembers';
 import TonightScreen from '../features/tonight';
 import PollModal from '../features/polls/PollModal';
 import CreatePollTypeScreen from '../features/polls/CreatePollType';
 import CreatePollChoicesScreen from '../features/polls/CreatePollChoices';
-import IconButton from '../common/IconButton';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import SettingsScreen from '../features/user/Settings';
 import {toastConfig} from '../common/Toast';
+import Avatar from '../common/Avatar';
+import {useAppSelector} from './redux';
+import {selectUser} from '../features/user/usersSlice';
+import {getMyId} from '../features/user/usersApi';
+import DetailsUser from '../features/user/DetailsUser';
 
 const isRegistered = () => {
   const me = auth().currentUser;
@@ -47,6 +55,8 @@ const RootStack = createStackNavigator();
 const MainStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const PollStack = createStackNavigator();
+const EventParticipantsStack = createStackNavigator();
+const GroupMembersStack = createStackNavigator();
 
 function HomeTabs() {
   return (
@@ -59,6 +69,7 @@ function HomeTabs() {
   );
 }
 function MainStackScreen() {
+  const myProfile = useAppSelector(selectUser(getMyId()));
   return (
     <MainStack.Navigator initialRouteName={isRegistered() ? 'Home' : 'Login'}>
       <MainStack.Screen
@@ -73,12 +84,12 @@ function MainStackScreen() {
           headerTitle: '',
           headerLeft: undefined,
           headerRight: () => (
-            <IconButton
-              size={25}
+            <TouchableOpacity
+              activeOpacity={0.8}
               style={styles.headerButton}
-              name={'settings'}
-              onPress={() => navigation.navigate('Settings')}
-            />
+              onPress={() => navigation.navigate('Settings')}>
+              <Avatar friend={myProfile} />
+            </TouchableOpacity>
           ),
         })}
         component={HomeTabs}
@@ -171,6 +182,39 @@ function CreatePollScreen() {
     </PollStack.Navigator>
   );
 }
+function GroupMembersScreen({route}: ProjetXGroupMembersProps) {
+  return (
+    <GroupMembersStack.Navigator screenOptions={{headerShown: false}}>
+      <GroupMembersStack.Screen
+        name="GroupMembers"
+        component={GroupMembersModal}
+        initialParams={{
+          ...route.params,
+          title: translate('Membres'),
+        }}
+      />
+      <GroupMembersStack.Screen name="UserProfile" component={DetailsUser} />
+    </GroupMembersStack.Navigator>
+  );
+}
+function EventParticipantsScreen({route}: ProjetXEventParticipantsProps) {
+  return (
+    <EventParticipantsStack.Navigator screenOptions={{headerShown: false}}>
+      <EventParticipantsStack.Screen
+        name="EventParticipants"
+        component={EventParticipants}
+        initialParams={{
+          ...route.params,
+          title: translate('Participants'),
+        }}
+      />
+      <EventParticipantsStack.Screen
+        name="UserProfile"
+        component={DetailsUser}
+      />
+    </EventParticipantsStack.Navigator>
+  );
+}
 
 const App = () => {
   useEffect(() => {
@@ -199,11 +243,11 @@ const App = () => {
               />
               <RootStack.Screen
                 name="EventParticipants"
-                component={EventParticipants}
+                component={EventParticipantsScreen}
               />
               <RootStack.Screen
                 name="GroupMembers"
-                component={GroupMembersModal}
+                component={GroupMembersScreen}
               />
               <RootStack.Screen name="QRCode" component={QRCodeModal} />
               <RootStack.Screen name="Poll" component={PollModal} />

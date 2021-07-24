@@ -26,7 +26,7 @@ import {eventTypeInfos} from './eventsUtils';
 import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../user/usersSlice';
 
-interface ProjetXEventParticipantsProps {
+export interface ProjetXEventParticipantsProps {
   route: {
     params: {
       eventId: string;
@@ -123,7 +123,7 @@ const ParticipantsModal: React.FC<ProjetXEventParticipantsProps> = ({
         </View>
         <SectionList
           sections={participants}
-          keyExtractor={(item, index) => item.id + index}
+          keyExtractor={item => item.id}
           renderItem={({item}) => (
             <User
               avatarStyle={{backgroundColor: eventInfos?.bgColor}}

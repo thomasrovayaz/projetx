@@ -73,6 +73,10 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Pour localiser un événement</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Pour ajouter une magnifique photo de profil</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Pour ajouter une magnifique photo de profil</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Feather.ttf</string>

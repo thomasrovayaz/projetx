@@ -9,6 +9,7 @@ import {
 } from '../../app/onesignal';
 import {ProjetXMessage} from './chatsTypes';
 import {translate} from '../../app/locales';
+import {ProjetXUser} from '../user/usersTypes';
 
 export async function connectChats() {
   return database()
@@ -36,7 +37,7 @@ export async function connectChats() {
 export async function addMessage(
   message: ProjetXMessage,
   parent: {id: string; title: string; type: NotificationParentType},
-  members: string[],
+  members: ProjetXUser[],
 ) {
   await database()
     .ref(`chats/${parent.id}`)
@@ -51,7 +52,19 @@ export async function addMessage(
       content = translate('A envoyé une image');
     }
   }
-  messageNotification(members, parent, getMe().displayName, content);
+  messageNotification(
+    members
+      .filter(
+        user =>
+          user.oneSignalId &&
+          user.id !== getMyId() &&
+          user.settings.messageNotification !== false,
+      )
+      .map(user => user.oneSignalId),
+    parent,
+    getMe().displayName,
+    content,
+  );
 }
 
 function messageNotification(

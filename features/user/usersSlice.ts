@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../../app/store';
-import {ProjetXUser} from './usersTypes';
+import {ProjetXUser, VisibilitySettings} from './usersTypes';
 import {EventParticipation} from '../events/eventsTypes';
 import {getMyId} from './usersApi';
 import {selectMyEvents} from '../events/eventsSlice';
@@ -25,6 +25,7 @@ export const usersSlice = createSlice({
       }
     },
     updateUser(state, action: PayloadAction<ProjetXUser>) {
+      console.log('updateUser', action.payload);
       const user = action.payload;
       state.list[user.id] = user;
     },
@@ -39,7 +40,10 @@ export const selectUser =
   (id: string | number | undefined) =>
   (state: RootState): ProjetXUser =>
     state.users.list && id && state.users.list[id];
-export const selectMyFriends = (state: RootState): ProjetXUser[] => {
+
+export const selectMyFriends = (
+  state: RootState,
+): (ProjetXUser & {score: number})[] => {
   const myEvents = selectMyEvents(state);
   const myGroups = selectMyGroups(state);
   const friendsScore: {[uid: string]: number} = {};
@@ -71,8 +75,21 @@ export const selectMyFriends = (state: RootState): ProjetXUser[] => {
 
   const users = Object.values(selectUsers(state));
   return users
-    .filter(({id}) => id !== getMyId())
     .map(user => ({...user, score: friendsScore[user.id]}))
+    .filter(({id, settings, score}) => {
+      if (id === getMyId()) {
+        return false;
+      }
+      if (settings) {
+        if (settings.visibility === VisibilitySettings.never) {
+          return false;
+        }
+        if (settings.visibility === VisibilitySettings.friends && score === 0) {
+          return false;
+        }
+      }
+      return true;
+    })
     .sort((friend1, friend2) => {
       return friend1.score - friend2.score;
     });

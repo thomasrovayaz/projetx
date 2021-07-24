@@ -3,11 +3,9 @@ import {View, StyleSheet} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import Text from './Text';
 import IconButton from './IconButton';
 import BackButton from './BackButton';
 import {DARK_BLUE} from '../app/colors';
@@ -25,8 +23,8 @@ const DetailHeader: React.FC<ProjetXDetailHeaderProps> = ({
   actions,
   small,
 }) => {
-  const fontSizeTitle = useSharedValue(24);
-  const animationTimer = useSharedValue(1);
+  const fontSizeTitle = useSharedValue(small ? 16 : 24);
+  const animationTimer = useSharedValue(small ? 0 : 1);
   const animatedActionBarStyle = useAnimatedStyle(() => {
     return {
       marginBottom: animationTimer.value * 10,

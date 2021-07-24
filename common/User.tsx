@@ -1,12 +1,19 @@
 import React from 'react';
-import {View, StyleSheet, StyleProp, ViewStyle, TextStyle} from 'react-native';
+import {
+  StyleSheet,
+  StyleProp,
+  TextStyle,
+  ImageStyle,
+  TouchableOpacity,
+} from 'react-native';
 import {ProjetXUser} from '../features/user/usersTypes';
 import Avatar from './Avatar';
 import Text from './Text';
+import {useNavigation} from '@react-navigation/native';
 
 interface ProjetXUserProps {
   friend: ProjetXUser;
-  avatarStyle?: StyleProp<ViewStyle>;
+  avatarStyle?: StyleProp<ImageStyle>;
   avatarTextStyle?: StyleProp<TextStyle>;
 }
 
@@ -15,8 +22,14 @@ const User: React.FC<ProjetXUserProps> = ({
   avatarStyle,
   avatarTextStyle,
 }) => {
+  const navigation = useNavigation();
   return (
-    <View style={styles.item}>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() => {
+        navigation.navigate('UserProfile', {userId: friend.id});
+      }}
+      style={styles.item}>
       <Avatar
         key={friend.id}
         friend={friend}
@@ -24,7 +37,7 @@ const User: React.FC<ProjetXUserProps> = ({
         textStyle={avatarTextStyle}
       />
       <Text style={styles.title}>{friend.name}</Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 

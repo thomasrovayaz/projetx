@@ -53,13 +53,15 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
   }, []);
 
   useEffect(() => {
-    const users = filterWithFuse(friends, ['name'], searchText).filter(
-      ({name}) => name && name !== '',
-    );
+    const users = filterWithFuse(
+      friends.filter(friend => searchText !== '' || friend.score > 0),
+      ['name'],
+      searchText,
+    ).filter(({name}) => name && name !== '');
     if (withGroups && groupsMap) {
       setDatas([
         {
-          title: 'Mes groupes de potes',
+          title: translate('Mes groupes de potes'),
           data: [
             ...filterWithFuse(
               Object.values(groupsMap),
@@ -68,10 +70,24 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
             ).filter(({name}) => name && name !== ''),
           ],
         },
-        {title: 'Mes amis', data: users},
+        {
+          title:
+            searchText !== ''
+              ? translate("Rechercher quelqu'un...")
+              : translate('Mes amis'),
+          data: users,
+        },
       ]);
     } else {
-      setDatas([{title: 'Mes amis', data: users}]);
+      setDatas([
+        {
+          title:
+            searchText !== ''
+              ? translate("Rechercher quelqu'un...")
+              : translate('Mes amis'),
+          data: users,
+        },
+      ]);
     }
   }, [withGroups, friends, groupsMap, searchText]);
 

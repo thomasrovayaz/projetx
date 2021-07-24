@@ -53,6 +53,8 @@ export function createPoll(type: PollType, parentEventId: string): ProjetXPoll {
       return new ProjetXPoll<DateValue>(data);
     case PollType.LOCATION:
       return new ProjetXPoll<LocationValue>(data);
+    case PollType.OTHER:
+      return new ProjetXPoll<string>(data);
     default:
       throw new Error('Unknown type');
   }

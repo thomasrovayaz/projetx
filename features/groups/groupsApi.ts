@@ -80,7 +80,10 @@ export function notifyNewGroup(
   }
 
   const include_player_ids = usersToNotify
-    .filter(({oneSignalId, id}) => oneSignalId && id !== getMyId())
+    .filter(
+      ({oneSignalId, id, settings}) =>
+        oneSignalId && id !== getMyId() && settings.groupNotification !== false,
+    )
     .map(({oneSignalId}) => oneSignalId);
   postNotification(
     include_player_ids,

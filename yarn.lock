@@ -794,6 +794,15 @@
     "@types/hoist-non-react-statics" "^3.3.1"
     hoist-non-react-statics "^3.3.0"
 
+"@georstat/react-native-image-cache@^1.2.7":
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/@georstat/react-native-image-cache/-/react-native-image-cache-1.2.7.tgz#c29e06bc0c0523d81ed8c0a9db734cd8bd2d8c4b"
+  integrity sha512-XxaEHm7p9Sn5NlVl4imlVdn1Ll1X/P0O2FQ6DdaqeaaUbAqsm64CioP8y5Q/3sEqV0qZsgRJQAOvv+hzUxzp5g==
+  dependencies:
+    crypto-js "^4.0.0"
+    lodash "^4.17.21"
+    react-native-file-access "^1.7.1"
+
 "@google-cloud/paginator@^3.0.0":
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/@google-cloud/paginator/-/paginator-3.0.5.tgz#9d6b96c421a89bd560c1bc2c197c7611ef21db6c"
@@ -1337,6 +1346,11 @@
   version "12.0.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/dynamic-links/-/dynamic-links-12.0.0.tgz#db17ecb4fbb9830c9922d68a3451b573579f28e4"
   integrity sha512-+gzosZ076nYna5clZFsPPMLKrIWTArlN+k6pZb4Kn5KHr+d5oXf+843NEG7NU2VIUtQK60Y7hsbUjPkqQ1mSFg==
+
+"@react-native-firebase/storage@12.0.0":
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/storage/-/storage-12.0.0.tgz#7ab75b86e46e19e265cac0e4cf7c19d6b6a94db2"
+  integrity sha512-4tg/yQHVISyPkhYeNo7UlkFUPgN8+a2sl6niAf3LEM6+ZFvD1mHUV3tbrmJArOFSMSpMZFbpEaUyM/1dHHePhw==
 
 "@react-native/assets@1.0.0":
   version "1.0.0"
@@ -3367,6 +3381,11 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.1, cross-spawn@^7.0.2:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
     which "^2.0.1"
+
+crypto-js@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.0.0.tgz#2904ab2677a9d042856a2ea2ef80de92e4a36dcc"
+  integrity sha512-bzHZN8Pn+gS7DQA6n+iUmBfl0hO5DJq++QP3U6uTucDtk/0iGpXd/Gg7CGR0p8tJhofJyaKoWBuJI4eAO00BBg==
 
 crypto-random-string@^2.0.0:
   version "2.0.0"
@@ -8588,6 +8607,11 @@ react-native-fast-image@8.3.4:
   resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-8.3.4.tgz#79edca177e30311b19d59ff335625bcbe22650d7"
   integrity sha512-LpzAdjUphihUpVEBn5fEv5AILe55rHav0YiZroPZ1rumKDhAl4u2cG01ku2Pb7l8sayjTsNu7FuURAlXUUDsow==
 
+react-native-file-access@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/react-native-file-access/-/react-native-file-access-1.7.1.tgz#ecddcfd1e95f05daa70b5484beec673fd99c5397"
+  integrity sha512-yJIH/7lSL+7oOgvRDcJtchIal9Vs15wk1aC3tyunt2w0DlBD3QnZWmbTNih6RPcZ6NjAqTB9ZCsKLRxIv9Y4ow==
+
 react-native-gesture-handler@1.10.3:
   version "1.10.3"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.10.3.tgz#942bbf2963bbf49fa79593600ee9d7b5dab3cfc0"
@@ -8641,6 +8665,16 @@ react-native-image-modal@2.0.3:
   integrity sha512-BCBAt0AfD/Z42sxlUW4xDugGpClFh+ZOhXk4I+zWtaCGATBHinmDqHQUaEDr2Vo1nkUruIAbiBsTjfj+ulO8Qg==
   dependencies:
     react-native-fast-image "8.3.4"
+
+react-native-image-picker@4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-4.0.6.tgz#0dfa5bb83bcf6ff58635ebb9201a185c2271e8cc"
+  integrity sha512-Pp3UWKUADuMG1mz12m6dSO/R2KnvXVEd77bldrfTMFpz4PFc4iVKo+bHeS79It0mUBezfzDMgfesg/OPLSugvQ==
+
+react-native-image-resizer@1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/react-native-image-resizer/-/react-native-image-resizer-1.4.5.tgz#5a520aa8baa07638b1894a1d87d4d9a0945c8d58"
+  integrity sha512-33EgL3C9pyvjKpullAB6fWyD5QhoYEpNNB9rxNvUsrpAnL2mHBW7PTrUCCZudJeB6Weg7nbweKrSw1nnto5aqg==
 
 react-native-iphone-x-helper@^1.0.3, react-native-iphone-x-helper@^1.2.1, react-native-iphone-x-helper@^1.3.0:
   version "1.3.1"
@@ -8795,7 +8829,7 @@ react-native-vector-icons@8.1.0:
     prop-types "^15.7.2"
     yargs "^16.1.1"
 
-react-native-webp-format@^1.1.2:
+react-native-webp-format@1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/react-native-webp-format/-/react-native-webp-format-1.1.2.tgz#22b14f544191e9a5411c920b9874e532a6ea6c89"
   integrity sha512-qs0oyLZOjoLdlTM9781Vr8WBwvtdkcwQuSJpCtA5KxspGl+YDDDZrW+tpwRQI0PSlB84O+IoK3bfmgHu1zqejQ==

@@ -11,7 +11,7 @@ import {translate} from '../../app/locales';
 import TextInput from '../../common/TextInput';
 import Button from '../../common/Button';
 import {ProjetXUser} from '../user/usersTypes';
-import {getMyId, getUsers} from '../user/usersApi';
+import {getUsers} from '../user/usersApi';
 import {filterWithFuse} from '../../app/fuse';
 import {useAppSelector} from '../../app/redux';
 import User from '../../common/User';
@@ -22,11 +22,9 @@ import {getGroup} from './groupsApi';
 import {useSelector} from 'react-redux';
 import {selectMyFriends} from '../user/usersSlice';
 import {ShareGroup} from './groupsUtils';
-import IconButton from '../../common/IconButton';
-import Icon from 'react-native-vector-icons/Ionicons';
 import QRCodeButton from '../../common/QRCodeButton';
 
-interface ProjetXGroupMembersProps {
+export interface ProjetXGroupMembersProps {
   route: {
     params: {
       groupId: string;
