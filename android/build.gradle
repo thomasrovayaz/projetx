@@ -3,10 +3,10 @@
 buildscript {
     ext {
         RNNKotlinVersion = "1.4.31"
-        buildToolsVersion = "29.0.3"
+        buildToolsVersion = "30.0.2"
         minSdkVersion = 21
-        compileSdkVersion = 29
-        targetSdkVersion = 29
+        compileSdkVersion = 30
+        targetSdkVersion = 30
         ndkVersion = "20.1.5948944"
         playServicesVersion = "17.0.0"
         androidMapsUtilsVersion = "2.2.3"

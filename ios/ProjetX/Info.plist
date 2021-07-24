@@ -71,10 +71,10 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Pour localiser un événement</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Pour ajouter une magnifique photo de profil</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Pour localiser un événement</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Pour ajouter une magnifique photo de profil</string>
 	<key>UIAppFonts</key>

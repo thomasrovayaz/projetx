@@ -112,7 +112,7 @@ const ParticipantsModal: React.FC<ProjetXEventParticipantsProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={'light-content'} backgroundColor={BEIGE} />
+      <StatusBar hidden={true} />
       <View style={styles.content}>
         <View style={styles.searchInput}>
           <TextInput
