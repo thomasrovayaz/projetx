@@ -68,8 +68,20 @@ function HomeTabs() {
     </Tab.Navigator>
   );
 }
-function MainStackScreen() {
+
+const MainHeaderRight = ({navigation}: {navigation: any}) => {
   const myProfile = useAppSelector(selectUser(getMyId()));
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={styles.headerButton}
+      onPress={() => navigation.navigate('Settings')}>
+      <Avatar friend={myProfile} />
+    </TouchableOpacity>
+  );
+};
+
+function MainStackScreen() {
   return (
     <MainStack.Navigator initialRouteName={isRegistered() ? 'Home' : 'Login'}>
       <MainStack.Screen
@@ -83,14 +95,7 @@ function MainStackScreen() {
           headerTransparent: true,
           headerTitle: '',
           headerLeft: undefined,
-          headerRight: () => (
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.headerButton}
-              onPress={() => navigation.navigate('Settings')}>
-              <Avatar friend={myProfile} />
-            </TouchableOpacity>
-          ),
+          headerRight: () => <MainHeaderRight navigation={navigation} />,
         })}
         component={HomeTabs}
       />
