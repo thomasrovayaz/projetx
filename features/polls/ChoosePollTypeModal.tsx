@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   FlatList,
   StatusBar,
@@ -25,7 +25,7 @@ export interface PollTypes {
 
 interface CreatePollTypeScreenProps {}
 
-const CreatePollTypeScreen: React.FC<CreatePollTypeScreenProps> = () => {
+const ChoosePollTypeModal: React.FC<CreatePollTypeScreenProps> = () => {
   const navigation = useNavigation();
   const {bottom} = useSafeAreaInsets();
   const navigationState = navigation
@@ -36,9 +36,7 @@ const CreatePollTypeScreen: React.FC<CreatePollTypeScreenProps> = () => {
   //@ts-ignore
   const {parentId, parentTitle, usersToNotify} = params;
 
-  const [selection, setSelection] = useState<PollType>();
   const next = async (option: PollTypes) => {
-    setSelection(option.id);
     navigation.navigate('CreatePollChoices', {
       type: option.id,
       parentId,
@@ -120,4 +118,4 @@ const styles = StyleSheet.create({
   closeButton: {},
 });
 
-export default CreatePollTypeScreen;
+export default ChoosePollTypeModal;

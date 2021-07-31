@@ -2,11 +2,12 @@ import dynamicLinks, {firebase} from '@react-native-firebase/dynamic-links';
 import {PollType, ProjetXPoll} from './pollsTypes';
 import {translate} from '../../app/locales';
 import {ShareUrl} from '../../app/share';
-import {PollTypes} from './CreatePollType';
+import {PollTypes} from './ChoosePollTypeModal';
 import {addMessage} from '../chat/chatApi';
 import {nanoid} from 'nanoid';
 import {getMyId} from '../user/usersApi';
 import {NotificationParentType} from '../../app/onesignal';
+import {ProjetXUser} from '../user/usersTypes';
 
 export const pollTypes: PollTypes[] = [
   {id: PollType.DATE, title: translate('Sondage de date'), icon: 'calendar'},
@@ -40,7 +41,7 @@ export const sendPollMessage = async (
   poll: ProjetXPoll,
   parentId: string,
   parentTitle: string,
-  usersToNotify: string[],
+  usersToNotify: ProjetXUser[],
 ) => {
   return addMessage(
     {

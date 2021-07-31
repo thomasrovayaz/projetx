@@ -10,7 +10,7 @@ import TimeInput from '../../../common/TimeInput';
 import Tabs, {Tab} from '../../../common/Tabs';
 import {useSelector} from 'react-redux';
 import {selectCurrentEvent} from '../eventsSlice';
-import PollCreator from '../../polls/PollCreator';
+import PollChoicesCreator from '../../polls/PollChoicesCreator';
 import {createPoll, getPoll, savePoll} from '../../polls/pollsApi';
 import {PollState, PollType} from '../../polls/pollsTypes';
 import {selectPoll} from '../../polls/pollsSlice';
@@ -111,7 +111,7 @@ const CreateEventWhenScreen: React.FC<CreateEventWhenScreenProps> = ({
   const renderPoll = () => {
     return (
       <View style={styles.content}>
-        <PollCreator
+        <PollChoicesCreator
           poll={poll}
           onChange={setPoll}
           isSingleDate={isSingleDate}
@@ -202,7 +202,7 @@ const CreateEventWhenScreen: React.FC<CreateEventWhenScreenProps> = ({
           <Button
             style={[styles.cta, styles.ctaRight]}
             variant="outlined"
-            title={translate('Sans date')}
+            title={translate('Plus tard')}
             onPress={empty}
           />
         )}

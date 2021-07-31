@@ -10,7 +10,7 @@ const TonightScreen: React.FC = () => {
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <View style={styles.empty}>
         <Title style={styles.emptyText}>
-          {translate('Comming soon... 😏 ')}
+          {translate('Coming soon... 😏 ')}
         </Title>
         <Text style={styles.emptySubtext}>
           {translate(

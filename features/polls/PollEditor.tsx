@@ -1,59 +1,48 @@
-import React, {useState} from 'react';
-import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 import {translate} from '../../app/locales';
-import {PollType, ProjetXPoll} from './pollsTypes';
-import PollCreator from './PollCreator';
-import {createPoll, savePoll} from './pollsApi';
+import {ProjetXPoll} from './pollsTypes';
+import PollChoicesCreator from './PollChoicesCreator';
+import {savePoll} from './pollsApi';
 import Title from '../../common/Title';
 import Button from '../../common/Button';
 import TextInput from '../../common/TextInput';
-import {useNavigation} from '@react-navigation/native';
-import {sendPollMessage} from './pollsUtils';
-import {BEIGE} from '../../app/colors';
 import Label from '../../common/Label';
 
 interface CreatePollTypeScreenProps {
-  route: {
-    params: {
-      type?: PollType;
-      poll?: ProjetXPoll;
-      parentId: string;
-      parentTitle: string;
-      usersToNotify?: string[];
-    };
-  };
+  poll: ProjetXPoll;
+  onSave(poll: ProjetXPoll): void;
+  onCancel(): void;
+  saveLabel?: string;
 }
 
-const CreatePollChoicesScreen: React.FC<CreatePollTypeScreenProps> = ({
-  route: {
-    params: {type = PollType.OTHER, parentId, parentTitle, usersToNotify, poll},
-  },
+const PollEditor: React.FC<CreatePollTypeScreenProps> = ({
+  poll,
+  onSave,
+  onCancel,
+  saveLabel,
 }) => {
-  const navigation = useNavigation();
-  const [currentPoll, setCurrentPoll] = useState<ProjetXPoll>(
-    poll || createPoll(type, parentId),
-  );
+  const [currentPoll, setCurrentPoll] = useState<ProjetXPoll>(poll);
   const [submitted, setSubmitted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setCurrentPoll(poll);
+  }, [poll]);
+
+  if (!currentPoll) {
+    return null;
+  }
 
   const save = async () => {
     if (!currentPoll.title || currentPoll.title === '') {
       setSubmitted(true);
       return;
     }
-    const newPoll = await savePoll(currentPoll);
-    if (!poll && usersToNotify) {
-      await sendPollMessage(newPoll, parentId, parentTitle, usersToNotify);
-    }
-    navigation.goBack();
-  };
-  const cancel = async () => {
-    navigation.goBack();
-    navigation.goBack();
+    onSave(await savePoll(currentPoll));
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar hidden />
+    <>
       <View style={styles.content}>
         <Title style={styles.title}>
           {translate('Quels sont les options ?')}
@@ -78,7 +67,7 @@ const CreatePollChoicesScreen: React.FC<CreatePollTypeScreenProps> = ({
           />
         </View>
         <Label>{translate('Options')}</Label>
-        <PollCreator
+        <PollChoicesCreator
           poll={currentPoll}
           onChange={setCurrentPoll}
           isSingleDate
@@ -87,25 +76,21 @@ const CreatePollChoicesScreen: React.FC<CreatePollTypeScreenProps> = ({
       <View style={styles.ctas}>
         <Button
           style={[styles.cta, styles.ctaLeft]}
-          title={translate('Créer le sondage')}
+          title={saveLabel || translate('Enregistrer')}
           onPress={save}
         />
         <Button
           style={[styles.cta, styles.ctaRight]}
           variant="outlined"
           title={translate('Annuler')}
-          onPress={cancel}
+          onPress={onCancel}
         />
       </View>
-    </SafeAreaView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: BEIGE,
-  },
   content: {
     flex: 1,
     padding: 20,
@@ -139,4 +124,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreatePollChoicesScreen;
+export default PollEditor;

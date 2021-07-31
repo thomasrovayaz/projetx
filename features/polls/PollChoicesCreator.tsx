@@ -20,7 +20,7 @@ interface ProjetXPollProps {
   isSingleDate?: boolean;
 }
 
-const PollCreator: React.FC<ProjetXPollProps> = ({
+const PollChoicesCreator: React.FC<ProjetXPollProps> = ({
   poll,
   onChange,
   isSingleDate,
@@ -151,4 +151,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PollCreator;
+export default PollChoicesCreator;

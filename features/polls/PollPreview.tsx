@@ -8,8 +8,8 @@ import Poll from './Poll';
 import {PollState} from './pollsTypes';
 import Button from '../../common/Button';
 import {translate} from '../../app/locales';
-import {EventParticipation} from '../events/eventsTypes';
 import {useNavigation} from '@react-navigation/native';
+import _ from 'lodash';
 
 const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
   pollId,
@@ -18,8 +18,9 @@ const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
   const navigation = useNavigation();
   const me = getMyId();
   const poll = useAppSelector(selectPoll(pollId));
+  const initialAnswer = poll?.answers[me] || [];
 
-  const [myAnswers, setMyAnswers] = useState<string[]>(poll?.answers[me]);
+  const [myAnswers, setMyAnswers] = useState<string[]>(initialAnswer);
   const [hasAnswered, setHasAnswered] = useState(myAnswers?.length > 0);
   const [hasNewAnswers, setHasNewAnswers] = useState(false);
 
@@ -46,11 +47,16 @@ const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
     if (!isMultiplePoll) {
       await validAnswers(newAnswers);
     } else {
-      setHasNewAnswers(true);
+      setHasNewAnswers(_.xor(newAnswers, initialAnswer).length !== 0);
     }
   };
 
-  const edit = () => {};
+  const edit = () => {
+    navigation.navigate('EditPoll', {pollId});
+  };
+  const showResult = () => {
+    navigation.navigate('PollResults', {pollId});
+  };
 
   return (
     <View style={[styles.pollContainer, style]}>
@@ -68,8 +74,15 @@ const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
             title={translate('Valider')}
             onPress={() => validAnswers(myAnswers)}
           />
+        ) : hasAnswered ? (
+          <Button
+            variant={'outlined'}
+            style={[styles.cta, styles.ctaLeft]}
+            title={translate('Résultats')}
+            onPress={showResult}
+          />
         ) : (
-          <View style={styles.cta} />
+          <View style={[styles.cta, styles.ctaLeft]} />
         )}
         {poll.author === getMyId() ? (
           <Button
@@ -79,7 +92,7 @@ const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
             onPress={edit}
           />
         ) : (
-          <View style={styles.cta} />
+          <View style={[styles.cta, styles.ctaRight]} />
         )}
       </View>
     </View>

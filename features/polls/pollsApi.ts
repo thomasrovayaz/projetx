@@ -1,7 +1,7 @@
 import {pollConverter, PollState, PollType, ProjetXPoll} from './pollsTypes';
 import database from '@react-native-firebase/database';
 import {store} from '../../app/store';
-import {updateAnswers, updatePoll} from './pollsSlice';
+import {fetchPolls, updateAnswers, updatePoll} from './pollsSlice';
 import {getMyId} from '../user/usersApi';
 import {nanoid} from 'nanoid';
 import {buildLink} from './pollsUtils';
@@ -14,6 +14,21 @@ export async function getPoll(id: string): Promise<ProjetXPoll> {
   const poll = pollConverter.fromFirestore(pollDb);
   store.dispatch(updatePoll(poll));
   return poll;
+}
+export async function getPolls(parentId: string): Promise<ProjetXPoll[]> {
+  const pollsDb = await database()
+    .ref('polls')
+    .orderByChild('parentId')
+    .equalTo(parentId)
+    .once('value');
+  const polls: ProjetXPoll[] = [];
+  pollsDb.forEach(eventDb => {
+    polls.push(pollConverter.fromFirestore(eventDb));
+    return undefined;
+  });
+  console.log(parentId, pollsDb);
+  store.dispatch(fetchPolls(polls));
+  return polls;
 }
 export async function savePoll(poll: ProjetXPoll): Promise<ProjetXPoll> {
   if (!poll.id) {

@@ -4,6 +4,7 @@ import {
   TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
+  View,
   ViewStyle,
 } from 'react-native';
 import Text from './Text';
@@ -175,8 +176,9 @@ const DateInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
           setDialogState({...dialogState, ...newDialogState});
         }}
         onClose={() => setOpenDialog(false)}
-        range={range}
-      />
+        range={range}>
+        <View />
+      </DateRangePicker>
     </>
   );
 };

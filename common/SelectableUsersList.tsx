@@ -1,5 +1,11 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {RefreshControl, SectionList, StyleSheet, View} from 'react-native';
+import {
+  Image,
+  RefreshControl,
+  SectionList,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {translate} from '../app/locales';
 import {getUsers} from '../features/user/usersApi';
 import CheckboxInput from './CheckboxInput';
@@ -25,6 +31,22 @@ interface SelectableUsersListProps {
   label?: string;
   withGroups?: boolean;
 }
+
+const EmptyUsersList: React.FC = () => {
+  return (
+    <View style={styles.emptyList}>
+      <Image
+        style={styles.emptyImage}
+        source={require('../assets/alone.webp')}
+      />
+      <Text style={styles.emptyText}>
+        {translate(
+          "Je n'ai pas encore trouvé tes amis\n\nTu peux les rechercher en utilisant leur pseudo dans la barre de recherche 💪",
+        )}
+      </Text>
+    </View>
+  );
+};
 
 const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
   selection,
@@ -54,42 +76,48 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
 
   useEffect(() => {
     const users = filterWithFuse(
-      friends.filter(friend => searchText !== '' || friend.score > 0),
+      friends.filter(
+        friend =>
+          searchText !== '' ||
+          friend.score > 0 ||
+          selection.usersSelected.includes(friend.id),
+      ),
       ['name'],
       searchText,
     ).filter(({name}) => name && name !== '');
+    const _userDatas =
+      users.length > 0
+        ? [
+            {
+              title:
+                searchText !== ''
+                  ? translate("Rechercher quelqu'un...")
+                  : translate('Mes amis'),
+              data: users,
+            },
+          ]
+        : [];
     if (withGroups && groupsMap) {
-      setDatas([
-        {
-          title: translate('Mes groupes de potes'),
-          data: [
-            ...filterWithFuse(
-              Object.values(groupsMap),
-              ['name'],
-              searchText,
-            ).filter(({name}) => name && name !== ''),
-          ],
-        },
-        {
-          title:
-            searchText !== ''
-              ? translate("Rechercher quelqu'un...")
-              : translate('Mes amis'),
-          data: users,
-        },
-      ]);
+      const groups = filterWithFuse(
+        Object.values(groupsMap),
+        ['name'],
+        searchText,
+      ).filter(({name}) => name && name !== '');
+      if (groups.length > 0) {
+        setDatas([
+          {
+            title: translate('Mes groupes de potes'),
+            data: groups,
+          },
+          ..._userDatas,
+        ]);
+      } else {
+        setDatas(_userDatas);
+      }
     } else {
-      setDatas([
-        {
-          title:
-            searchText !== ''
-              ? translate("Rechercher quelqu'un...")
-              : translate('Mes amis'),
-          data: users,
-        },
-      ]);
+      setDatas(_userDatas);
     }
-  }, [withGroups, friends, groupsMap, searchText]);
+  }, [withGroups, friends, groupsMap, searchText, selection.usersSelected]);
 
   const onSelect =
     (item: ProjetXGroup | ProjetXUser) => (selected: boolean) => {
@@ -159,7 +187,7 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
         <TextInput
           value={searchText}
           onChangeText={onChangeSearchText}
-          placeholder={translate('Rechercher...')}
+          placeholder={translate("Rechercher quelqu'un...")}
         />
       </View>
       <View style={styles.content}>
@@ -167,16 +195,15 @@ const SelectableUsersList: React.FC<SelectableUsersListProps> = ({
           contentContainerStyle={styles.usersList}
           sections={datas}
           renderItem={renderItem}
+          ListEmptyComponent={EmptyUsersList}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          renderSectionHeader={({section: {title, data}}) =>
-            data.length > 0 ? (
-              <View style={styles.header}>
-                <Text style={styles.headerText}>{title}</Text>
-              </View>
-            ) : null
-          }
+          renderSectionHeader={({section: {title}}) => (
+            <View style={styles.header}>
+              <Text style={styles.headerText}>{title}</Text>
+            </View>
+          )}
         />
       </View>
     </>
@@ -208,6 +235,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: DARK_BLUE,
+  },
+  emptyList: {
+    flex: 1,
+    paddingVertical: 20,
+    alignItems: 'flex-start',
+  },
+  emptyText: {
+    textAlign: 'left',
+    fontSize: 18,
+    marginVertical: 30,
+  },
+  emptyImage: {
+    width: '100%',
+    height: 150,
   },
 });
 

@@ -34,9 +34,8 @@ import GroupMembersModal, {
   ProjetXGroupMembersProps,
 } from '../features/groups/GroupMembers';
 import TonightScreen from '../features/tonight';
-import PollModal from '../features/polls/PollModal';
-import CreatePollTypeScreen from '../features/polls/CreatePollType';
-import CreatePollChoicesScreen from '../features/polls/CreatePollChoices';
+import ChoosePollTypeModal from '../features/polls/ChoosePollTypeModal';
+import CreatePollModal from '../features/polls/CreatePollModal';
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import SettingsScreen from '../features/user/Settings';
 import {toastConfig} from '../common/Toast';
@@ -45,6 +44,8 @@ import {useAppSelector} from './redux';
 import {selectUser} from '../features/user/usersSlice';
 import {getMyId} from '../features/user/usersApi';
 import DetailsUser from '../features/user/DetailsUser';
+import EditPollModal from '../features/polls/EditPollModal';
+import PollResults from '../features/polls/PollResults';
 
 const isRegistered = () => {
   const me = auth().currentUser;
@@ -176,14 +177,8 @@ function MainStackScreen() {
 function CreatePollScreen() {
   return (
     <PollStack.Navigator screenOptions={{headerShown: false}}>
-      <PollStack.Screen
-        name="CreatePollType"
-        component={CreatePollTypeScreen}
-      />
-      <PollStack.Screen
-        name="CreatePollChoices"
-        component={CreatePollChoicesScreen}
-      />
+      <PollStack.Screen name="CreatePollType" component={ChoosePollTypeModal} />
+      <PollStack.Screen name="CreatePollChoices" component={CreatePollModal} />
     </PollStack.Navigator>
   );
 }
@@ -255,7 +250,8 @@ const App = () => {
                 component={GroupMembersScreen}
               />
               <RootStack.Screen name="QRCode" component={QRCodeModal} />
-              <RootStack.Screen name="Poll" component={PollModal} />
+              <RootStack.Screen name="EditPoll" component={EditPollModal} />
+              <RootStack.Screen name="PollResults" component={PollResults} />
               <RootStack.Screen
                 name="CreatePoll"
                 component={CreatePollScreen}

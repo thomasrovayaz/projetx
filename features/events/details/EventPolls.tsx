@@ -12,6 +12,7 @@ import PollPreview from '../../polls/PollPreview';
 import {selectEvent} from '../eventsSlice';
 import {EventParticipation} from '../eventsTypes';
 import {useNavigation} from '@react-navigation/native';
+import {getPolls} from '../../polls/pollsApi';
 
 interface EventDetailsProps {
   eventId: string;
@@ -43,6 +44,7 @@ const EventPolls: React.FC<EventDetailsProps> = ({eventId}) => {
   const onRefresh = useCallback(() => {
     const fetchEvent = async () => {
       setRefreshing(true);
+      await Promise.all([getEvent(eventId), getPolls(eventId)]);
       await getEvent(eventId);
       setRefreshing(false);
     };
