@@ -56,6 +56,7 @@ const RootStack = createStackNavigator();
 const MainStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const PollStack = createStackNavigator();
+const PollResultsStack = createStackNavigator();
 const EventParticipantsStack = createStackNavigator();
 const GroupMembersStack = createStackNavigator();
 
@@ -182,6 +183,21 @@ function CreatePollScreen() {
     </PollStack.Navigator>
   );
 }
+function PollResultsScreen({route}: ProjetXEventParticipantsProps) {
+  return (
+    <PollResultsStack.Navigator screenOptions={{headerShown: false}}>
+      <PollResultsStack.Screen
+        name="PollResults"
+        component={PollResults}
+        initialParams={{
+          ...route.params,
+          title: translate('Résultats'),
+        }}
+      />
+      <PollResultsStack.Screen name="UserProfile" component={DetailsUser} />
+    </PollResultsStack.Navigator>
+  );
+}
 function GroupMembersScreen({route}: ProjetXGroupMembersProps) {
   return (
     <GroupMembersStack.Navigator screenOptions={{headerShown: false}}>
@@ -251,7 +267,10 @@ const App = () => {
               />
               <RootStack.Screen name="QRCode" component={QRCodeModal} />
               <RootStack.Screen name="EditPoll" component={EditPollModal} />
-              <RootStack.Screen name="PollResults" component={PollResults} />
+              <RootStack.Screen
+                name="PollResults"
+                component={PollResultsScreen}
+              />
               <RootStack.Screen
                 name="CreatePoll"
                 component={CreatePollScreen}

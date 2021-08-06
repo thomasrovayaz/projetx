@@ -1,8 +1,10 @@
 import {translate} from '../../app/locales';
-import {EventType, ProjetXEvent} from './eventsTypes';
+import {EventParticipation, EventType, ProjetXEvent} from './eventsTypes';
 import dynamicLinks, {firebase} from '@react-native-firebase/dynamic-links';
 import {ShareUrl} from '../../app/share';
-import {DARK_BLUE, LIGHT_BLUE, RED} from '../../app/colors';
+import {DARK_BLUE, LIGHT_BLUE} from '../../app/colors';
+import {getMyId} from '../user/usersApi';
+import {sortEvents} from './eventsSlice';
 
 export interface EventTypes {
   id: EventType;
@@ -89,3 +91,51 @@ export async function buildLink(event: ProjetXEvent) {
     firebase.dynamicLinks.ShortLinkType.SHORT,
   );
 }
+
+export const filterEventsWaitingForAnswers = (
+  events: ProjetXEvent[],
+): ProjetXEvent[] => {
+  if (!events) {
+    return [];
+  }
+  return events
+    .filter(event => {
+      return (
+        !event.isFinished() &&
+        [EventParticipation.maybe, EventParticipation.notanswered].includes(
+          event.participations[getMyId()],
+        )
+      );
+    })
+    .sort((eventA, eventB) => {
+      const answerA = eventA.participations[getMyId()];
+      const answerB = eventB.participations[getMyId()];
+      if (
+        answerA === EventParticipation.maybe &&
+        answerB === EventParticipation.notanswered
+      ) {
+        return -1;
+      }
+      if (
+        answerA === EventParticipation.notanswered &&
+        answerB === EventParticipation.maybe
+      ) {
+        return 1;
+      }
+      return sortEvents(eventA, eventB);
+    });
+};
+export const filterUpcomingEvents = (
+  events: ProjetXEvent[],
+): ProjetXEvent[] => {
+  if (!events) {
+    return [];
+  }
+  return events
+    .filter(
+      event =>
+        !event.isFinished() &&
+        [EventParticipation.going].includes(event.participations[getMyId()]),
+    )
+    .sort(sortEvents);
+};

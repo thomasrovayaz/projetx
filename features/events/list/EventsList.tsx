@@ -26,41 +26,47 @@ interface EventsListProps {
   emptyText?: string;
   events: ProjetXEvent[];
   onOpenEvent(eventId: string): void;
+  onCreateEvent?(): void;
   style?: StyleProp<ViewStyle>;
 }
 
-const EmptyEventsList: React.FC<{emptyText?: string}> = ({emptyText}) => {
-  const dispatch = useAppDispatch();
-  const navigation = useNavigation();
-  return (
-    <View style={styles.emptyList}>
-      <Image
-        style={styles.emptyImage}
-        source={require('../../../assets/alone.webp')}
-      />
-      <Text style={styles.emptyText}>
-        {emptyText
-          ? emptyText
-          : translate(
-              'Toujours rien par ici, mais tu peux toujours réanimer ton groupe de pote en créant un événement 😎',
-            )}
-      </Text>
-      <Button
-        style={styles.emptyButton}
-        icon={'calendar'}
-        title={translate('Créer un évènement')}
-        variant={'outlined'}
-        onPress={() => {
-          dispatch(createEvent());
-          navigation.navigate('CreateEventType');
-        }}
-      />
-    </View>
-  );
-};
+const EmptyEventsList: React.FC<{emptyText?: string; onCreateEvent?(): void}> =
+  ({emptyText, onCreateEvent}) => {
+    const dispatch = useAppDispatch();
+    const navigation = useNavigation();
+    return (
+      <View style={styles.emptyList}>
+        <Image
+          style={styles.emptyImage}
+          source={require('../../../assets/alone.webp')}
+        />
+        <Text style={styles.emptyText}>
+          {emptyText
+            ? emptyText
+            : translate(
+                'Toujours rien par ici, mais tu peux toujours réanimer ton groupe de pote en créant un événement 😎',
+              )}
+        </Text>
+        <Button
+          style={styles.emptyButton}
+          icon={'calendar'}
+          title={translate('Créer un évènement')}
+          variant={'outlined'}
+          onPress={() => {
+            if (onCreateEvent) {
+              return onCreateEvent();
+            }
+            dispatch(createEvent({}));
+            navigation.navigate('CreateEventType');
+          }}
+        />
+      </View>
+    );
+  };
 
 const EventsList: React.FC<EventsListProps> = ({
   onOpenEvent,
+  onCreateEvent,
   events,
   emptyText,
   style,
@@ -100,14 +106,16 @@ const EventsList: React.FC<EventsListProps> = ({
   );
 
   if (!events || events.length <= 0) {
-    return <EmptyEventsList emptyText={emptyText} />;
+    return (
+      <EmptyEventsList emptyText={emptyText} onCreateEvent={onCreateEvent} />
+    );
   }
   return (
     <SectionList
       ListHeaderComponent={() => (
         <View style={styles.listHeader}>
-          <WaitingForAnswerEvents />
-          <UpcomingEvents />
+          <WaitingForAnswerEvents events={events} />
+          <UpcomingEvents events={events} />
         </View>
       )}
       stickySectionHeadersEnabled={false}

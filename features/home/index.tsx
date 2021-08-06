@@ -121,8 +121,8 @@ const HomeScreen: React.FC = () => {
             <Title style={styles.title}>{`${translate('Hello')} ${
               getMe().displayName
             } 👋`}</Title>
-            <WaitingForAnswerEvents />
-            <UpcomingEvents />
+            <WaitingForAnswerEvents events={events} />
+            <UpcomingEvents events={events} />
           </View>
         )}
         refreshControl={
@@ -150,7 +150,7 @@ const HomeScreen: React.FC = () => {
                 title={translate('Créer un évènement')}
                 variant={'outlined'}
                 onPress={() => {
-                  dispatch(createEvent());
+                  dispatch(createEvent({}));
                   navigation.navigate('CreateEventType');
                 }}
               />

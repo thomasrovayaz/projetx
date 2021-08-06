@@ -16,8 +16,8 @@ import Avatar from '../../common/Avatar';
 import ProjetXModal from '../../common/Modal';
 import Title from '../../common/Title';
 import Button from '../../common/Button';
-import {createEvent} from '../events/eventsSlice';
 import {ImagePickerResponse} from 'react-native-image-picker/src/types';
+import Icon from 'react-native-vector-icons/Feather';
 
 const AvatarEditor = () => {
   const [updating, setUpdating] = useState(false);
@@ -67,6 +67,9 @@ const AvatarEditor = () => {
           style={styles.avatar}
           textStyle={styles.avatarText}
         />
+        <View style={styles.editButton}>
+          <Icon name={'edit'} color="white" size={15} />
+        </View>
       </TouchableOpacity>
       <ProjetXModal
         height={300}
@@ -118,6 +121,14 @@ const styles = StyleSheet.create({
   },
   button: {
     marginBottom: 20,
+  },
+  editButton: {
+    position: 'absolute',
+    bottom: 5,
+    left: 175,
+    backgroundColor: DARK_BLUE,
+    borderRadius: 10,
+    padding: 10,
   },
 });
 

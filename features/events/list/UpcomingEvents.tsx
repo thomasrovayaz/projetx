@@ -1,15 +1,19 @@
 import Label from '../../../common/Label';
 import {translate} from '../../../app/locales';
-import {FlatList, StyleSheet, View} from 'react-native';
-import React from 'react';
-import {useAppSelector} from '../../../app/redux';
-import {selectUpcomingEvents} from '../eventsSlice';
+import {FlatList, StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import EventItem, {EventCardVariant} from './EventItem';
+import {ProjetXEvent} from '../eventsTypes';
+import {filterUpcomingEvents} from '../eventsUtils';
 
-const UpcomingEvents = () => {
+const UpcomingEvents: React.FC<{events: ProjetXEvent[]}> = ({events}) => {
   const navigation = useNavigation();
-  const upcomingEvents = useAppSelector(selectUpcomingEvents);
+  const [upcomingEvents, setUpcomingEvents] = useState<ProjetXEvent[]>([]);
+
+  useEffect(() => {
+    setUpcomingEvents(filterUpcomingEvents(events));
+  }, [events]);
   const onOpenEvent = (eventId: string, chat?: boolean) => {
     navigation.navigate('Event', {eventId, chat});
   };

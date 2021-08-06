@@ -1,9 +1,8 @@
 import {FirebaseDatabaseTypes} from '@react-native-firebase/database';
 import moment from 'moment';
 import {LocationValue} from './create/components/LocationPicker';
-import {getMe, getMyId} from '../user/usersApi';
-import {useAppSelector} from '../../app/redux';
-import {EventReminder, selectReminder} from './eventsSlice';
+import {getMyId} from '../user/usersApi';
+import {EventReminder} from './eventsSlice';
 
 export interface DateValue {
   startDate?: moment.Moment;
@@ -29,6 +28,22 @@ export enum EventParticipation {
 export enum EventDateType {
   poll = 'poll',
   fixed = 'fixed',
+}
+
+export interface EventProps {
+  id: string;
+  author?: string;
+  title?: string;
+  description?: string | undefined;
+  type?: EventType;
+  dateType?: EventDateType;
+  date?: DateValue | undefined;
+  datePoll?: string | undefined;
+  time?: moment.Moment | undefined;
+  location?: LocationValue | undefined;
+  participations?: Record<string, EventParticipation>;
+  groups?: Record<string, boolean>;
+  shareLink?: string;
 }
 
 export class ProjetXEvent {
@@ -60,21 +75,7 @@ export class ProjetXEvent {
     participations,
     groups,
     shareLink,
-  }: {
-    id: string;
-    author?: string;
-    title?: string;
-    description?: string | undefined;
-    type?: EventType;
-    dateType?: EventDateType;
-    date?: DateValue | undefined;
-    datePoll?: string | undefined;
-    time?: moment.Moment | undefined;
-    location?: LocationValue | undefined;
-    participations?: Record<string, EventParticipation>;
-    groups?: Record<string, boolean>;
-    shareLink?: string;
-  }) {
+  }: EventProps) {
     this.id = id;
     this.author = author;
     this.title = title;

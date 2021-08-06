@@ -1,9 +1,9 @@
 import Label from '../../../common/Label';
 import {translate} from '../../../app/locales';
 import {StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useAppSelector} from '../../../app/redux';
-import {selectEventsWaitingForAnswers, selectReminder} from '../eventsSlice';
+import {selectReminder} from '../eventsSlice';
 import {ProjetXEvent} from '../eventsTypes';
 import {useNavigation} from '@react-navigation/native';
 import Swiper from 'react-native-deck-swiper';
@@ -11,6 +11,7 @@ import Button from '../../../common/Button';
 import EventItem, {EventCardVariant} from './EventItem';
 import {joinEvent, refuseEvent, remindMeEvent} from '../eventsApi';
 import {DARK_BLUE} from '../../../app/colors';
+import {filterEventsWaitingForAnswers} from '../eventsUtils';
 
 const WaitingForAnswerEvent = ({
   item,
@@ -33,19 +34,27 @@ const WaitingForAnswerEvent = ({
   );
 };
 
-const WaitingForAnswerEvents: React.FC<{style?: StyleProp<ViewStyle>}> = ({
-  style,
-}) => {
+const WaitingForAnswerEvents: React.FC<{
+  style?: StyleProp<ViewStyle>;
+  events: ProjetXEvent[];
+}> = ({style, events}) => {
   const swiper = useRef<Swiper<ProjetXEvent>>();
   const navigation = useNavigation();
   const [cardIndex, setCardIndex] = useState(0);
-  const waitingForAnswerEvents = useAppSelector(selectEventsWaitingForAnswers);
+  const [waitingForAnswerEvents, setWaitingForAnswerEvents] = useState<
+    ProjetXEvent[]
+  >([]);
   const currentEvent =
     waitingForAnswerEvents && waitingForAnswerEvents.length > cardIndex
       ? waitingForAnswerEvents[cardIndex]
       : undefined;
   const reminder = useAppSelector(selectReminder(currentEvent?.id));
   const canMaybe = currentEvent && currentEvent.canReportAnswer(reminder);
+
+  useEffect(() => {
+    setWaitingForAnswerEvents(filterEventsWaitingForAnswers(events));
+  }, [events]);
+
   const onOpenEvent = (eventId: string, chat?: boolean) => {
     navigation.navigate('Event', {eventId, chat});
   };
@@ -65,10 +74,6 @@ const WaitingForAnswerEvents: React.FC<{style?: StyleProp<ViewStyle>}> = ({
   const onSwipedTop = async (index: number) => {
     const event = waitingForAnswerEvents[index];
     await remindMeEvent(event);
-  };
-  const onTapCard = async (index: number) => {
-    const event = waitingForAnswerEvents[index];
-    await onOpenEvent(event.id);
   };
 
   return (

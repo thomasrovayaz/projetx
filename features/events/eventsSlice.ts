@@ -1,6 +1,11 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../../app/store';
-import {eventConverter, EventParticipation, ProjetXEvent} from './eventsTypes';
+import {
+  eventConverter,
+  EventParticipation,
+  EventProps,
+  ProjetXEvent,
+} from './eventsTypes';
 import {createTransform} from 'redux-persist';
 import {removeEventAnswerReminder} from './eventsApi';
 import moment from 'moment';
@@ -44,8 +49,27 @@ export const eventsSlice = createSlice({
     ) {
       state.reminders[event.id] = {onesignalId, date};
     },
-    createEvent(state) {
-      state.current = new ProjetXEvent({id: ''});
+    createEvent(
+      state,
+      {
+        payload,
+      }: PayloadAction<{
+        groupId?: string;
+        participants?: string[];
+      }>,
+    ) {
+      const props: EventProps = {id: ''};
+      if (payload?.groupId) {
+        props.groups = {};
+        props.groups[payload.groupId] = true;
+      }
+      if (payload?.participants) {
+        props.participations = {};
+        for (const participant of payload?.participants) {
+          props.participations[participant] = EventParticipation.notanswered;
+        }
+      }
+      state.current = new ProjetXEvent(props);
     },
     fetchEvents(state, action: PayloadAction<ProjetXEvent[]>) {
       state.list = {};
@@ -110,7 +134,7 @@ export const {
   remindEvent,
 } = eventsSlice.actions;
 
-const sortEvents = (eventA: ProjetXEvent, eventB: ProjetXEvent) => {
+export const sortEvents = (eventA: ProjetXEvent, eventB: ProjetXEvent) => {
   const startingDateA = eventA.getStartingDate();
   const startingDateB = eventB.getStartingDate();
   if (!startingDateB) {
@@ -155,36 +179,6 @@ export const selectAmIParticipating =
         event.participations[me] === EventParticipation.going)
     );
   };
-export const selectEventsWaitingForAnswers = (
-  state: RootState,
-): ProjetXEvent[] => {
-  return Object.values<ProjetXEvent>(state.events.list)
-    .filter(event => {
-      return (
-        !event.isFinished() &&
-        [EventParticipation.maybe, EventParticipation.notanswered].includes(
-          event.participations[getMyId()],
-        )
-      );
-    })
-    .sort((eventA, eventB) => {
-      const answerA = eventA.participations[getMyId()];
-      const answerB = eventB.participations[getMyId()];
-      if (
-        answerA === EventParticipation.maybe &&
-        answerB === EventParticipation.notanswered
-      ) {
-        return -1;
-      }
-      if (
-        answerA === EventParticipation.notanswered &&
-        answerB === EventParticipation.maybe
-      ) {
-        return 1;
-      }
-      return sortEvents(eventA, eventB);
-    });
-};
 export const selectUpcomingEvents = (state: RootState): ProjetXEvent[] =>
   Object.values<ProjetXEvent>(state.events.list)
     .filter(
