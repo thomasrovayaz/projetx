@@ -17,12 +17,12 @@ export const getMyId = (): string => {
   //return 'hSmg2JgylMXlwLeZ5yPjCnyyaTq1';
   return getMe().uid;
 };
-export const isRegistered = () => {
+export const isRegistered = (): boolean => {
   const me = auth().currentUser;
   return Boolean(me && me.displayName);
 };
 
-export async function updateMyName(name: string) {
+export async function updateMyName(name: string): Promise<void> {
   const me = getMe();
   if (me.displayName === name || !name || name === '') {
     return;
@@ -30,17 +30,29 @@ export async function updateMyName(name: string) {
   await database().ref(`users/${me.uid}/displayName`).set(name);
   await me.updateProfile({displayName: name});
 }
-export async function updateMyDescription(description: string) {
-  const me = getMe();
-  await database().ref(`users/${me.uid}/description`).set(description);
+export async function updateMyDescription(description: string): Promise<void> {
+  await database().ref(`users/${getMyId()}/description`).set(description);
+  const me = selectUser(getMyId())(store.getState());
+  store.dispatch(
+    updateUser({
+      ...me,
+      description: description,
+    }),
+  );
 }
-export async function updateOneSignalId(oneSignalId: string, userId: string) {
+export async function updateOneSignalId(
+  oneSignalId: string,
+  userId: string,
+): Promise<void> {
   if (!oneSignalId || oneSignalId === '') {
     return;
   }
   await database().ref(`users/${userId}/oneSignalId`).set(oneSignalId);
 }
-export async function updateSetting(key: string, selected: string | boolean) {
+export async function updateSetting(
+  key: string,
+  selected: string | boolean,
+): Promise<void> {
   if (!key || key === '') {
     return;
   }
@@ -77,12 +89,12 @@ export async function updateProfilePic(uri: string | undefined) {
     0,
     undefined,
   );
-  let imageSmallName = `profile_small_${getMyId()}.png`;
-  let imageBigName = `profile_small_${getMyId()}.png`;
-  let smallUploadUri = smallPic.uri.replace('file://', '');
-  let bigUploadUri = bigPic.uri.replace('file://', '');
-  let imageSmallRef = storage().ref('/' + imageSmallName);
-  let imageBigRef = storage().ref('/' + imageBigName);
+  const imageSmallName = `profile_small_${getMyId()}.png`;
+  const imageBigName = `profile_small_${getMyId()}.png`;
+  const smallUploadUri = smallPic.uri.replace('file://', '');
+  const bigUploadUri = bigPic.uri.replace('file://', '');
+  const imageSmallRef = storage().ref('/' + imageSmallName);
+  const imageBigRef = storage().ref('/' + imageBigName);
   await imageSmallRef.putFile(smallUploadUri);
   await imageBigRef.putFile(bigUploadUri);
   const downloadSmallUrl = await imageSmallRef.getDownloadURL();
@@ -99,7 +111,7 @@ export async function updateProfilePic(uri: string | undefined) {
   return newAvatar;
 }
 
-export async function getUsers() {
+export async function getUsers(): Promise<ProjetXUser[]> {
   const usersDb = await database().ref('users').orderByKey().once('value');
   const users: ProjetXUser[] = [];
   usersDb.forEach(userDb => {

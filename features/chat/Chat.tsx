@@ -16,7 +16,7 @@ import {translate} from '../../app/locales';
 import {BubbleProps} from 'react-native-gifted-chat/lib/Bubble';
 import Icon from 'react-native-vector-icons/Feather';
 import {SendProps} from 'react-native-gifted-chat/lib/Send';
-import {StyleSheet, View, Dimensions} from 'react-native';
+import {StyleSheet, View, Dimensions, TouchableOpacity} from 'react-native';
 import Avatar from '../../common/Avatar';
 import Text from '../../common/Text';
 import {chatRead, selectChat} from './chatsSlice';
@@ -28,10 +28,12 @@ import FastImage from 'react-native-fast-image';
 import {ProjetXMessage} from './chatsTypes';
 import PollPreview from '../polls/PollPreview';
 import {DARK_BLUE} from '../../app/colors';
+import {useNavigation} from '@react-navigation/native';
+import ActionsButton from './ActionsButton';
 
 const {width} = Dimensions.get('window');
 
-interface ChatProps {
+export interface ChatProps {
   parent: {id: string; title: string; type: NotificationParentType};
   members: string[];
 }
@@ -54,6 +56,7 @@ const QuickRepliesPoll: React.FC<{message: ProjetXMessage}> = ({message}) => {
 
 const Chat: React.FC<ChatProps> = ({parent, members}) => {
   const dispatch = useAppDispatch();
+  const navigation = useNavigation();
   const [messages, setMessages] = useState<ProjetXMessage[]>([]);
   const chat = useAppSelector(selectChat(parent.id));
   const users = useAppSelector(selectUsers);
@@ -148,7 +151,13 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
     const {
       user: {_id},
     } = currentMessage;
-    return <Avatar style={styles.avatar} friend={users[_id]} />;
+    return (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => navigation.navigate('UserProfile', {userId: _id})}>
+        <Avatar style={styles.avatar} friend={users[_id]} />
+      </TouchableOpacity>
+    );
   };
   const onImageChange: OnImageChangeCallback = async ({nativeEvent}) => {
     const {linkUri, mime} = nativeEvent;
@@ -227,6 +236,9 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
       renderSend={renderSend}
       renderAvatar={renderAvatar}
       renderComposer={renderComposer}
+      renderActions={props => (
+        <ActionsButton {...props} parent={parent} members={members} />
+      )}
       maxComposerHeight={70}
       minComposerHeight={70}
       minInputToolbarHeight={70}
@@ -259,7 +271,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginBottom: 2,
   },
-  image: {width: 150, height: 100, marginBottom: 3},
+  image: {
+    width: 250,
+    height: 200,
+    maxWidth: '100%',
+    maxHeight: '100%',
+    marginBottom: 3,
+  },
   scrollToBottomStyle: {borderRadius: 15, opacity: 1},
   pollContainer: {
     marginTop: 10,

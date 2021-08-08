@@ -5,12 +5,13 @@ import {
   Platform,
   StyleProp,
   StyleSheet,
-  TouchableWithoutFeedback,
+  TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native';
 import IconButton from './IconButton';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useKeyboard} from '../app/useKeyboard';
 
 const windowSize = Dimensions.get('window');
 
@@ -21,6 +22,8 @@ const ProjetXModal: React.FC<{
   style?: StyleProp<ViewStyle>;
 }> = ({open, onClose, height, children, style}) => {
   const {bottom} = useSafeAreaInsets();
+  const [keyboardHeight] = useKeyboard();
+  const paddingTop = windowSize.height - height - bottom - keyboardHeight;
 
   return (
     <Modal
@@ -33,28 +36,22 @@ const ProjetXModal: React.FC<{
       // @ts-ignore
       onBackdropPress={onClose}
       presentationStyle={'pageSheet'}>
-      <TouchableWithoutFeedback
-        onPressOut={e => {
-          if (e.nativeEvent.locationY > 150) {
-            onClose();
-          }
-        }}>
-        <View
-          style={[
-            styles.container,
-            {paddingTop: windowSize.height - height - bottom},
-          ]}>
-          <View style={[styles.content, {height: height + bottom}, style]}>
-            <IconButton
-              name={'x'}
-              size={30}
-              style={styles.closeButton}
-              onPress={onClose}
-            />
-            {children}
-          </View>
+      <TouchableOpacity
+        style={[StyleSheet.absoluteFill, styles.backdrop]}
+        onPress={onClose}>
+        <View />
+      </TouchableOpacity>
+      <View style={[styles.container, {top: paddingTop}]}>
+        <View style={[styles.content, {height: height + bottom}, style]}>
+          <IconButton
+            name={'x'}
+            size={30}
+            style={styles.closeButton}
+            onPress={onClose}
+          />
+          {children}
         </View>
-      </TouchableWithoutFeedback>
+      </View>
     </Modal>
   );
 };
@@ -62,7 +59,12 @@ const ProjetXModal: React.FC<{
 const styles = StyleSheet.create({
   container: {
     alignItems: 'stretch',
+    position: 'absolute',
+    left: 0,
+    right: 0,
     flex: 1,
+  },
+  backdrop: {
     ...Platform.select({
       ios: {},
       android: {

@@ -143,10 +143,8 @@ const WaitingForAnswerEvents: React.FC<{
           <Button
             style={styles.button}
             variant={'outlined'}
-            onPress={() => {
-              swiper.current?.swipeRight();
-            }}
-            title={translate('Rejoindre')}
+            onPress={() => swiper.current?.swipeLeft()}
+            title={translate('Refuser')}
           />
           {currentEvent && currentEvent.canReportAnswer(reminder) ? (
             <Button
@@ -159,8 +157,10 @@ const WaitingForAnswerEvents: React.FC<{
           <Button
             style={styles.button}
             variant={'outlined'}
-            onPress={() => swiper.current?.swipeLeft()}
-            title={translate('Refuser')}
+            onPress={() => {
+              swiper.current?.swipeRight();
+            }}
+            title={translate('Rejoindre')}
           />
         </View>
       </Swiper>

@@ -107,6 +107,11 @@ function MainStackScreen() {
         component={SettingsScreen}
       />
       <MainStack.Screen
+        name="UserProfile"
+        options={{headerShown: false}}
+        component={DetailsUser}
+      />
+      <MainStack.Screen
         name="Event"
         options={{headerShown: false}}
         component={EventScreen}
@@ -169,6 +174,9 @@ function MainStackScreen() {
       <MainStack.Screen
         name="CreateGroupScreen"
         options={{headerShown: false}}
+        initialParams={{
+          title: translate('Créer un groupe'),
+        }}
         component={CreateGroupScreen}
       />
     </MainStack.Navigator>

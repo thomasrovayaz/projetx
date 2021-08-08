@@ -19,6 +19,18 @@ interface Style {
   errorLabel: ViewStyle;
 }
 
+export const INPUT_STYLE = {
+  minHeight: 50,
+  fontFamily: 'Montserrat Alternates',
+  borderColor: BORDER_COLOR,
+  borderWidth: 1,
+  borderRadius: 15,
+  paddingTop: 10,
+  paddingBottom: 10,
+  paddingLeft: 10,
+  paddingRight: 10,
+};
+
 const styles = StyleSheet.create<Style>({
   label: {
     fontSize: 14,
@@ -26,17 +38,7 @@ const styles = StyleSheet.create<Style>({
     color: DARK_BLUE,
     marginBottom: 5,
   },
-  input: {
-    minHeight: 50,
-    fontFamily: 'Montserrat Alternates',
-    borderColor: BORDER_COLOR,
-    borderWidth: 1,
-    borderRadius: 15,
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
+  input: INPUT_STYLE,
   inputMultine: {
     minHeight: 100,
     maxHeight: 200,
