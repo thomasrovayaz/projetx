@@ -5,6 +5,7 @@ import {
   ViewStyle,
   View,
   TextStyle,
+  StyleProp,
 } from 'react-native';
 import Text from './Text';
 import Icon from 'react-native-vector-icons/Feather';
@@ -23,7 +24,9 @@ interface Style {
   label: TextStyle;
   sublabel: TextStyle;
   radio: ViewStyle;
+  radioWhite: ViewStyle;
   radioSelected: ViewStyle;
+  radioSelectedWhite: ViewStyle;
   radioDisabled: ViewStyle;
   textContainer: ViewStyle;
 }
@@ -56,8 +59,14 @@ const styles = StyleSheet.create<Style>({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  radioWhite: {
+    borderColor: 'white',
+  },
   radioSelected: {
     backgroundColor: DARK_BLUE,
+  },
+  radioSelectedWhite: {
+    backgroundColor: 'white',
   },
   radioDisabled: {opacity: 0.5},
   textContainer: {
@@ -65,12 +74,26 @@ const styles = StyleSheet.create<Style>({
   },
 });
 
-export const Radio: React.FC<{selected: boolean | undefined}> = ({
-  selected,
-}) => {
+export const Radio: React.FC<{
+  selected: boolean | undefined;
+  white?: boolean | undefined;
+  style?: StyleProp<ViewStyle>;
+}> = ({selected, white, style}) => {
   return (
-    <View style={[styles.radio, selected ? styles.radioSelected : {}]}>
-      {selected && <Icon name="check" color="white" size={15} />}
+    <View
+      style={[
+        styles.radio,
+        white ? styles.radioWhite : {},
+        selected
+          ? white
+            ? styles.radioSelectedWhite
+            : styles.radioSelected
+          : {},
+        style,
+      ]}>
+      {selected && (
+        <Icon name="check" color={white ? DARK_BLUE : 'white'} size={15} />
+      )}
     </View>
   );
 };

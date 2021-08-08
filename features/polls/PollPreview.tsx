@@ -3,15 +3,16 @@ import {getMyId} from '../user/usersApi';
 import {useAppSelector} from '../../app/redux';
 import {selectPoll} from './pollsSlice';
 import {getPoll, updatePollAnswers} from './pollsApi';
-import {StyleSheet, View, ViewStyle} from 'react-native';
+import {StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
 import Poll from './Poll';
 import {PollState} from './pollsTypes';
 import Button from '../../common/Button';
 import {translate} from '../../app/locales';
 import {useNavigation} from '@react-navigation/native';
 import _ from 'lodash';
+import {DARK_BLUE} from '../../app/colors';
 
-const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
+const PollPreview: React.FC<{pollId: string; style?: StyleProp<ViewStyle>}> = ({
   pollId,
   style,
 }) => {
@@ -70,6 +71,7 @@ const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
         {isMultiplePoll && hasNewAnswers ? (
           <Button
             variant={'outlined'}
+            textStyle={styles.ctaText}
             style={[styles.cta, styles.ctaLeft]}
             title={translate('Valider')}
             onPress={() => validAnswers(myAnswers)}
@@ -77,6 +79,7 @@ const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
         ) : hasAnswered ? (
           <Button
             variant={'outlined'}
+            textStyle={styles.ctaText}
             style={[styles.cta, styles.ctaLeft]}
             title={translate('Résultats')}
             onPress={showResult}
@@ -87,6 +90,7 @@ const PollPreview: React.FC<{pollId: string; style?: ViewStyle}> = ({
         {poll.author === getMyId() ? (
           <Button
             variant={'outlined'}
+            textStyle={styles.ctaText}
             style={[styles.cta, styles.ctaRight]}
             title={translate('Modifer')}
             onPress={edit}
@@ -103,6 +107,9 @@ const styles = StyleSheet.create({
   pollContainer: {
     flex: 1,
     width: '100%',
+    backgroundColor: DARK_BLUE,
+    borderRadius: 15,
+    padding: 15,
   },
   pollButtons: {
     marginTop: 10,
@@ -110,6 +117,11 @@ const styles = StyleSheet.create({
   },
   cta: {
     flex: 1,
+    color: 'white',
+    borderColor: 'white',
+  },
+  ctaText: {
+    color: 'white',
   },
   ctaLeft: {
     marginRight: 5,

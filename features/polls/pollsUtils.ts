@@ -15,11 +15,11 @@ export const pollTypes: PollTypes[] = [
   {id: PollType.OTHER, title: translate('Autre 🤔'), icon: 'list'},
 ];
 
-export const SharePoll = async (poll: ProjetXPoll) => {
+export const SharePoll = async (poll: ProjetXPoll): Promise<void> => {
   return ShareUrl('', '', poll.shareLink);
 };
 
-export async function buildLink(poll: ProjetXPoll) {
+export async function buildLink(poll: ProjetXPoll): Promise<string> {
   return await dynamicLinks().buildShortLink(
     {
       link: `https://projetx.page.link/event/${poll.parentEventId}/poll`,
@@ -42,7 +42,7 @@ export const sendPollMessage = async (
   parentId: string,
   parentTitle: string,
   usersToNotify: ProjetXUser[],
-) => {
+): Promise<void> => {
   return addMessage(
     {
       _id: nanoid(),

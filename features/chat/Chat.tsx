@@ -43,7 +43,13 @@ const QuickRepliesPoll: React.FC<{message: ProjetXMessage}> = ({message}) => {
   if (!message.pollId) {
     return null;
   }
-  return <PollPreview pollId={message.pollId} style={styles.pollContainer} />;
+  const isMine = message.user._id === getMyId();
+  return (
+    <PollPreview
+      pollId={message.pollId}
+      style={[isMine ? styles.myPollContainer : styles.pollContainer]}
+    />
+  );
 };
 
 const Chat: React.FC<ChatProps> = ({parent, members}) => {
@@ -142,7 +148,7 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
     const {
       user: {_id},
     } = currentMessage;
-    return <Avatar friend={users[_id]} />;
+    return <Avatar style={styles.avatar} friend={users[_id]} />;
   };
   const onImageChange: OnImageChangeCallback = async ({nativeEvent}) => {
     const {linkUri, mime} = nativeEvent;
@@ -242,9 +248,6 @@ const styles = StyleSheet.create({
     width: '100%',
     flex: 1,
   },
-  pollMessageContainer: {
-    marginTop: 20,
-  },
   sendContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -259,6 +262,14 @@ const styles = StyleSheet.create({
   image: {width: 150, height: 100, marginBottom: 3},
   scrollToBottomStyle: {borderRadius: 15, opacity: 1},
   pollContainer: {
+    marginTop: 10,
+    maxWidth: width - 65,
+  },
+  pollMessageContainer: {
+    marginTop: 20,
+  },
+  myPollContainer: {
+    marginTop: 5,
     maxWidth: width - 20,
   },
   containerStyle: {
@@ -274,6 +285,9 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: 10,
     borderTopColor: 'transparent',
+  },
+  avatar: {
+    marginLeft: 0,
   },
 });
 

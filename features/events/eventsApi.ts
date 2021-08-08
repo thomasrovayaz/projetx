@@ -30,20 +30,23 @@ import {
 } from '../../app/onesignal';
 import {showToast} from '../../common/Toast';
 
-export const joinEvent = async (event: ProjetXEvent) => {
+export const joinEvent = async (event: ProjetXEvent): Promise<void> => {
   await updateParticipation(event, EventParticipation.going);
   await showToast({message: translate('Que serait une soirée sans toi 😍')});
 };
-export const refuseEvent = async (event: ProjetXEvent) => {
+export const refuseEvent = async (event: ProjetXEvent): Promise<void> => {
   await updateParticipation(event, EventParticipation.notgoing);
   await showToast({message: translate('Dommage 😢')});
 };
 
-export const remindMeEvent = async (event: ProjetXEvent) => {
+export const remindMeEvent = async (event: ProjetXEvent): Promise<void> => {
   await updateParticipation(event, EventParticipation.maybe);
   await addReminder(event, moment().add({day: 1}));
 };
-const addReminder = async (event: ProjetXEvent, date: moment.Moment) => {
+const addReminder = async (
+  event: ProjetXEvent,
+  date: moment.Moment,
+): Promise<void> => {
   try {
     await addEventAnswerReminder(event, date);
     await showToast({message: translate('Rappel enregistré 👌')});
@@ -61,7 +64,7 @@ export async function getEvent(id: string): Promise<ProjetXEvent> {
   store.dispatch(updateEvent(event));
   return event;
 }
-export async function getMyEvents() {
+export async function getMyEvents(): Promise<ProjetXEvent[]> {
   const eventsDb = await database()
     .ref('events')
     .orderByChild('participations/' + getMyId())
@@ -75,7 +78,7 @@ export async function getMyEvents() {
   store.dispatch(fetchEvents(events));
   return events;
 }
-export const slugifyEventId = (title: string) => {
+export const slugifyEventId = (title: string): string => {
   return `${slugify(title || '', {
     lower: true,
     strict: true,
@@ -110,7 +113,7 @@ export async function cancelEvent(event: ProjetXEvent): Promise<void> {
 export async function updateParticipation(
   event: ProjetXEvent,
   type: EventParticipation,
-) {
+): Promise<void> {
   if (!event.id) {
     return;
   }
@@ -126,12 +129,12 @@ export async function updateParticipation(
 export function notifyNewEvent(
   event: ProjetXEvent,
   usersToNotify: ProjetXUser[],
-) {
+): void {
   if (!usersToNotify || usersToNotify.length <= 0) {
     return;
   }
-  let message = translate('Souhaites-tu y participer?');
-  let dateMessage = event.getStartingDate()?.fromNow() || '';
+  const message = translate('Souhaites-tu y participer?');
+  const dateMessage = event.getStartingDate()?.fromNow() || '';
   let title = '';
   switch (event.type) {
     case EventType.diner:
@@ -184,12 +187,15 @@ export function notifyParticipation(
   event: ProjetXEvent,
   pseudo: string | null,
   type: EventParticipation,
-) {
+): void {
   if (!event.author || !pseudo) {
     return;
   }
-  const oneSignalIdAuthor =
-    store.getState().users.list[event.author].oneSignalId;
+  const author = store.getState().users.list[event.author];
+  if (!author) {
+    return;
+  }
+  const oneSignalIdAuthor = author.oneSignalId;
   if (!oneSignalIdAuthor) {
     return;
   }
@@ -219,7 +225,7 @@ export function notifyParticipation(
 export async function addEventAnswerReminder(
   event: ProjetXEvent,
   date: moment.Moment,
-) {
+): Promise<void> {
   const oneSignalId = store.getState().users.list[getMyId()].oneSignalId;
   if (!oneSignalId) {
     throw new Error(translate('Tu ne peux pas envoyer de notification'));

@@ -25,7 +25,6 @@ export const usersSlice = createSlice({
       }
     },
     updateUser(state, action: PayloadAction<ProjetXUser>) {
-      console.log('updateUser', action.payload);
       const user = action.payload;
       state.list[user.id] = user;
     },
@@ -78,7 +77,7 @@ export const selectMyFriends = (
     .map(user => ({...user, score: friendsScore[user.id]}))
     .filter(({id, settings, score}) => {
       if (id === getMyId()) {
-        return false;
+        return true;
       }
       if (settings) {
         if (settings.visibility === VisibilitySettings.never) {

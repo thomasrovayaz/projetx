@@ -31,7 +31,7 @@ export interface AdditionalData {
   type: NotificationType;
 }
 
-export const setupOneSignal = async () => {
+export const setupOneSignal = async (): Promise<void> => {
   OneSignal.setLogLevel(6, 0);
   OneSignal.setAppId(Config.ONESIGNAL_API_KEY);
   OneSignal.addSubscriptionObserver(async ({from, to}) => {
@@ -81,7 +81,7 @@ export const handleOpenNotification = async (
   navigation: NavigationProp<ParamListBase>,
   data: AdditionalData,
   participation?: EventParticipation,
-) => {
+): Promise<void> => {
   const {eventId, type, parentType} = data;
   const parentId = data.parentId || eventId;
   let parentLoaded: ProjetXEvent | ProjetXGroup | undefined;
@@ -124,12 +124,14 @@ export const handleOpenNotification = async (
 
 export const notificationWillShowInForegroundHandler =
   (navigation: NavigationProp<ParamListBase>) =>
-  async (notificationReceivedEvent: NotificationReceivedEvent) => {
+  async (
+    notificationReceivedEvent: NotificationReceivedEvent,
+  ): Promise<void> => {
     console.log(
       'OneSignal: notification will show in foreground:',
       notificationReceivedEvent,
     );
-    let notification = notificationReceivedEvent.getNotification();
+    const notification = notificationReceivedEvent.getNotification();
     console.log('notification: ', notification);
     const data = notification.additionalData as AdditionalData;
     const type = data.type as NotificationType;
@@ -197,7 +199,7 @@ export function postNotification(
   title: string | undefined,
   message: string,
   buttons?: any[],
-) {
+): void {
   if (onesignalIds.length === 0) {
     return;
   }

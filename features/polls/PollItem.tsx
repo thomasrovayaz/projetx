@@ -6,8 +6,10 @@ import Date from '../../common/Date';
 import Text from '../../common/Text';
 import {LocationValue} from '../events/create/components/LocationPicker';
 import {translate} from '../../app/locales';
-import {LIGHT_BLUE} from '../../app/colors';
+import {DARK_BLUE, LIGHT_BLUE} from '../../app/colors';
 import {Checkbox} from '../../common/CheckboxInput';
+import MaskedView from '@react-native-community/masked-view';
+import {Radio} from '../../common/RadioInput';
 
 interface ProjetXPollItemProps {
   onPress(): void;
@@ -33,17 +35,20 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
   let input;
   switch (type) {
     case PollType.DATE:
-      const dateValue = value as DateValue;
       input = (
         <Date
-          date={dateValue}
+          date={value as DateValue}
           onlyDate
           style={[styles.item, selected ? styles.itemSelected : {}]}
         />
       );
       break;
     default:
-      input = <Text style={selected ? styles.itemSelected : {}}>{value}</Text>;
+      input = (
+        <Text style={[styles.item, selected ? styles.itemSelected : {}]}>
+          {value}
+        </Text>
+      );
   }
   const percent = showResult ? `${(count / totalVote) * 100}%` : 0;
   return (
@@ -58,15 +63,34 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
           {width: percent},
         ]}
       />
-      <View style={[StyleSheet.absoluteFill, styles.itemContainer]}>
-        {isMultipleChoices ? <Checkbox selected={selected} /> : null}
-        {input}
-        {showResult ? (
-          <Text style={styles.itemCount}>
-            {translate('votes', {count: count || 0})}
-          </Text>
-        ) : null}
-      </View>
+      {isMultipleChoices ? (
+        <Checkbox style={styles.checkbox} white={!count} selected={selected} />
+      ) : (
+        <Radio style={styles.checkbox} white={!count} selected={selected} />
+      )}
+      <MaskedView
+        style={styles.maskedView}
+        maskElement={
+          <View style={[StyleSheet.absoluteFill, styles.itemContainer]}>
+            {input}
+            {showResult ? (
+              <Text style={styles.itemCount}>
+                {translate('votes', {count: count || 0})}
+              </Text>
+            ) : null}
+          </View>
+        }>
+        <View style={[StyleSheet.absoluteFill, {backgroundColor: 'white'}]} />
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              width: percent,
+              backgroundColor: DARK_BLUE,
+            },
+          ]}
+        />
+      </MaskedView>
     </TouchableOpacity>
   );
 };
@@ -78,18 +102,28 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: 5,
     overflow: 'hidden',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  maskedView: {
+    flex: 1,
+    height: '100%',
+  },
+  checkbox: {
+    marginLeft: 10,
   },
   itemContainer: {
     justifyContent: 'flex-start',
     alignItems: 'center',
     flexDirection: 'row',
+    flex: 1,
     padding: 10,
   },
   progressBar: {
     borderRadius: 13,
     backgroundColor: LIGHT_BLUE,
   },
-  item: {},
+  item: {color: 'white'},
   itemSelected: {
     fontWeight: '700',
   },

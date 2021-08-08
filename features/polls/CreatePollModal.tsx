@@ -30,14 +30,12 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({
   const currentPoll = useRef(createPoll(type, parentId));
 
   const save = async (poll: ProjetXPoll) => {
-    if (usersToNotify) {
-      await sendPollMessage(
-        poll,
-        parentId,
-        parentTitle,
-        usersToNotify.map(userId => users[userId]),
-      );
-    }
+    await sendPollMessage(
+      poll,
+      parentId,
+      parentTitle,
+      usersToNotify ? usersToNotify.map(userId => users[userId]) : [],
+    );
     navigation.goBack();
     navigation.goBack();
   };

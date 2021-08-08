@@ -4,8 +4,8 @@ import {
   StyleSheet,
   Dimensions,
   StyleProp,
-  ViewStyle,
   TextStyle,
+  ImageStyle,
 } from 'react-native';
 import {ProjetXUser} from '../features/user/usersTypes';
 import Avatar from './Avatar';
@@ -16,7 +16,7 @@ interface ProjetXAvatarProps {
   users: ProjetXUser[];
   emptyLabel: string;
   renderBadge?(user: ProjetXUser): Element;
-  avatarStyle?: StyleProp<ViewStyle>;
+  avatarStyle?: StyleProp<ImageStyle>;
   avatarTextStyle?: StyleProp<TextStyle>;
 }
 const {width} = Dimensions.get('window');

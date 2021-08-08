@@ -5,6 +5,7 @@ import {
   ViewStyle,
   View,
   TextStyle,
+  StyleProp,
 } from 'react-native';
 import Text from './Text';
 import Icon from 'react-native-vector-icons/Feather';
@@ -24,7 +25,9 @@ interface Style {
   label: TextStyle;
   sublabel: TextStyle;
   checkbox: ViewStyle;
+  checkboxWhite: ViewStyle;
   checkboxSelected: ViewStyle;
+  checkboxSelectedWhite: ViewStyle;
   checkboxDisabled: ViewStyle;
   textContainer: ViewStyle;
 }
@@ -57,8 +60,14 @@ const styles = StyleSheet.create<Style>({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  checkboxWhite: {
+    borderColor: 'white',
+  },
   checkboxSelected: {
     backgroundColor: DARK_BLUE,
+  },
+  checkboxSelectedWhite: {
+    backgroundColor: 'white',
   },
   checkboxDisabled: {opacity: 0.5},
   textContainer: {
@@ -66,12 +75,26 @@ const styles = StyleSheet.create<Style>({
   },
 });
 
-export const Checkbox: React.FC<{selected: boolean | undefined}> = ({
-  selected,
-}) => {
+export const Checkbox: React.FC<{
+  selected: boolean | undefined;
+  white?: boolean | undefined;
+  style?: StyleProp<ViewStyle>;
+}> = ({selected, white, style}) => {
   return (
-    <View style={[styles.checkbox, selected ? styles.checkboxSelected : {}]}>
-      {selected && <Icon name="check" color="white" size={15} />}
+    <View
+      style={[
+        styles.checkbox,
+        white ? styles.checkboxWhite : {},
+        selected
+          ? white
+            ? styles.checkboxSelectedWhite
+            : styles.checkboxSelected
+          : {},
+        style,
+      ]}>
+      {selected && (
+        <Icon name="check" color={white ? DARK_BLUE : 'white'} size={15} />
+      )}
     </View>
   );
 };

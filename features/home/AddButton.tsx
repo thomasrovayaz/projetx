@@ -37,7 +37,7 @@ const AddButton: React.FC<{style?: ViewStyle}> = ({style}) => {
           variant={'outlined'}
           onPress={() => {
             setModalVisible(false);
-            dispatch(createEvent());
+            dispatch(createEvent({}));
             navigation.navigate('CreateEventType');
           }}
         />

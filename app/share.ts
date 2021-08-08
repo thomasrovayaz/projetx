@@ -3,7 +3,11 @@ import {ShareOptions} from 'react-native-share/lib/typescript/types';
 import {Platform} from 'react-native';
 import Share from 'react-native-share';
 
-export const ShareUrl = async (title: string, message: string, url: string) => {
+export const ShareUrl = async (
+  title: string,
+  message: string,
+  url: string,
+): Promise<void> => {
   const icon = 'data:<data_type>/<file_extension>;base64,<base64_data>';
   const iosItemText: ActivityItem = {
     type: 'text',

@@ -115,9 +115,11 @@ const styles = StyleSheet.create({
   },
   pollContainer: {
     padding: 20,
+    marginBottom: 40,
   },
   pollTitle: {
     textAlign: 'left',
+    marginBottom: 10,
   },
 });
 
