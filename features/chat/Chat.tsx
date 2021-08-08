@@ -1,85 +1,39 @@
 import React, {useEffect, useState} from 'react';
-import {
-  AvatarProps,
-  Bubble,
-  Composer,
-  ComposerProps,
-  GiftedChat,
-  InputToolbar,
-  Send,
-} from 'react-native-gifted-chat';
+import {GiftedChat, InputToolbar} from 'react-native-gifted-chat';
 import {getMyId} from '../user/usersApi';
 import {addMessage} from './chatApi';
 import {useAppDispatch, useAppSelector} from '../../app/redux';
 import {selectUsers} from '../user/usersSlice';
 import {translate} from '../../app/locales';
-import {BubbleProps} from 'react-native-gifted-chat/lib/Bubble';
 import Icon from 'react-native-vector-icons/Feather';
-import {SendProps} from 'react-native-gifted-chat/lib/Send';
-import {StyleSheet, View, Dimensions, TouchableOpacity} from 'react-native';
-import Avatar from '../../common/Avatar';
-import Text from '../../common/Text';
+import {StyleSheet} from 'react-native';
 import {chatRead, selectChat} from './chatsSlice';
 import {NotificationParentType} from '../../app/onesignal';
-import {nanoid} from 'nanoid';
-import ImageModal from 'react-native-image-modal/src/index';
-import MessageImage from 'react-native-gifted-chat/lib/MessageImage';
-import FastImage from 'react-native-fast-image';
 import {ProjetXMessage} from './chatsTypes';
-import PollPreview from '../polls/PollPreview';
 import {DARK_BLUE} from '../../app/colors';
-import {useNavigation} from '@react-navigation/native';
 import ActionsButton from './ActionsButton';
-
-const {width} = Dimensions.get('window');
+import ProjetXBubble from './Bubble';
+import ChatAvatar from './Avatar';
+import ChatPoll from './Poll';
+import MessageImage from './MessageImage';
+import ProjetXComposer from './Composer';
+import SendButton from './SendButton';
 
 export interface ChatProps {
   parent: {id: string; title: string; type: NotificationParentType};
   members: string[];
 }
-type OnImageChangeCallback = (event: {
-  nativeEvent: {linkUri: string; mime: string};
-}) => void;
-
-const QuickRepliesPoll: React.FC<{message: ProjetXMessage}> = ({message}) => {
-  if (!message.pollId) {
-    return null;
-  }
-  const isMine = message.user._id === getMyId();
-  return (
-    <PollPreview
-      pollId={message.pollId}
-      style={[isMine ? styles.myPollContainer : styles.pollContainer]}
-    />
-  );
-};
 
 const Chat: React.FC<ChatProps> = ({parent, members}) => {
+  const [limit, setLimit] = useState(2);
   const dispatch = useAppDispatch();
-  const navigation = useNavigation();
-  const [messages, setMessages] = useState<ProjetXMessage[]>([]);
-  const chat = useAppSelector(selectChat(parent.id));
+  const chat = useAppSelector(selectChat(parent.id, limit));
   const users = useAppSelector(selectUsers);
+  const lastMessage = chat.length > 0 ? chat[0]._id : '';
 
   useEffect(() => {
-    setMessages(
-      chat
-        ? chat.map(message => {
-            if (message.user && message.user._id) {
-              return {
-                ...message,
-                user: {
-                  ...message.user,
-                  name: users[message.user._id]?.name,
-                },
-              };
-            }
-            return message;
-          })
-        : [],
-    );
     dispatch(chatRead(parent.id));
-  }, [users, chat, parent.id, dispatch]);
+  }, [parent.id, dispatch, lastMessage]);
 
   async function handleSend(newMessage: ProjetXMessage[] = []) {
     for (const message of newMessage) {
@@ -90,159 +44,53 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
       );
     }
   }
-
-  const renderBubble = (props: BubbleProps<ProjetXMessage>) => {
-    const {currentMessage, previousMessage} = props;
-    if (!currentMessage) {
-      return null;
-    }
-    const renderUsername =
-      currentMessage.user &&
-      currentMessage.user._id !== getMyId() &&
-      (!previousMessage ||
-        !previousMessage.user ||
-        currentMessage.user._id !== previousMessage.user._id);
-    return (
-      <View
-        style={[
-          styles.messageContainer,
-          currentMessage.pollId ? styles.pollMessageContainer : {},
-        ]}>
-        {renderUsername ? (
-          <Text style={styles.username}>{currentMessage.user.name}</Text>
-        ) : null}
-        <Bubble
-          {...props}
-          textStyle={{
-            left: {
-              fontFamily: 'Montserrat Alternates',
-              color: DARK_BLUE,
-            },
-            right: {
-              fontFamily: 'Montserrat Alternates',
-              color: 'white',
-            },
-          }}
-          wrapperStyle={{
-            left: {
-              overflow: 'hidden',
-              backgroundColor: 'white',
-            },
-            right: {
-              overflow: 'hidden',
-              backgroundColor: DARK_BLUE,
-            },
-          }}
-        />
-      </View>
-    );
-  };
-  const renderSend = (props: SendProps<ProjetXMessage>) => {
-    return (
-      <Send {...props} containerStyle={styles.sendContainer}>
-        <Icon name="send" size={24} color={DARK_BLUE} />
-      </Send>
-    );
-  };
-  const renderAvatar = ({currentMessage}: AvatarProps<ProjetXMessage>) => {
-    if (!currentMessage) {
-      return null;
-    }
-    const {
-      user: {_id},
-    } = currentMessage;
-    return (
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => navigation.navigate('UserProfile', {userId: _id})}>
-        <Avatar style={styles.avatar} friend={users[_id]} />
-      </TouchableOpacity>
-    );
-  };
-  const onImageChange: OnImageChangeCallback = async ({nativeEvent}) => {
-    const {linkUri, mime} = nativeEvent;
-    if (linkUri) {
-      const message: ProjetXMessage = {
-        _id: nanoid(),
-        createdAt: new Date(),
-        text: '',
-        user: {
-          _id: getMyId(),
-        },
-        image: linkUri,
-        mime,
-      };
-      await handleSend([message]);
-    }
-  };
-  const renderMessageImage = ({
-    currentMessage,
-  }: MessageImage<ProjetXMessage>['props']) => {
-    if (!currentMessage) {
-      return null;
-    }
-    return (
-      <View>
-        <ImageModal
-          resizeMode={FastImage.resizeMode.cover}
-          swipeToDismiss
-          modalImageResizeMode={FastImage.resizeMode.contain}
-          style={styles.image}
-          source={{uri: currentMessage.image}}
-        />
-      </View>
-    );
-  };
-  const renderComposer = (props: ComposerProps) => (
-    <Composer
-      {...props}
-      // @ts-ignore
-      textInputProps={{onImageChange}}
-      textInputStyle={styles.textInputStyle}
-      composerHeight={40}
-    />
-  );
   const renderInputToolbar = (props: InputToolbar['props']) => {
     return (
       <InputToolbar {...props} containerStyle={styles.textInputContainer} />
     );
   };
 
-  const renderQuickReplies = ({
-    currentMessage,
-  }: {
-    currentMessage: ProjetXMessage;
-  }) => {
-    if (currentMessage.pollId) {
-      return <QuickRepliesPoll message={currentMessage} />;
-    }
-    return null;
-  };
-
   return (
     <GiftedChat
       // @ts-ignore
       multiline={false}
+      listViewProps={{
+        onEndReached: () => {
+          if (limit <= chat.length) {
+            setLimit(limit + 10);
+          }
+        },
+      }}
       alwaysShowSend
       timeFormat="HH:mm"
       dateFormat="DD/MM/YYYY"
       scrollToBottom
-      renderQuickReplies={renderQuickReplies}
-      messages={messages}
+      renderQuickReplies={({
+        currentMessage,
+      }: {
+        currentMessage: ProjetXMessage;
+      }) => <ChatPoll currentMessage={currentMessage} />}
+      messages={chat}
       containerStyle={styles.containerStyle}
       placeholder={translate('Écris ton message')}
       onSend={newMessage => handleSend(newMessage)}
-      renderBubble={renderBubble}
-      renderSend={renderSend}
-      renderAvatar={renderAvatar}
-      renderComposer={renderComposer}
+      renderBubble={props => <ProjetXBubble {...props} />}
+      renderSend={props => <SendButton {...props} />}
+      renderAvatar={props => <ChatAvatar {...props} />}
+      renderComposer={props => (
+        <ProjetXComposer {...props} onSend={handleSend} />
+      )}
       renderActions={props => (
         <ActionsButton {...props} parent={parent} members={members} />
       )}
       maxComposerHeight={70}
       minComposerHeight={70}
       minInputToolbarHeight={70}
-      renderMessageImage={renderMessageImage}
+      renderMessageImage={({
+        currentMessage,
+      }: {
+        currentMessage: ProjetXMessage;
+      }) => <MessageImage currentMessage={currentMessage} />}
       renderInputToolbar={renderInputToolbar}
       scrollToBottomComponent={() => (
         <Icon name="arrow-down" size={20} color={DARK_BLUE} />
@@ -256,45 +104,9 @@ const Chat: React.FC<ChatProps> = ({parent, members}) => {
 };
 
 const styles = StyleSheet.create({
-  messageContainer: {
-    width: '100%',
-    flex: 1,
-  },
-  sendContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    paddingHorizontal: 15,
-  },
-  username: {
-    flex: 1,
-    fontSize: 10,
-    marginBottom: 2,
-  },
-  image: {
-    width: 250,
-    height: 200,
-    maxWidth: '100%',
-    maxHeight: '100%',
-    marginBottom: 3,
-  },
-  scrollToBottomStyle: {borderRadius: 15, opacity: 1},
-  pollContainer: {
-    marginTop: 10,
-    maxWidth: width - 65,
-  },
-  pollMessageContainer: {
-    marginTop: 20,
-  },
-  myPollContainer: {
-    marginTop: 5,
-    maxWidth: width - 20,
-  },
+  scrollToBottomStyle: {borderRadius: 15, opacity: 1, borderColor: DARK_BLUE},
   containerStyle: {
     borderTopWidth: 0,
-  },
-  textInputStyle: {
-    fontFamily: 'Montserrat Alternates',
   },
   textInputContainer: {
     borderWidth: 0,
@@ -303,9 +115,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: 10,
     borderTopColor: 'transparent',
-  },
-  avatar: {
-    marginLeft: 0,
   },
 });
 

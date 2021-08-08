@@ -9,7 +9,9 @@ import {filterUpcomingEvents} from '../eventsUtils';
 
 const UpcomingEvents: React.FC<{events: ProjetXEvent[]}> = ({events}) => {
   const navigation = useNavigation();
-  const [upcomingEvents, setUpcomingEvents] = useState<ProjetXEvent[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = useState<ProjetXEvent[]>(
+    filterUpcomingEvents(events),
+  );
 
   useEffect(() => {
     setUpcomingEvents(filterUpcomingEvents(events));

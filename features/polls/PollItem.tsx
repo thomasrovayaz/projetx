@@ -110,7 +110,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   checkbox: {
-    marginLeft: 10,
+    position: 'absolute',
+    left: 10,
   },
   itemContainer: {
     justifyContent: 'flex-start',
@@ -118,6 +119,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
     padding: 10,
+    left: 25,
   },
   progressBar: {
     borderRadius: 13,

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import Animated, {
   useSharedValue,
@@ -9,6 +9,7 @@ import Animated, {
 import IconButton from './IconButton';
 import BackButton from './BackButton';
 import {DARK_BLUE} from '../app/colors';
+import {useUpdateLayoutEffect} from 'react-native-gifted-chat/lib/hooks/useUpdateLayoutEffect';
 
 interface ProjetXDetailHeaderProps {
   subtitle?: string;
@@ -42,7 +43,7 @@ const DetailHeader: React.FC<ProjetXDetailHeaderProps> = ({
       fontSize: animationTimer.value * 14,
     };
   });
-  useEffect(() => {
+  useUpdateLayoutEffect(() => {
     const animConfig = {
       duration: 500,
       easing: Easing.out(Easing.exp),

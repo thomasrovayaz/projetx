@@ -43,9 +43,14 @@ export const chatsSlice = createSlice({
 export const {chatsUpdated, chatRead} = chatsSlice.actions;
 
 export const selectChat =
-  (id: string) =>
-  (state: RootState): ProjetXMessage[] =>
-    state.chats.list[id];
+  (id: string, limit?: number) =>
+  (state: RootState): ProjetXMessage[] => {
+    const messages = state.chats.list[id];
+    if (limit) {
+      return messages.slice(0, limit);
+    }
+    return messages;
+  };
 export const selectUnreadMessageCount =
   (id?: string) =>
   (state: RootState): number => {

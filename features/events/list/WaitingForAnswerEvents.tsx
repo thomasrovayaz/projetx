@@ -43,7 +43,7 @@ const WaitingForAnswerEvents: React.FC<{
   const [cardIndex, setCardIndex] = useState(0);
   const [waitingForAnswerEvents, setWaitingForAnswerEvents] = useState<
     ProjetXEvent[]
-  >([]);
+  >(filterEventsWaitingForAnswers(events));
   const currentEvent =
     waitingForAnswerEvents && waitingForAnswerEvents.length > cardIndex
       ? waitingForAnswerEvents[cardIndex]
