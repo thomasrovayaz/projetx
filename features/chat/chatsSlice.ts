@@ -45,7 +45,7 @@ export const {chatsUpdated, chatRead} = chatsSlice.actions;
 export const selectChat =
   (id: string, limit?: number) =>
   (state: RootState): ProjetXMessage[] => {
-    const messages = state.chats.list[id];
+    const messages = state.chats.list[id] || [];
     if (limit) {
       return messages.slice(0, limit);
     }

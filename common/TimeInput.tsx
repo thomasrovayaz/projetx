@@ -4,6 +4,7 @@ import {
   TouchableOpacityProps,
   ViewStyle,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/Feather';
@@ -109,8 +110,9 @@ const TimeInput: React.FC<TouchableOpacityProps & ProjetXDateInputProps> = ({
         onCancel={() => setOpenDialog(false)}
         confirmTextIOS={translate('Confirmer')}
         cancelTextIOS={translate('Annuler')}
-        headerTextIOS={translate('Choisir une heure')}
-      />
+        headerTextIOS={translate('Choisir une heure')}>
+        <View />
+      </DateTimePickerModal>
     </>
   );
 };

@@ -77,11 +77,13 @@ const CreateEventWhenScreen: React.FC<CreateEventWhenScreenProps> = ({
         </View>
         {isSingleDate ? (
           <View style={styles.item}>
-            <TimeInput
-              value={timeValue}
-              onChange={setTimeValue}
-              placeholder={translate('Ajouter une heure')}
-            />
+            <View style={styles.timeInput}>
+              <TimeInput
+                value={timeValue}
+                onChange={setTimeValue}
+                placeholder={translate('Ajouter une heure')}
+              />
+            </View>
           </View>
         ) : null}
       </View>
@@ -178,6 +180,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     paddingVertical: 20,
+  },
+  timeInput: {
+    flexDirection: 'row',
   },
   dateInfo: {
     flexDirection: 'row',
