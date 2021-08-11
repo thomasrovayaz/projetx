@@ -9,6 +9,7 @@ export enum PollType {
   OTHER = 'OTHER',
 }
 export enum PollState {
+  CREATED = 'CREATED',
   RUNNING = 'RUNNING',
   FINISHED = 'FINISHED',
 }

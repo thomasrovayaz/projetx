@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {pollConverter, ProjetXPoll} from './pollsTypes';
+import {pollConverter, PollState, ProjetXPoll} from './pollsTypes';
 import {RootState} from '../../app/store';
 import {createTransform} from 'redux-persist';
 import {getMyId} from '../user/usersApi';
@@ -51,13 +51,31 @@ export const pollsSlice = createSlice({
   },
 });
 
+export const sortPolls = (eventA: ProjetXPoll, eventB: ProjetXPoll): number => {
+  const startingDateA = eventA.created;
+  const startingDateB = eventB.created;
+  if (eventA.state === PollState.FINISHED) {
+    if (eventB.state === PollState.FINISHED) {
+      return -1;
+    }
+    return startingDateA.valueOf() - startingDateB.valueOf();
+  }
+  return startingDateB.valueOf() - startingDateA.valueOf();
+};
+
 export const {fetchPolls, updatePoll, updateAnswers} = pollsSlice.actions;
-export const selectPoll = (pollId: string | undefined) => (state: RootState) =>
-  pollId ? state.polls.list[pollId] : undefined;
-export const selectPolls = (parentId: string) => (state: RootState) =>
-  Object.values<ProjetXPoll>(state.polls.list).filter(
-    poll => poll.parentEventId === parentId || poll.parentId === parentId,
-  );
+export const selectPoll =
+  (pollId: string | undefined) =>
+  (state: RootState): ProjetXPoll | undefined =>
+    pollId ? state.polls.list[pollId] : undefined;
+export const selectPolls =
+  (parentId: string) =>
+  (state: RootState): ProjetXPoll[] =>
+    Object.values<ProjetXPoll>(state.polls.list)
+      .filter(
+        poll => poll.parentEventId === parentId || poll.parentId === parentId,
+      )
+      .sort(sortPolls);
 
 export default pollsSlice.reducer;
 
@@ -67,11 +85,9 @@ export const pollsTransform = createTransform(
     const polls: {[id: string]: ProjetXPoll} = {};
     if (outboundState.list) {
       for (const pollId in outboundState.list) {
-        if (outboundState.list.hasOwnProperty(pollId)) {
-          polls[pollId] = pollConverter.fromLocalStorage(
-            outboundState.list[pollId],
-          );
-        }
+        polls[pollId] = pollConverter.fromLocalStorage(
+          outboundState.list[pollId],
+        );
       }
     }
     return {

@@ -7,6 +7,7 @@ import {
   TextStyle,
   GestureResponderEvent,
   ActivityIndicator,
+  StyleProp,
 } from 'react-native';
 import Text from './Text';
 import Icon from 'react-native-vector-icons/Feather';
@@ -18,7 +19,8 @@ interface ProjetXButtonProps {
   variant?: 'default' | 'outlined';
   title: string;
   icon?: string;
-  textStyle?: TextStyle;
+  textStyle?: StyleProp<TextStyle>;
+  iconStyle?: StyleProp<TextStyle>;
 }
 
 interface Style {
@@ -68,6 +70,7 @@ const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
   title,
   textStyle,
   icon,
+  iconStyle,
   onPress,
   ...props
 }) => {
@@ -101,7 +104,7 @@ const Button: React.FC<TouchableOpacityProps & ProjetXButtonProps> = ({
       return (
         <Icon
           name={icon}
-          style={styles.icon}
+          style={[styles.icon, iconStyle]}
           size={20}
           color={isOutlined ? DARK_BLUE : 'white'}
         />

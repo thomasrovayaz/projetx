@@ -1,6 +1,6 @@
 import React from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
-import {PollState, PollType, ProjetXPoll} from './pollsTypes';
+import {PollType, ProjetXPoll} from './pollsTypes';
 import {DateValue} from '../events/eventsTypes';
 import DateInput from '../../common/DateInput';
 import {translate} from '../../app/locales';
@@ -8,8 +8,6 @@ import {LocationValue} from '../events/create/components/LocationPicker';
 import IconButton from '../../common/IconButton';
 import Button from '../../common/Button';
 import {nanoid} from 'nanoid';
-import Poll from './Poll';
-import {getMyId} from '../user/usersApi';
 import TextInput from '../../common/TextInput';
 import PollSettingsButton from './PollSettingsButton';
 import {RED} from '../../app/colors';
@@ -25,17 +23,8 @@ const PollChoicesCreator: React.FC<ProjetXPollProps> = ({
   onChange,
   isSingleDate,
 }) => {
-  const me = getMyId();
   if (!poll) {
     return null;
-  }
-
-  if (poll.state === PollState.FINISHED) {
-    return (
-      <View style={styles.content}>
-        <Poll poll={poll} myAnswers={poll.answers[me]} showResult />
-      </View>
-    );
   }
 
   const addChoice = () => {
@@ -74,12 +63,11 @@ const PollChoicesCreator: React.FC<ProjetXPollProps> = ({
           let input;
           switch (poll.type) {
             case PollType.DATE:
-              const dateValue = value as DateValue;
               input = (
                 <DateInput
                   style={styles.item}
                   range={!isSingleDate}
-                  value={dateValue}
+                  value={value as DateValue}
                   onChange={newValue => {
                     onChangeChoice(id, newValue);
                   }}

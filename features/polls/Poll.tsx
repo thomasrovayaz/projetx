@@ -82,6 +82,7 @@ const Poll: React.FC<ProjetXPollProps> = ({
         showResult={showResult}
         selected={myAnswers?.includes(id)}
         isMultipleChoices={poll.settings.multiple}
+        disabled={poll.state === PollState.FINISHED}
       />
     );
   };

@@ -26,7 +26,6 @@ export async function getPolls(parentId: string): Promise<ProjetXPoll[]> {
     polls.push(pollConverter.fromFirestore(eventDb));
     return undefined;
   });
-  console.log(parentId, pollsDb);
   store.dispatch(fetchPolls(polls));
   return polls;
 }
@@ -57,7 +56,7 @@ export function createPoll(type: PollType, parentEventId: string): ProjetXPoll {
     parentEventId,
     created: moment(),
     type,
-    state: PollState.RUNNING,
+    state: PollState.CREATED,
     choices: [
       {id: nanoid(), value: undefined},
       {id: nanoid(), value: undefined},

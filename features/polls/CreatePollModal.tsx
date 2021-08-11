@@ -1,6 +1,6 @@
 import React, {useRef} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
-import {PollType, ProjetXPoll} from './pollsTypes';
+import {PollState, PollType, ProjetXPoll} from './pollsTypes';
 import {createPoll} from './pollsApi';
 import {useNavigation} from '@react-navigation/native';
 import {sendPollMessage} from './pollsUtils';

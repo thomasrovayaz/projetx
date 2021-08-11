@@ -1,13 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {translate} from '../../app/locales';
-import {ProjetXPoll} from './pollsTypes';
+import {PollState, ProjetXPoll} from './pollsTypes';
 import PollChoicesCreator from './PollChoicesCreator';
 import {savePoll} from './pollsApi';
 import Title from '../../common/Title';
 import Button from '../../common/Button';
 import TextInput from '../../common/TextInput';
 import Label from '../../common/Label';
+import _ from 'lodash';
+import {RED} from '../../app/colors';
 
 interface CreatePollTypeScreenProps {
   poll: ProjetXPoll;
@@ -24,10 +26,14 @@ const PollEditor: React.FC<CreatePollTypeScreenProps> = ({
 }) => {
   const [currentPoll, setCurrentPoll] = useState<ProjetXPoll>(poll);
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [hasChanged, setHasChanged] = useState<boolean>(false);
 
   useEffect(() => {
     setCurrentPoll(poll);
   }, [poll]);
+  useEffect(() => {
+    setHasChanged(!_.isEqual(poll, currentPoll));
+  }, [poll, currentPoll]);
 
   if (!currentPoll) {
     return null;
@@ -38,7 +44,14 @@ const PollEditor: React.FC<CreatePollTypeScreenProps> = ({
       setSubmitted(true);
       return;
     }
-    onSave(await savePoll(currentPoll));
+    onSave(await savePoll({...currentPoll, state: PollState.RUNNING}));
+  };
+
+  const endPoll = async () => {
+    onSave(await savePoll({...poll, state: PollState.FINISHED}));
+  };
+  const restartPoll = async () => {
+    onSave(await savePoll({...poll, state: PollState.RUNNING}));
   };
 
   return (
@@ -74,11 +87,33 @@ const PollEditor: React.FC<CreatePollTypeScreenProps> = ({
         />
       </View>
       <View style={styles.ctas}>
-        <Button
-          style={[styles.cta, styles.ctaLeft]}
-          title={saveLabel || translate('Enregistrer')}
-          onPress={save}
-        />
+        {hasChanged ? (
+          <Button
+            style={[styles.cta, styles.ctaLeft]}
+            title={saveLabel || translate('Enregistrer')}
+            onPress={save}
+          />
+        ) : currentPoll.state === PollState.RUNNING ? (
+          <Button
+            icon={'power'}
+            variant="outlined"
+            textStyle={styles.endPollButtonText}
+            style={[styles.cta, styles.ctaLeft, styles.endPollButton]}
+            iconStyle={styles.endPollButtonText}
+            title={translate('Fin du sondage')}
+            onPress={endPoll}
+          />
+        ) : currentPoll.state === PollState.FINISHED ? (
+          <Button
+            icon={'play-circle'}
+            variant="outlined"
+            style={[styles.cta, styles.ctaLeft]}
+            title={translate('Reprendre')}
+            onPress={restartPoll}
+          />
+        ) : (
+          <View style={[styles.cta, styles.ctaLeft]} />
+        )}
         <Button
           style={[styles.cta, styles.ctaRight]}
           variant="outlined"
@@ -121,6 +156,12 @@ const styles = StyleSheet.create({
   ctaRight: {
     flex: 1,
     marginLeft: 5,
+  },
+  endPollButtonText: {
+    color: RED,
+  },
+  endPollButton: {
+    borderColor: RED,
   },
 });
 

@@ -16,6 +16,7 @@ interface ProjetXPollItemProps {
   selected?: boolean;
   showResult?: boolean;
   isMultipleChoices?: boolean;
+  disabled?: boolean;
   type: PollType;
   value: DateValue | LocationValue | string;
   count: number;
@@ -26,6 +27,7 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
   onPress,
   selected,
   isMultipleChoices,
+  disabled,
   type,
   value,
   showResult,
@@ -50,9 +52,31 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
         </Text>
       );
   }
+  const renderInput = () => {
+    if (disabled) {
+      return null;
+    }
+    if (isMultipleChoices) {
+      return (
+        <Checkbox
+          style={styles.checkbox}
+          white={!count && !disabled}
+          selected={selected}
+        />
+      );
+    }
+    return (
+      <Radio
+        style={styles.checkbox}
+        white={!count && !disabled}
+        selected={selected}
+      />
+    );
+  };
   const percent = showResult ? `${(count / totalVote) * 100}%` : 0;
   return (
     <TouchableOpacity
+      disabled={disabled}
       activeOpacity={0.8}
       onPress={onPress}
       style={styles.container}>
@@ -63,15 +87,16 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
           {width: percent},
         ]}
       />
-      {isMultipleChoices ? (
-        <Checkbox style={styles.checkbox} white={!count} selected={selected} />
-      ) : (
-        <Radio style={styles.checkbox} white={!count} selected={selected} />
-      )}
+      {renderInput()}
       <MaskedView
         style={styles.maskedView}
         maskElement={
-          <View style={[StyleSheet.absoluteFill, styles.itemContainer]}>
+          <View
+            style={[
+              StyleSheet.absoluteFill,
+              styles.itemContainer,
+              disabled ? styles.itemContainerDisabled : {},
+            ]}>
             {input}
             {showResult ? (
               <Text style={styles.itemCount}>
@@ -80,7 +105,12 @@ const PollItem: React.FC<ProjetXPollItemProps> = ({
             ) : null}
           </View>
         }>
-        <View style={[StyleSheet.absoluteFill, {backgroundColor: 'white'}]} />
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {backgroundColor: disabled ? DARK_BLUE : 'white'},
+          ]}
+        />
         <View
           style={[
             StyleSheet.absoluteFill,
@@ -120,6 +150,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     left: 25,
+  },
+  itemContainerDisabled: {
+    left: 0,
   },
   progressBar: {
     borderRadius: 13,
